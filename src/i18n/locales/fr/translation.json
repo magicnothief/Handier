@@ -454,6 +454,95 @@
         "createFirst": "Cliquez sur 'Créer un nouveau prompt' ci-dessus pour créer votre premier prompt de post-traitement."
       }
     },
+    "localEnhancement": {
+      "title": "Amélioration locale",
+      "description": "Nettoie la dictée avec un petit modèle de langage exécuté entièrement sur cet ordinateur. Rien n'est envoyé ailleurs.",
+      "unavailable": "Le moteur d'amélioration n'est pas inclus dans cette version.",
+      "enable": {
+        "title": "Améliorer les transcriptions",
+        "description": "Faire passer chaque dictée par le modèle local avant de la coller."
+      },
+      "model": {
+        "title": "Modèle d'édition",
+        "description": "Le modèle qui réécrit votre transcription. Plus petit est plus rapide, plus grand est plus précis.",
+        "placeholder": "Sélectionner un modèle",
+        "download": "Télécharger",
+        "downloading": "Téléchargement…",
+        "delete": "Supprimer",
+        "downloaded": "Téléchargé",
+        "notDownloaded": "Non téléchargé",
+        "loaded": "Chargé",
+        "size": "{{size}} Mo",
+        "ram": "nécessite environ {{ram}} Mo de RAM",
+        "released": "publié en {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultraléger",
+        "balanced": "Équilibré",
+        "quality": "Qualité"
+      },
+      "features": {
+        "title": "Ce qu'il faut nettoyer",
+        "removeFillers": {
+          "title": "Supprimer les mots de remplissage",
+          "description": "Supprimer « euh », « hum », « genre » et regrouper les bégaiements."
+        },
+        "fixSelfCorrections": {
+          "title": "Couper les autocorrections",
+          "description": "Quand vous changez d'avis en cours de phrase, la formulation abandonnée est retirée."
+        },
+        "fixPunctuation": {
+          "title": "Corriger la ponctuation",
+          "description": "Rétablir les limites de phrase et les majuscules."
+        },
+        "formatStructure": {
+          "title": "Mettre en forme listes et paragraphes",
+          "description": "Transformer la structure orale en véritables listes et sauts de paragraphe."
+        },
+        "spokenCommands": {
+          "title": "Obéir aux commandes vocales",
+          "description": "Appliquer « nouveau paragraphe », « puce » et similaires, puis les retirer du texte."
+        },
+        "contextAwareTone": {
+          "title": "Adapter le ton à l'application",
+          "description": "Adapter le registre à l'application dans laquelle vous dictez."
+        }
+      },
+      "aggressiveness": {
+        "title": "Ampleur des coupes",
+        "description": "Avec quelle facilité le modèle peut supprimer des mots que vous avez réellement prononcés. Votre transcription brute est toujours conservée dans l'historique.",
+        "light": "Légère — uniquement les corrections explicites",
+        "balanced": "Équilibrée — aussi les faux départs",
+        "aggressive": "Agressive — resserre aussi les digressions"
+      },
+      "verify": {
+        "title": "Vérifier que le sens est préservé",
+        "description": "Effectue une seconde passe qui compare la modification à ce que vous avez dit et l'écarte si le sens a changé. Détecte des erreurs que les vérifications de base ne voient pas. « Auto » l'ignore pour les modifications cosmétiques et sur les machines où ce serait trop lent.",
+        "off": "Désactivé — le plus rapide",
+        "auto": "Auto — quand c'est important, si la machine est assez rapide",
+        "always": "Toujours — vérifier chaque modification"
+      },
+      "useGpu": {
+        "title": "Utiliser le GPU",
+        "description": "Exécuter le modèle sur la carte graphique lorsqu'elle est utilisable. Bascule automatiquement sur le processeur."
+      },
+      "keepLoaded": {
+        "title": "Garder le modèle en mémoire",
+        "description": "Dictée plus rapide, au prix de la mémoire occupée par le modèle au repos."
+      },
+      "preview": {
+        "title": "Essayer",
+        "description": "Voyez ce que le modèle fait d'une phrase avant de l'activer.",
+        "placeholder": "euh donc la réunion est déplacée à vendredi non attends jeudi à trois heures",
+        "run": "Améliorer",
+        "running": "Amélioration…",
+        "result": "Résultat",
+        "unchanged": "Aucune modification n'était nécessaire.",
+        "rejected": "La réécriture a été rejetée ({{reason}}), votre texte d'origine serait donc utilisé.",
+        "verdictChanged": "La vérification du sens a détecté un changement, votre texte d'origine serait donc utilisé.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historique",
       "openFolder": "Ouvrir le dossier des enregistrements",

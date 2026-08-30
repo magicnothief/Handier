@@ -454,6 +454,95 @@
         "createFirst": "İlk son işlem promptunuzu oluşturmak için yukarıdaki “Yeni Prompt Oluştur” seçeneğine tıklayın."
       }
     },
+    "localEnhancement": {
+      "title": "Yerel iyileştirme",
+      "description": "Diktenizi tamamen bu bilgisayarda çalışan küçük bir dil modeliyle temizler. Hiçbir şey hiçbir yere gönderilmez.",
+      "unavailable": "İyileştirme motoru bu sürüme dahil değil.",
+      "enable": {
+        "title": "Yazıya dökümleri iyileştir",
+        "description": "Yapıştırmadan önce her dikteyi yerel modelden geçir."
+      },
+      "model": {
+        "title": "Düzenleme modeli",
+        "description": "Yazıya dökümünüzü yeniden yazan model. Küçük olan daha hızlı, büyük olan daha isabetli.",
+        "placeholder": "Bir model seçin",
+        "download": "İndir",
+        "downloading": "İndiriliyor…",
+        "delete": "Sil",
+        "downloaded": "İndirildi",
+        "notDownloaded": "İndirilmedi",
+        "loaded": "Yüklendi",
+        "size": "{{size}} MB",
+        "ram": "yaklaşık {{ram}} MB RAM gerekir",
+        "released": "{{date}} tarihinde yayımlandı"
+      },
+      "tier": {
+        "ultralight": "Ultra hafif",
+        "balanced": "Dengeli",
+        "quality": "Kaliteli"
+      },
+      "features": {
+        "title": "Neler temizlensin",
+        "removeFillers": {
+          "title": "Dolgu sözcüklerini kaldır",
+          "description": "«ııı», «şey», «yani» gibi sözcükleri sil ve kekelemeleri birleştir."
+        },
+        "fixSelfCorrections": {
+          "title": "Kendini düzeltmeleri kes",
+          "description": "Cümlenin ortasında fikir değiştirdiğinizde, vazgeçtiğiniz ifade kaldırılır."
+        },
+        "fixPunctuation": {
+          "title": "Noktalamayı düzelt",
+          "description": "Cümle sınırlarını ve büyük harfleri onar."
+        },
+        "formatStructure": {
+          "title": "Listeleri ve paragrafları biçimlendir",
+          "description": "Sözlü yapıyı gerçek listelere ve paragraflara dönüştür."
+        },
+        "spokenCommands": {
+          "title": "Sözlü komutlara uy",
+          "description": "«yeni paragraf», «madde işareti» gibi komutları uygula ve metinden çıkar."
+        },
+        "contextAwareTone": {
+          "title": "Uygulamanın üslubuna uy",
+          "description": "Dikte ettiğiniz uygulamaya göre üslubu ayarla."
+        }
+      },
+      "aggressiveness": {
+        "title": "Ne kadar kısaltılsın",
+        "description": "Modelin gerçekten söylediğiniz sözcükleri silme konusundaki istekliliği. Ham dökümünüz her zaman geçmişte saklanır.",
+        "light": "Hafif — yalnızca açık düzeltmeler",
+        "balanced": "Dengeli — yarım kalan başlangıçlar da",
+        "aggressive": "Agresif — dağınık anlatımı da toparlar"
+      },
+      "verify": {
+        "title": "Anlamın korunduğunu denetle",
+        "description": "Düzenlemeyi söylediklerinizle karşılaştıran ikinci bir geçiş yapar ve anlam değiştiyse onu atar. Temel denetimlerin göremediği hataları yakalar. «Otomatik», yalnızca biçimsel düzenlemelerde ve çok uzun sürecek bilgisayarlarda bunu atlar.",
+        "off": "Kapalı — en hızlısı",
+        "auto": "Otomatik — önemli olduğunda, bilgisayar yeterince hızlıysa",
+        "always": "Her zaman — her düzenlemeyi denetle"
+      },
+      "useGpu": {
+        "title": "GPU kullan",
+        "description": "Kullanılabilir olduğunda modeli ekran kartında çalıştır. Otomatik olarak işlemciye döner."
+      },
+      "keepLoaded": {
+        "title": "Modeli bellekte tut",
+        "description": "Daha hızlı dikte, karşılığında model boştayken de bellekte kalır."
+      },
+      "preview": {
+        "title": "Deneyin",
+        "description": "Açmadan önce modelin bir cümleye ne yaptığını görün.",
+        "placeholder": "ııı yani toplantı cumaya alındı hayır dur perşembe saat üçe",
+        "run": "İyileştir",
+        "running": "İyileştiriliyor…",
+        "result": "Sonuç",
+        "unchanged": "Hiçbir değişiklik gerekmedi.",
+        "rejected": "Yeniden yazım reddedildi ({{reason}}), bu yüzden özgün metniniz kullanılacaktı.",
+        "verdictChanged": "Anlam denetimi bir değişiklik buldu, bu yüzden özgün metniniz kullanılacaktı.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Geçmiş",
       "openFolder": "Kayıtlar Klasörünü Aç",

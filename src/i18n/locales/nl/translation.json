@@ -454,6 +454,95 @@
         "createFirst": "Klik hierboven op 'Nieuwe prompt maken' om je eerste naverwerkingsprompt aan te maken."
       }
     },
+    "localEnhancement": {
+      "title": "Lokale verbetering",
+      "description": "Ruimt dictaat op met een klein taalmodel dat volledig op deze computer draait. Er wordt niets verstuurd.",
+      "unavailable": "De verbeteringsengine zit niet in deze build.",
+      "enable": {
+        "title": "Transcripties verbeteren",
+        "description": "Elk dictaat vóór het plakken door het lokale model halen."
+      },
+      "model": {
+        "title": "Bewerkingsmodel",
+        "description": "Het model dat je transcriptie herschrijft. Kleiner is sneller, groter is nauwkeuriger.",
+        "placeholder": "Kies een model",
+        "download": "Downloaden",
+        "downloading": "Bezig met downloaden…",
+        "delete": "Verwijderen",
+        "downloaded": "Gedownload",
+        "notDownloaded": "Niet gedownload",
+        "loaded": "Geladen",
+        "size": "{{size}} MB",
+        "ram": "heeft ~{{ram}} MB RAM nodig",
+        "released": "uitgebracht {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralicht",
+        "balanced": "Gebalanceerd",
+        "quality": "Kwaliteit"
+      },
+      "features": {
+        "title": "Wat opgeruimd wordt",
+        "removeFillers": {
+          "title": "Stopwoorden verwijderen",
+          "description": "„eh”, „uhm” en „zeg maar” verwijderen en herhalingen samenvoegen."
+        },
+        "fixSelfCorrections": {
+          "title": "Zelfcorrecties wegknippen",
+          "description": "Als je halverwege een zin van gedachten verandert, wordt de losgelaten formulering verwijderd."
+        },
+        "fixPunctuation": {
+          "title": "Interpunctie corrigeren",
+          "description": "Zinsgrenzen en hoofdletters herstellen."
+        },
+        "formatStructure": {
+          "title": "Lijsten en alinea's opmaken",
+          "description": "Gesproken structuur omzetten in echte lijsten en alinea's."
+        },
+        "spokenCommands": {
+          "title": "Gesproken opdrachten opvolgen",
+          "description": "„nieuwe alinea”, „opsommingsteken” en dergelijke uitvoeren en uit de tekst halen."
+        },
+        "contextAwareTone": {
+          "title": "Toon van de app aanhouden",
+          "description": "Het register aanpassen aan de toepassing waarin je dicteert."
+        }
+      },
+      "aggressiveness": {
+        "title": "Hoeveel er wegvalt",
+        "description": "Hoe gretig het model woorden mag schrappen die je echt hebt gezegd. Je ruwe transcriptie blijft altijd in de geschiedenis staan.",
+        "light": "Licht — alleen expliciete correcties",
+        "balanced": "Gebalanceerd — ook valse starts",
+        "aggressive": "Agressief — ook uitweidingen inkorten"
+      },
+      "verify": {
+        "title": "Controleren of de betekenis behouden blijft",
+        "description": "Voert een tweede ronde uit die de bewerking vergelijkt met wat je zei en haar verwerpt als de betekenis is veranderd. Vangt fouten die de basiscontroles niet zien. „Automatisch” slaat dit over bij cosmetische bewerkingen en op computers waar het te lang zou duren.",
+        "off": "Uit — het snelst",
+        "auto": "Automatisch — als het ertoe doet en de computer snel genoeg is",
+        "always": "Altijd — elke bewerking controleren"
+      },
+      "useGpu": {
+        "title": "De GPU gebruiken",
+        "description": "Het model op de videokaart draaien wanneer die bruikbaar is. Valt automatisch terug op de processor."
+      },
+      "keepLoaded": {
+        "title": "Model in het geheugen houden",
+        "description": "Sneller dicteren, ten koste van het geheugen dat het model ongebruikt bezet houdt."
+      },
+      "preview": {
+        "title": "Uitproberen",
+        "description": "Bekijk wat het model met een zin doet voordat je het inschakelt.",
+        "placeholder": "eh dus de vergadering is verzet naar vrijdag nee wacht donderdag om drie uur",
+        "run": "Verbeteren",
+        "running": "Bezig met verbeteren…",
+        "result": "Resultaat",
+        "unchanged": "Er waren geen wijzigingen nodig.",
+        "rejected": "De herschrijving is afgewezen ({{reason}}), dus je oorspronkelijke tekst zou worden gebruikt.",
+        "verdictChanged": "De betekeniscontrole vond een wijziging, dus je oorspronkelijke tekst zou worden gebruikt.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Geschiedenis",
       "openFolder": "Opnamemap openen",

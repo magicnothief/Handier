@@ -454,6 +454,95 @@
         "createFirst": "Haz clic en 'Crear nuevo prompt' arriba para crear tu primer prompt de post procesamiento."
       }
     },
+    "localEnhancement": {
+      "title": "Mejora local",
+      "description": "Limpia el dictado con un modelo de lenguaje pequeño que se ejecuta por completo en este ordenador. No se envía nada a ningún sitio.",
+      "unavailable": "El motor de mejora no está incluido en esta versión.",
+      "enable": {
+        "title": "Mejorar transcripciones",
+        "description": "Pasar cada dictado por el modelo local antes de pegarlo."
+      },
+      "model": {
+        "title": "Modelo de edición",
+        "description": "El modelo que reescribe tu transcripción. Más pequeño es más rápido; más grande es más preciso.",
+        "placeholder": "Seleccionar un modelo",
+        "download": "Descargar",
+        "downloading": "Descargando…",
+        "delete": "Eliminar",
+        "downloaded": "Descargado",
+        "notDownloaded": "No descargado",
+        "loaded": "Cargado",
+        "size": "{{size}} MB",
+        "ram": "necesita ~{{ram}} MB de RAM",
+        "released": "publicado en {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultraligero",
+        "balanced": "Equilibrado",
+        "quality": "Calidad"
+      },
+      "features": {
+        "title": "Qué limpiar",
+        "removeFillers": {
+          "title": "Eliminar muletillas",
+          "description": "Borrar «eh», «em», «o sea» y unificar los tartamudeos."
+        },
+        "fixSelfCorrections": {
+          "title": "Recortar autocorrecciones",
+          "description": "Cuando cambias de idea a mitad de frase, se elimina la formulación abandonada."
+        },
+        "fixPunctuation": {
+          "title": "Corregir la puntuación",
+          "description": "Arreglar los límites de las frases y las mayúsculas."
+        },
+        "formatStructure": {
+          "title": "Dar formato a listas y párrafos",
+          "description": "Convertir la estructura hablada en listas y saltos de párrafo reales."
+        },
+        "spokenCommands": {
+          "title": "Obedecer órdenes habladas",
+          "description": "Aplicar «nuevo párrafo», «viñeta» y similares, y quitarlos del texto."
+        },
+        "contextAwareTone": {
+          "title": "Adaptar el tono a la aplicación",
+          "description": "Adaptar el registro a la aplicación en la que estés dictando."
+        }
+      },
+      "aggressiveness": {
+        "title": "Cuánto recortar",
+        "description": "Con cuánta facilidad el modelo puede borrar palabras que realmente dijiste. Tu transcripción original siempre se conserva en el historial.",
+        "light": "Ligero — solo correcciones explícitas",
+        "balanced": "Equilibrado — también los comienzos en falso",
+        "aggressive": "Agresivo — también condensa la divagación"
+      },
+      "verify": {
+        "title": "Comprobar que se conserva el significado",
+        "description": "Ejecuta una segunda pasada que compara la edición con lo que dijiste y la descarta si el significado cambió. Detecta errores que las comprobaciones básicas no ven. «Automático» la omite en ediciones cosméticas y en equipos donde tardaría demasiado.",
+        "off": "Desactivado — lo más rápido",
+        "auto": "Automático — cuando importa, si el equipo es lo bastante rápido",
+        "always": "Siempre — comprobar cada edición"
+      },
+      "useGpu": {
+        "title": "Usar la GPU",
+        "description": "Ejecutar el modelo en la tarjeta gráfica cuando sea utilizable. Recurre automáticamente al procesador."
+      },
+      "keepLoaded": {
+        "title": "Mantener el modelo en memoria",
+        "description": "Dictado más rápido, a costa de ocupar la memoria del modelo mientras está inactivo."
+      },
+      "preview": {
+        "title": "Pruébalo",
+        "description": "Mira qué hace el modelo con una frase antes de activarlo.",
+        "placeholder": "eh o sea la reunión se movió al viernes no espera al jueves a las tres",
+        "run": "Mejorar",
+        "running": "Mejorando…",
+        "result": "Resultado",
+        "unchanged": "No hizo falta ningún cambio.",
+        "rejected": "La reescritura se rechazó ({{reason}}), así que se usaría tu texto original.",
+        "verdictChanged": "La comprobación de significado detectó un cambio, así que se usaría tu texto original.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historial",
       "openFolder": "Abrir carpeta de grabaciones",

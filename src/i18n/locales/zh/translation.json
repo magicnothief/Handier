@@ -454,6 +454,95 @@
         "createFirst": "点击上方的「创建新提示词」来创建您的第一个后处理提示词。"
       }
     },
+    "localEnhancement": {
+      "title": "本地增强",
+      "description": "使用完全在本机运行的小型语言模型整理口述内容。不会向任何地方发送数据。",
+      "unavailable": "此版本未包含增强引擎。",
+      "enable": {
+        "title": "增强转写结果",
+        "description": "粘贴前让每次口述都经过本地模型处理。"
+      },
+      "model": {
+        "title": "编辑模型",
+        "description": "负责改写转写内容的模型。越小越快，越大越准确。",
+        "placeholder": "选择模型",
+        "download": "下载",
+        "downloading": "正在下载…",
+        "delete": "删除",
+        "downloaded": "已下载",
+        "notDownloaded": "未下载",
+        "loaded": "已加载",
+        "size": "{{size}} MB",
+        "ram": "约需 {{ram}} MB 内存",
+        "released": "{{date}} 发布"
+      },
+      "tier": {
+        "ultralight": "超轻量",
+        "balanced": "均衡",
+        "quality": "高质量"
+      },
+      "features": {
+        "title": "需要整理的内容",
+        "removeFillers": {
+          "title": "去除填充词",
+          "description": "删除“嗯”“呃”“就是”等词，并合并结巴重复。"
+        },
+        "fixSelfCorrections": {
+          "title": "剪掉自我更正",
+          "description": "当你说到一半改变主意时，删除被放弃的表述。"
+        },
+        "fixPunctuation": {
+          "title": "修正标点",
+          "description": "修复句子边界和大小写。"
+        },
+        "formatStructure": {
+          "title": "整理列表和段落",
+          "description": "把口头结构转换成真正的列表和分段。"
+        },
+        "spokenCommands": {
+          "title": "执行口头指令",
+          "description": "执行“新段落”“项目符号”等指令，并从文本中移除它们。"
+        },
+        "contextAwareTone": {
+          "title": "匹配应用语气",
+          "description": "根据你正在口述的应用调整语体。"
+        }
+      },
+      "aggressiveness": {
+        "title": "删减幅度",
+        "description": "模型删除你确实说过的词的积极程度。原始转写始终保留在历史记录中。",
+        "light": "轻度 — 仅明确的更正",
+        "balanced": "均衡 — 同时处理话说一半重来的情况",
+        "aggressive": "激进 — 同时精简啰嗦内容"
+      },
+      "verify": {
+        "title": "检查语义是否被保留",
+        "description": "执行第二轮检查，把修改结果与你所说的内容比对，若语义改变则丢弃。可发现基础检查无法察觉的错误。“自动”会跳过纯格式修改，以及在耗时过长的机器上跳过。",
+        "off": "关闭 — 最快",
+        "auto": "自动 — 在重要时执行，前提是机器足够快",
+        "always": "始终 — 检查每一次修改"
+      },
+      "useGpu": {
+        "title": "使用 GPU",
+        "description": "在显卡可用时于显卡上运行模型。会自动回退到处理器。"
+      },
+      "keepLoaded": {
+        "title": "将模型保留在内存中",
+        "description": "口述更快，代价是空闲时模型仍占用内存。"
+      },
+      "preview": {
+        "title": "试一试",
+        "description": "在启用之前，看看模型会如何处理一句话。",
+        "placeholder": "嗯那个会议改到周五了不对等等是周四下午三点",
+        "run": "增强",
+        "running": "正在增强…",
+        "result": "结果",
+        "unchanged": "无需任何改动。",
+        "rejected": "改写被拒绝（{{reason}}），因此将使用你的原始文本。",
+        "verdictChanged": "语义检查发现了改动，因此将使用你的原始文本。",
+        "took": "{{ms}} 毫秒"
+      }
+    },
     "history": {
       "title": "历史记录",
       "openFolder": "打开录音文件夹",

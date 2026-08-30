@@ -93,7 +93,7 @@ Qwen3 0.6B Q4_K_M, Ryzen 5 5500 / RTX 3060, four dictation-length transcripts:
 
 Output was byte-identical between the two.
 
-Vulkan compiles compute pipelines lazily, and *which* pipelines depends on the
+Vulkan compiles compute pipelines lazily, and _which_ pipelines depends on the
 shape of the batch. `Engine::load` therefore runs a throwaway generation after a
 GPU load, sized like a real enhancement prompt, so the user's first dictation
 does not pay that cost.

@@ -454,6 +454,95 @@
         "createFirst": "Nhấn 'Tạo Prompt mới' ở trên để tạo prompt xử lý sau đầu tiên của bạn."
       }
     },
+    "localEnhancement": {
+      "title": "Cải thiện cục bộ",
+      "description": "Dọn dẹp nội dung đọc chính tả bằng một mô hình ngôn ngữ nhỏ chạy hoàn toàn trên máy này. Không có gì được gửi đi đâu cả.",
+      "unavailable": "Bản dựng này không kèm công cụ cải thiện.",
+      "enable": {
+        "title": "Cải thiện bản ghi",
+        "description": "Cho mỗi lần đọc chính tả đi qua mô hình cục bộ trước khi dán."
+      },
+      "model": {
+        "title": "Mô hình biên tập",
+        "description": "Mô hình viết lại bản ghi của bạn. Nhỏ hơn thì nhanh hơn, lớn hơn thì chính xác hơn.",
+        "placeholder": "Chọn một mô hình",
+        "download": "Tải xuống",
+        "downloading": "Đang tải xuống…",
+        "delete": "Xóa",
+        "downloaded": "Đã tải xuống",
+        "notDownloaded": "Chưa tải xuống",
+        "loaded": "Đã nạp",
+        "size": "{{size}} MB",
+        "ram": "cần khoảng {{ram}} MB RAM",
+        "released": "phát hành {{date}}"
+      },
+      "tier": {
+        "ultralight": "Siêu nhẹ",
+        "balanced": "Cân bằng",
+        "quality": "Chất lượng"
+      },
+      "features": {
+        "title": "Cần dọn dẹp những gì",
+        "removeFillers": {
+          "title": "Loại bỏ từ đệm",
+          "description": "Xóa «ừm», «à», «kiểu như» và gộp các đoạn nói lắp."
+        },
+        "fixSelfCorrections": {
+          "title": "Cắt bỏ phần tự sửa",
+          "description": "Khi bạn đổi ý giữa câu, cách diễn đạt đã bỏ sẽ bị loại đi."
+        },
+        "fixPunctuation": {
+          "title": "Sửa dấu câu",
+          "description": "Chỉnh lại ranh giới câu và chữ hoa."
+        },
+        "formatStructure": {
+          "title": "Định dạng danh sách và đoạn văn",
+          "description": "Biến cấu trúc nói thành danh sách và ngắt đoạn thực sự."
+        },
+        "spokenCommands": {
+          "title": "Tuân theo lệnh nói",
+          "description": "Thực hiện «đoạn mới», «gạch đầu dòng» và tương tự, rồi bỏ chúng khỏi văn bản."
+        },
+        "contextAwareTone": {
+          "title": "Hợp giọng điệu với ứng dụng",
+          "description": "Điều chỉnh văn phong theo ứng dụng bạn đang đọc vào."
+        }
+      },
+      "aggressiveness": {
+        "title": "Cắt bớt bao nhiêu",
+        "description": "Mức độ sẵn sàng của mô hình khi xóa những từ bạn thực sự đã nói. Bản ghi gốc luôn được giữ trong lịch sử.",
+        "light": "Nhẹ — chỉ những chỗ sửa rõ ràng",
+        "balanced": "Cân bằng — kể cả những câu nói hụt",
+        "aggressive": "Mạnh — cô đọng cả những đoạn dài dòng"
+      },
+      "verify": {
+        "title": "Kiểm tra ý nghĩa được giữ nguyên",
+        "description": "Chạy lượt thứ hai để so sánh bản sửa với những gì bạn đã nói và loại bỏ nếu ý nghĩa thay đổi. Bắt được lỗi mà các kiểm tra cơ bản không thấy. «Tự động» bỏ qua với các sửa đổi hình thức và trên máy quá chậm.",
+        "off": "Tắt — nhanh nhất",
+        "auto": "Tự động — khi cần thiết, nếu máy đủ nhanh",
+        "always": "Luôn luôn — kiểm tra mọi sửa đổi"
+      },
+      "useGpu": {
+        "title": "Dùng GPU",
+        "description": "Chạy mô hình trên card đồ họa khi dùng được. Tự động chuyển về bộ xử lý."
+      },
+      "keepLoaded": {
+        "title": "Giữ mô hình trong bộ nhớ",
+        "description": "Đọc chính tả nhanh hơn, đổi lại mô hình vẫn chiếm bộ nhớ khi rảnh."
+      },
+      "preview": {
+        "title": "Dùng thử",
+        "description": "Xem mô hình xử lý một câu thế nào trước khi bật.",
+        "placeholder": "ừm thì cuộc họp dời sang thứ sáu à không khoan thứ năm lúc ba giờ",
+        "run": "Cải thiện",
+        "running": "Đang cải thiện…",
+        "result": "Kết quả",
+        "unchanged": "Không cần thay đổi gì.",
+        "rejected": "Bản viết lại đã bị từ chối ({{reason}}), nên văn bản gốc của bạn sẽ được dùng.",
+        "verdictChanged": "Việc kiểm tra ý nghĩa phát hiện có thay đổi, nên văn bản gốc của bạn sẽ được dùng.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Lịch sử",
       "openFolder": "Mở thư mục ghi âm",

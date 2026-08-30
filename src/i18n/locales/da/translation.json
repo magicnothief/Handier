@@ -454,6 +454,95 @@
         "createFirst": "Klik på 'Opret ny prompt' ovenfor for at oprette din første efterbehandlingsprompt."
       }
     },
+    "localEnhancement": {
+      "title": "Lokal forbedring",
+      "description": "Rydder op i diktat med en lille sprogmodel, der kører helt på denne computer. Intet sendes nogen steder hen.",
+      "unavailable": "Forbedringsmotoren er ikke med i denne udgave.",
+      "enable": {
+        "title": "Forbedr transskriptioner",
+        "description": "Kør hvert diktat gennem den lokale model, før det indsættes."
+      },
+      "model": {
+        "title": "Redigeringsmodel",
+        "description": "Modellen, der omskriver din transskription. Mindre er hurtigere, større er mere præcis.",
+        "placeholder": "Vælg en model",
+        "download": "Hent",
+        "downloading": "Henter…",
+        "delete": "Slet",
+        "downloaded": "Hentet",
+        "notDownloaded": "Ikke hentet",
+        "loaded": "Indlæst",
+        "size": "{{size}} MB",
+        "ram": "kræver ca. {{ram}} MB RAM",
+        "released": "udgivet {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralet",
+        "balanced": "Balanceret",
+        "quality": "Kvalitet"
+      },
+      "features": {
+        "title": "Hvad der skal ryddes op",
+        "removeFillers": {
+          "title": "Fjern fyldord",
+          "description": "Slet „øh“, „altså“ og „ligesom“ og slå gentagelser sammen."
+        },
+        "fixSelfCorrections": {
+          "title": "Klip selvrettelser væk",
+          "description": "Når du skifter mening midt i en sætning, fjernes den forladte formulering."
+        },
+        "fixPunctuation": {
+          "title": "Ret tegnsætning",
+          "description": "Ret sætningsgrænser og store bogstaver."
+        },
+        "formatStructure": {
+          "title": "Formatér lister og afsnit",
+          "description": "Lav talt struktur om til rigtige lister og afsnitsskift."
+        },
+        "spokenCommands": {
+          "title": "Følg talte kommandoer",
+          "description": "Udfør „nyt afsnit“, „punkttegn“ og lignende, og fjern dem fra teksten."
+        },
+        "contextAwareTone": {
+          "title": "Tilpas tonen til appen",
+          "description": "Tilpas sproget til det program, du dikterer i."
+        }
+      },
+      "aggressiveness": {
+        "title": "Hvor meget der skæres væk",
+        "description": "Hvor villigt modellen må slette ord, du faktisk sagde. Din rå transskription gemmes altid i historikken.",
+        "light": "Let — kun udtrykkelige rettelser",
+        "balanced": "Balanceret — også falske starter",
+        "aggressive": "Aggressiv — strammer også op på vidtløftighed"
+      },
+      "verify": {
+        "title": "Kontrollér at betydningen er bevaret",
+        "description": "Kører en anden gennemgang, der sammenligner redigeringen med det, du sagde, og kasserer den, hvis betydningen har ændret sig. Fanger fejl, de grundlæggende tjek ikke ser. „Automatisk“ springer den over ved kosmetiske ændringer og på maskiner, hvor den ville tage for lang tid.",
+        "off": "Fra — hurtigst",
+        "auto": "Automatisk — når det betyder noget, hvis maskinen er hurtig nok",
+        "always": "Altid — kontrollér hver redigering"
+      },
+      "useGpu": {
+        "title": "Brug GPU",
+        "description": "Kør modellen på grafikkortet, når det kan bruges. Falder automatisk tilbage til processoren."
+      },
+      "keepLoaded": {
+        "title": "Behold modellen i hukommelsen",
+        "description": "Hurtigere diktat, men modellen optager hukommelse, mens den er inaktiv."
+      },
+      "preview": {
+        "title": "Prøv det",
+        "description": "Se, hvad modellen gør ved en sætning, før du slår den til.",
+        "placeholder": "øh altså mødet er flyttet til fredag nej vent torsdag klokken tre",
+        "run": "Forbedr",
+        "running": "Forbedrer…",
+        "result": "Resultat",
+        "unchanged": "Der var ingen ændringer nødvendige.",
+        "rejected": "Omskrivningen blev afvist ({{reason}}), så din oprindelige tekst ville blive brugt.",
+        "verdictChanged": "Betydningskontrollen fandt en ændring, så din oprindelige tekst ville blive brugt.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historik",
       "openFolder": "Åbn optagelsesmappe",

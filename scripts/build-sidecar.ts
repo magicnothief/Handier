@@ -34,7 +34,8 @@ const explicitTarget = targetArg >= 0 ? args[targetArg + 1] : undefined;
 function hostTriple(): string {
   const out = execFileSync("rustc", ["-vV"], { encoding: "utf8" });
   const line = out.split("\n").find((l) => l.startsWith("host:"));
-  if (!line) throw new Error("could not determine host target triple from rustc -vV");
+  if (!line)
+    throw new Error("could not determine host target triple from rustc -vV");
   return line.slice("host:".length).trim();
 }
 

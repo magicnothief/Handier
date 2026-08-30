@@ -454,6 +454,95 @@
         "createFirst": "첫 번째 후처리 프롬프트를 만들려면 위의 '새 프롬프트 만들기'를 클릭하세요."
       }
     },
+    "localEnhancement": {
+      "title": "로컬 개선",
+      "description": "이 컴퓨터에서만 실행되는 작은 언어 모델로 받아쓴 내용을 정리합니다. 어디로도 전송되지 않습니다.",
+      "unavailable": "이 빌드에는 개선 엔진이 포함되어 있지 않습니다.",
+      "enable": {
+        "title": "전사 결과 개선",
+        "description": "붙여넣기 전에 모든 받아쓰기를 로컬 모델로 처리합니다."
+      },
+      "model": {
+        "title": "편집 모델",
+        "description": "전사 내용을 다시 쓰는 모델입니다. 작을수록 빠르고, 클수록 정확합니다.",
+        "placeholder": "모델 선택",
+        "download": "다운로드",
+        "downloading": "다운로드 중…",
+        "delete": "삭제",
+        "downloaded": "다운로드됨",
+        "notDownloaded": "다운로드되지 않음",
+        "loaded": "로드됨",
+        "size": "{{size}} MB",
+        "ram": "약 {{ram}} MB RAM 필요",
+        "released": "{{date}} 출시"
+      },
+      "tier": {
+        "ultralight": "초경량",
+        "balanced": "균형",
+        "quality": "고품질"
+      },
+      "features": {
+        "title": "정리할 항목",
+        "removeFillers": {
+          "title": "군말 제거",
+          "description": "'음', '어', '그러니까' 등을 지우고 더듬은 부분을 합칩니다."
+        },
+        "fixSelfCorrections": {
+          "title": "자기 정정 잘라내기",
+          "description": "말하다가 생각이 바뀌면 버린 표현을 제거합니다."
+        },
+        "fixPunctuation": {
+          "title": "문장 부호 교정",
+          "description": "문장 경계와 대소문자를 바로잡습니다."
+        },
+        "formatStructure": {
+          "title": "목록과 문단 서식",
+          "description": "말로 표현한 구조를 실제 목록과 문단으로 바꿉니다."
+        },
+        "spokenCommands": {
+          "title": "음성 명령 따르기",
+          "description": "'새 문단', '글머리 기호' 등을 실행하고 본문에서 제거합니다."
+        },
+        "contextAwareTone": {
+          "title": "앱에 맞는 어조",
+          "description": "받아쓰는 앱에 맞춰 문체를 조정합니다."
+        }
+      },
+      "aggressiveness": {
+        "title": "얼마나 덜어낼지",
+        "description": "실제로 말한 단어를 모델이 얼마나 적극적으로 지울 수 있는지입니다. 원본 전사본은 항상 기록에 남습니다.",
+        "light": "약하게 — 명시적인 정정만",
+        "balanced": "균형 — 말을 잘못 시작한 경우도 포함",
+        "aggressive": "강하게 — 장황한 부분도 다듬음"
+      },
+      "verify": {
+        "title": "의미가 유지되었는지 확인",
+        "description": "두 번째 단계에서 수정 결과를 말한 내용과 비교하고, 의미가 바뀌었으면 버립니다. 기본 검사로는 잡을 수 없는 오류를 잡아냅니다. '자동'은 겉모양만 바뀐 수정과 너무 오래 걸리는 컴퓨터에서는 건너뜁니다.",
+        "off": "끔 — 가장 빠름",
+        "auto": "자동 — 중요할 때, 컴퓨터가 충분히 빠른 경우",
+        "always": "항상 — 모든 수정을 확인"
+      },
+      "useGpu": {
+        "title": "GPU 사용",
+        "description": "사용할 수 있으면 그래픽 카드에서 모델을 실행합니다. 자동으로 프로세서로 전환됩니다."
+      },
+      "keepLoaded": {
+        "title": "모델을 메모리에 유지",
+        "description": "받아쓰기가 빨라지지만, 대기 중에도 모델이 메모리를 차지합니다."
+      },
+      "preview": {
+        "title": "사용해 보기",
+        "description": "켜기 전에 모델이 문장을 어떻게 다루는지 확인해 보세요.",
+        "placeholder": "음 그러니까 회의가 금요일로 옮겨졌어요 아니 잠깐 목요일 세 시요",
+        "run": "개선",
+        "running": "개선 중…",
+        "result": "결과",
+        "unchanged": "변경할 내용이 없었습니다.",
+        "rejected": "다시 쓴 결과가 거부되어({{reason}}) 원본 텍스트가 사용됩니다.",
+        "verdictChanged": "의미 검사에서 변화가 발견되어 원본 텍스트가 사용됩니다.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "히스토리",
       "openFolder": "녹음 폴더 열기",

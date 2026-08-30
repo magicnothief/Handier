@@ -454,6 +454,95 @@
         "createFirst": "Klikněte nahoře na 'Vytvořit nový prompt' a vytvořte svůj první prompt pro následné zpracování."
       }
     },
+    "localEnhancement": {
+      "title": "Místní vylepšení",
+      "description": "Vyčistí diktát pomocí malého jazykového modelu, který běží výhradně v tomto počítači. Nic se nikam neodesílá.",
+      "unavailable": "Vylepšovací engine není v tomto sestavení obsažen.",
+      "enable": {
+        "title": "Vylepšovat přepisy",
+        "description": "Před vložením protáhnout každý diktát místním modelem."
+      },
+      "model": {
+        "title": "Model pro úpravy",
+        "description": "Model, který přepisuje váš přepis. Menší je rychlejší, větší je přesnější.",
+        "placeholder": "Vyberte model",
+        "download": "Stáhnout",
+        "downloading": "Stahování…",
+        "delete": "Smazat",
+        "downloaded": "Staženo",
+        "notDownloaded": "Nestaženo",
+        "loaded": "Načteno",
+        "size": "{{size}} MB",
+        "ram": "potřebuje ~{{ram}} MB RAM",
+        "released": "vydáno {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralehký",
+        "balanced": "Vyvážený",
+        "quality": "Kvalitní"
+      },
+      "features": {
+        "title": "Co vyčistit",
+        "removeFillers": {
+          "title": "Odstranit vycpávková slova",
+          "description": "Smazat „ehm“, „hm“, „prostě“ a sloučit zadrhnutí."
+        },
+        "fixSelfCorrections": {
+          "title": "Vystřihnout sebeopravy",
+          "description": "Když si to uprostřed věty rozmyslíte, opuštěná formulace se odstraní."
+        },
+        "fixPunctuation": {
+          "title": "Opravit interpunkci",
+          "description": "Upravit hranice vět a velká písmena."
+        },
+        "formatStructure": {
+          "title": "Formátovat seznamy a odstavce",
+          "description": "Převést mluvenou strukturu na skutečné seznamy a odstavce."
+        },
+        "spokenCommands": {
+          "title": "Poslouchat hlasové příkazy",
+          "description": "Provést „nový odstavec“, „odrážka“ a podobné a odstranit je z textu."
+        },
+        "contextAwareTone": {
+          "title": "Přizpůsobit tón aplikaci",
+          "description": "Přizpůsobit styl aplikaci, do které diktujete."
+        }
+      },
+      "aggressiveness": {
+        "title": "Kolik vypustit",
+        "description": "Jak ochotně smí model mazat slova, která jste opravdu řekli. Původní přepis zůstává vždy v historii.",
+        "light": "Mírně — jen výslovné opravy",
+        "balanced": "Vyváženě — také falešné starty",
+        "aggressive": "Agresivně — také zkracovat rozvláčnost"
+      },
+      "verify": {
+        "title": "Ověřit, že se význam zachoval",
+        "description": "Spustí druhý průchod, který porovná úpravu s tím, co jste řekli, a zahodí ji, pokud se význam změnil. Zachytí chyby, které základní kontroly nevidí. „Automaticky“ ji přeskočí u kosmetických úprav a na počítačích, kde by trvala příliš dlouho.",
+        "off": "Vypnuto — nejrychlejší",
+        "auto": "Automaticky — když na tom záleží a počítač je dost rychlý",
+        "always": "Vždy — kontrolovat každou úpravu"
+      },
+      "useGpu": {
+        "title": "Použít GPU",
+        "description": "Spouštět model na grafické kartě, pokud je použitelná. Automaticky se vrátí k procesoru."
+      },
+      "keepLoaded": {
+        "title": "Nechat model v paměti",
+        "description": "Rychlejší diktování za cenu paměti, kterou model drží i v nečinnosti."
+      },
+      "preview": {
+        "title": "Vyzkoušet",
+        "description": "Podívejte se, co model udělá s větou, než ho zapnete.",
+        "placeholder": "ehm takže schůzka se přesunula na pátek ne počkej na čtvrtek na třetí",
+        "run": "Vylepšit",
+        "running": "Vylepšování…",
+        "result": "Výsledek",
+        "unchanged": "Žádné změny nebyly potřeba.",
+        "rejected": "Přepis byl odmítnut ({{reason}}), takže by se použil váš původní text.",
+        "verdictChanged": "Kontrola významu našla změnu, takže by se použil váš původní text.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historie",
       "openFolder": "Otevřít složku nahrávek",

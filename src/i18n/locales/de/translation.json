@@ -454,6 +454,95 @@
         "createFirst": "Klicke oben auf 'Neuen Prompt erstellen', um deinen ersten Nachbearbeitungs-Prompt zu erstellen."
       }
     },
+    "localEnhancement": {
+      "title": "Lokale Verbesserung",
+      "description": "Diktate mit einem kleinen Sprachmodell bereinigen, das vollständig auf diesem Computer läuft. Es wird nichts übertragen.",
+      "unavailable": "Die Verbesserungs-Engine ist in diesem Build nicht enthalten.",
+      "enable": {
+        "title": "Transkripte verbessern",
+        "description": "Jedes Diktat vor dem Einfügen durch das lokale Modell laufen lassen."
+      },
+      "model": {
+        "title": "Bearbeitungsmodell",
+        "description": "Das Modell, das dein Transkript umschreibt. Kleiner ist schneller, größer ist genauer.",
+        "placeholder": "Modell auswählen",
+        "download": "Herunterladen",
+        "downloading": "Wird heruntergeladen …",
+        "delete": "Löschen",
+        "downloaded": "Heruntergeladen",
+        "notDownloaded": "Nicht heruntergeladen",
+        "loaded": "Geladen",
+        "size": "{{size}} MB",
+        "ram": "benötigt ca. {{ram}} MB RAM",
+        "released": "veröffentlicht {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultraleicht",
+        "balanced": "Ausgewogen",
+        "quality": "Qualität"
+      },
+      "features": {
+        "title": "Was bereinigt werden soll",
+        "removeFillers": {
+          "title": "Füllwörter entfernen",
+          "description": "„äh“, „ähm“ und Ähnliches löschen und Stottern zusammenfassen."
+        },
+        "fixSelfCorrections": {
+          "title": "Selbstkorrekturen herausschneiden",
+          "description": "Wenn du dich mitten im Satz umentscheidest, wird die verworfene Formulierung entfernt."
+        },
+        "fixPunctuation": {
+          "title": "Zeichensetzung korrigieren",
+          "description": "Satzgrenzen und Großschreibung berichtigen."
+        },
+        "formatStructure": {
+          "title": "Listen und Absätze formatieren",
+          "description": "Gesprochene Struktur in echte Listen und Absätze umwandeln."
+        },
+        "spokenCommands": {
+          "title": "Gesprochene Befehle befolgen",
+          "description": "„neuer Absatz“, „Aufzählungspunkt“ und Ähnliches ausführen und aus dem Text entfernen."
+        },
+        "contextAwareTone": {
+          "title": "Tonfall der App anpassen",
+          "description": "Den Sprachstil an die Anwendung anpassen, in die du diktierst."
+        }
+      },
+      "aggressiveness": {
+        "title": "Wie viel gekürzt wird",
+        "description": "Wie bereitwillig das Modell tatsächlich Gesagtes löschen darf. Dein Rohtranskript bleibt immer im Verlauf erhalten.",
+        "light": "Leicht – nur ausdrückliche Korrekturen",
+        "balanced": "Ausgewogen – auch Fehlstarts",
+        "aggressive": "Aggressiv – auch Abschweifungen straffen"
+      },
+      "verify": {
+        "title": "Prüfen, ob die Bedeutung erhalten bleibt",
+        "description": "Ein zweiter Durchlauf vergleicht die Bearbeitung mit dem Gesagten und verwirft sie, wenn sich die Bedeutung geändert hat. Erkennt Fehler, die die einfachen Prüfungen nicht finden. „Automatisch“ überspringt rein kosmetische Änderungen und Geräte, auf denen es zu lange dauern würde.",
+        "off": "Aus – am schnellsten",
+        "auto": "Automatisch – wenn es darauf ankommt und das Gerät schnell genug ist",
+        "always": "Immer – jede Bearbeitung prüfen"
+      },
+      "useGpu": {
+        "title": "GPU verwenden",
+        "description": "Das Modell auf der Grafikkarte ausführen, sofern nutzbar. Fällt automatisch auf den Prozessor zurück."
+      },
+      "keepLoaded": {
+        "title": "Modell im Speicher behalten",
+        "description": "Schnelleres Diktieren, dafür belegt das Modell auch im Leerlauf Speicher."
+      },
+      "preview": {
+        "title": "Ausprobieren",
+        "description": "Sieh dir an, was das Modell mit einem Satz macht, bevor du es aktivierst.",
+        "placeholder": "ähm also das meeting wurde auf freitag verschoben nein warte donnerstag um drei",
+        "run": "Verbessern",
+        "running": "Wird verbessert …",
+        "result": "Ergebnis",
+        "unchanged": "Es waren keine Änderungen nötig.",
+        "rejected": "Die Umschreibung wurde abgelehnt ({{reason}}), daher würde dein Originaltext verwendet.",
+        "verdictChanged": "Die Bedeutungsprüfung hat eine Änderung festgestellt, daher würde dein Originaltext verwendet.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Verlauf",
       "openFolder": "Aufnahmeordner öffnen",

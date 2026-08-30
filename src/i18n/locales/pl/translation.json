@@ -454,6 +454,95 @@
         "createFirst": "Kliknij 'Utwórz nowy prompt' powyżej, aby utworzyć pierwszy prompt postprocessingu."
       }
     },
+    "localEnhancement": {
+      "title": "Lokalne ulepszanie",
+      "description": "Porządkuje dyktowanie za pomocą niewielkiego modelu językowego działającego w całości na tym komputerze. Nic nie jest nigdzie wysyłane.",
+      "unavailable": "Silnik ulepszania nie jest dołączony do tej kompilacji.",
+      "enable": {
+        "title": "Ulepszaj transkrypcje",
+        "description": "Przepuszczaj każde dyktowanie przez lokalny model przed wklejeniem."
+      },
+      "model": {
+        "title": "Model redagujący",
+        "description": "Model, który przepisuje Twoją transkrypcję. Mniejszy jest szybszy, większy dokładniejszy.",
+        "placeholder": "Wybierz model",
+        "download": "Pobierz",
+        "downloading": "Pobieranie…",
+        "delete": "Usuń",
+        "downloaded": "Pobrany",
+        "notDownloaded": "Niepobrany",
+        "loaded": "Załadowany",
+        "size": "{{size}} MB",
+        "ram": "wymaga ok. {{ram}} MB RAM",
+        "released": "wydany {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralekki",
+        "balanced": "Zrównoważony",
+        "quality": "Jakość"
+      },
+      "features": {
+        "title": "Co porządkować",
+        "removeFillers": {
+          "title": "Usuwaj wtrącenia",
+          "description": "Usuwaj „eee”, „yyy”, „no wiesz” i scalaj powtórzenia."
+        },
+        "fixSelfCorrections": {
+          "title": "Wycinaj autopoprawki",
+          "description": "Gdy zmienisz zdanie w połowie wypowiedzi, porzucone sformułowanie zostaje usunięte."
+        },
+        "fixPunctuation": {
+          "title": "Poprawiaj interpunkcję",
+          "description": "Naprawiaj granice zdań i wielkie litery."
+        },
+        "formatStructure": {
+          "title": "Formatuj listy i akapity",
+          "description": "Zamieniaj mówioną strukturę na prawdziwe listy i akapity."
+        },
+        "spokenCommands": {
+          "title": "Wykonuj polecenia głosowe",
+          "description": "Wykonuj „nowy akapit”, „punkt listy” i podobne, usuwając je z tekstu."
+        },
+        "contextAwareTone": {
+          "title": "Dopasuj ton do aplikacji",
+          "description": "Dopasuj rejestr do aplikacji, do której dyktujesz."
+        }
+      },
+      "aggressiveness": {
+        "title": "Jak dużo wycinać",
+        "description": "Jak chętnie model może usuwać słowa, które naprawdę wypowiedziałeś. Surowa transkrypcja zawsze zostaje w historii.",
+        "light": "Lekko — tylko wyraźne poprawki",
+        "balanced": "Zrównoważenie — także falstarty",
+        "aggressive": "Agresywnie — także skracanie dygresji"
+      },
+      "verify": {
+        "title": "Sprawdzaj, czy sens został zachowany",
+        "description": "Uruchamia drugie przejście, które porównuje zmianę z tym, co powiedziałeś, i odrzuca ją, jeśli sens się zmienił. Wychwytuje błędy niewidoczne dla podstawowych kontroli. „Automatycznie” pomija zmiany kosmetyczne oraz komputery, na których trwałoby to zbyt długo.",
+        "off": "Wyłączone — najszybsze",
+        "auto": "Automatycznie — gdy ma to znaczenie i komputer jest wystarczająco szybki",
+        "always": "Zawsze — sprawdzaj każdą zmianę"
+      },
+      "useGpu": {
+        "title": "Używaj GPU",
+        "description": "Uruchamiaj model na karcie graficznej, gdy nadaje się do użytku. Automatycznie wraca do procesora."
+      },
+      "keepLoaded": {
+        "title": "Trzymaj model w pamięci",
+        "description": "Szybsze dyktowanie kosztem pamięci zajmowanej przez bezczynny model."
+      },
+      "preview": {
+        "title": "Wypróbuj",
+        "description": "Zobacz, co model zrobi ze zdaniem, zanim go włączysz.",
+        "placeholder": "yyy no więc spotkanie przeniesiono na piątek nie czekaj na czwartek na trzecią",
+        "run": "Ulepsz",
+        "running": "Ulepszanie…",
+        "result": "Wynik",
+        "unchanged": "Żadne zmiany nie były potrzebne.",
+        "rejected": "Przeredagowanie zostało odrzucone ({{reason}}), więc użyty zostałby Twój oryginalny tekst.",
+        "verdictChanged": "Kontrola sensu wykryła zmianę, więc użyty zostałby Twój oryginalny tekst.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historia",
       "openFolder": "Otwórz folder nagrań",

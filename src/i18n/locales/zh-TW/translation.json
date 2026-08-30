@@ -454,6 +454,95 @@
         "createFirst": "點選上方的「建立新提示詞」來建立您的第一個後處理提示詞"
       }
     },
+    "localEnhancement": {
+      "title": "本機增強",
+      "description": "使用完全在本機執行的小型語言模型整理口述內容。不會將任何資料傳送出去。",
+      "unavailable": "此組建未包含增強引擎。",
+      "enable": {
+        "title": "增強轉錄結果",
+        "description": "貼上前讓每次口述都先經過本機模型處理。"
+      },
+      "model": {
+        "title": "編輯模型",
+        "description": "負責改寫轉錄內容的模型。越小越快，越大越準確。",
+        "placeholder": "選擇模型",
+        "download": "下載",
+        "downloading": "正在下載…",
+        "delete": "刪除",
+        "downloaded": "已下載",
+        "notDownloaded": "未下載",
+        "loaded": "已載入",
+        "size": "{{size}} MB",
+        "ram": "約需 {{ram}} MB 記憶體",
+        "released": "{{date}} 發布"
+      },
+      "tier": {
+        "ultralight": "超輕量",
+        "balanced": "均衡",
+        "quality": "高品質"
+      },
+      "features": {
+        "title": "要整理的內容",
+        "removeFillers": {
+          "title": "移除填充詞",
+          "description": "刪除「嗯」「呃」「就是」等詞，並合併結巴重複。"
+        },
+        "fixSelfCorrections": {
+          "title": "剪掉自我更正",
+          "description": "當你說到一半改變主意時，刪除被放棄的說法。"
+        },
+        "fixPunctuation": {
+          "title": "修正標點",
+          "description": "修復句子邊界與大小寫。"
+        },
+        "formatStructure": {
+          "title": "整理清單與段落",
+          "description": "把口語結構轉換成真正的清單與分段。"
+        },
+        "spokenCommands": {
+          "title": "執行口頭指令",
+          "description": "執行「新段落」「項目符號」等指令，並從文字中移除它們。"
+        },
+        "contextAwareTone": {
+          "title": "配合應用程式語氣",
+          "description": "依你正在口述的應用程式調整語體。"
+        }
+      },
+      "aggressiveness": {
+        "title": "刪減幅度",
+        "description": "模型刪除你確實說過的字詞的積極程度。原始轉錄一律保留在歷史記錄中。",
+        "light": "輕度 — 僅明確的更正",
+        "balanced": "均衡 — 也處理說到一半重來的情況",
+        "aggressive": "積極 — 也精簡冗長內容"
+      },
+      "verify": {
+        "title": "檢查語意是否保留",
+        "description": "執行第二輪檢查，將修改結果與你所說的內容比對，若語意改變就捨棄。可找出基本檢查看不到的錯誤。「自動」會略過純格式修改，以及在耗時過久的電腦上略過。",
+        "off": "關閉 — 最快",
+        "auto": "自動 — 在重要時執行，前提是電腦夠快",
+        "always": "一律 — 檢查每一次修改"
+      },
+      "useGpu": {
+        "title": "使用 GPU",
+        "description": "顯示卡可用時在顯示卡上執行模型。會自動改用處理器。"
+      },
+      "keepLoaded": {
+        "title": "將模型保留在記憶體中",
+        "description": "口述更快，代價是閒置時模型仍占用記憶體。"
+      },
+      "preview": {
+        "title": "試試看",
+        "description": "在啟用之前，看看模型會如何處理一句話。",
+        "placeholder": "嗯那個會議改到週五了不對等等是週四下午三點",
+        "run": "增強",
+        "running": "正在增強…",
+        "result": "結果",
+        "unchanged": "不需要任何變更。",
+        "rejected": "改寫遭到拒絕（{{reason}}），因此將使用你的原始文字。",
+        "verdictChanged": "語意檢查發現變動，因此將使用你的原始文字。",
+        "took": "{{ms}} 毫秒"
+      }
+    },
     "history": {
       "title": "歷史紀錄",
       "openFolder": "開啟錄音資料夾",

@@ -454,6 +454,95 @@
         "createFirst": "上の「新しいプロンプトを作成」をクリックして、最初の後処理プロンプトを作成してください。"
       }
     },
+    "localEnhancement": {
+      "title": "ローカル補正",
+      "description": "このパソコン上だけで動く小さな言語モデルで口述テキストを整えます。データはどこにも送信されません。",
+      "unavailable": "このビルドには補正エンジンが含まれていません。",
+      "enable": {
+        "title": "文字起こしを補正する",
+        "description": "貼り付ける前に、すべての口述をローカルモデルで処理します。"
+      },
+      "model": {
+        "title": "編集モデル",
+        "description": "文字起こしを書き直すモデルです。小さいほど速く、大きいほど正確です。",
+        "placeholder": "モデルを選択",
+        "download": "ダウンロード",
+        "downloading": "ダウンロード中…",
+        "delete": "削除",
+        "downloaded": "ダウンロード済み",
+        "notDownloaded": "未ダウンロード",
+        "loaded": "読み込み済み",
+        "size": "{{size}} MB",
+        "ram": "約 {{ram}} MB のメモリが必要",
+        "released": "{{date}} 公開"
+      },
+      "tier": {
+        "ultralight": "超軽量",
+        "balanced": "バランス",
+        "quality": "高品質"
+      },
+      "features": {
+        "title": "整える内容",
+        "removeFillers": {
+          "title": "フィラーを取り除く",
+          "description": "「えー」「あの」「まあ」などを削除し、言いよどみをまとめます。"
+        },
+        "fixSelfCorrections": {
+          "title": "言い直しを切り取る",
+          "description": "話の途中で考えを変えたとき、取り消した言い回しを削除します。"
+        },
+        "fixPunctuation": {
+          "title": "句読点を直す",
+          "description": "文の区切りと大文字小文字を修正します。"
+        },
+        "formatStructure": {
+          "title": "箇条書きと段落を整える",
+          "description": "話し言葉の構造を実際の箇条書きや段落に変換します。"
+        },
+        "spokenCommands": {
+          "title": "音声コマンドに従う",
+          "description": "「改行」「箇条書き」などを実行し、その語句を本文から取り除きます。"
+        },
+        "contextAwareTone": {
+          "title": "アプリに合わせた語調",
+          "description": "口述先のアプリに合わせて文体を調整します。"
+        }
+      },
+      "aggressiveness": {
+        "title": "削る度合い",
+        "description": "実際に話した言葉をモデルがどれだけ削ってよいかです。元の文字起こしは常に履歴に残ります。",
+        "light": "弱め — 明示的な言い直しのみ",
+        "balanced": "バランス — 言い出しの失敗も対象",
+        "aggressive": "強め — 冗長な部分も引き締める"
+      },
+      "verify": {
+        "title": "意味が変わっていないか確認する",
+        "description": "2 回目の処理で、編集結果と話した内容を比べ、意味が変わっていれば破棄します。基本チェックでは気づけない誤りを捕まえます。「自動」は見た目だけの修正や、処理に時間がかかりすぎる環境では省略します。",
+        "off": "オフ — 最速",
+        "auto": "自動 — 必要なときに、十分速いパソコンでのみ",
+        "always": "常に — すべての編集を確認"
+      },
+      "useGpu": {
+        "title": "GPU を使う",
+        "description": "利用できる場合はグラフィックスカードでモデルを実行します。自動的に CPU に切り替わります。"
+      },
+      "keepLoaded": {
+        "title": "モデルをメモリに保持する",
+        "description": "口述が速くなりますが、待機中もモデルがメモリを占有します。"
+      },
+      "preview": {
+        "title": "試してみる",
+        "description": "有効にする前に、モデルが文をどう扱うか確認できます。",
+        "placeholder": "えーっと会議は金曜に変更ですいや違う木曜の三時です",
+        "run": "補正する",
+        "running": "補正中…",
+        "result": "結果",
+        "unchanged": "変更は必要ありませんでした。",
+        "rejected": "書き換えは却下されました（{{reason}}）。元のテキストが使われます。",
+        "verdictChanged": "意味の確認で変化が見つかったため、元のテキストが使われます。",
+        "took": "{{ms}} ミリ秒"
+      }
+    },
     "history": {
       "title": "履歴",
       "openFolder": "録音フォルダを開く",

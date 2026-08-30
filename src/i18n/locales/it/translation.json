@@ -454,6 +454,95 @@
         "createFirst": "Clicca 'Crea un nuovo prompt' qui sopra per creare il tuo primo prompt di post-elaborazione."
       }
     },
+    "localEnhancement": {
+      "title": "Miglioramento locale",
+      "description": "Ripulisce la dettatura con un piccolo modello linguistico che gira interamente su questo computer. Nulla viene inviato altrove.",
+      "unavailable": "Il motore di miglioramento non è incluso in questa build.",
+      "enable": {
+        "title": "Migliora le trascrizioni",
+        "description": "Fai passare ogni dettatura dal modello locale prima di incollarla."
+      },
+      "model": {
+        "title": "Modello di modifica",
+        "description": "Il modello che riscrive la tua trascrizione. Più piccolo è più veloce, più grande è più accurato.",
+        "placeholder": "Seleziona un modello",
+        "download": "Scarica",
+        "downloading": "Download in corso…",
+        "delete": "Elimina",
+        "downloaded": "Scaricato",
+        "notDownloaded": "Non scaricato",
+        "loaded": "Caricato",
+        "size": "{{size}} MB",
+        "ram": "richiede circa {{ram}} MB di RAM",
+        "released": "pubblicato il {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultraleggero",
+        "balanced": "Bilanciato",
+        "quality": "Qualità"
+      },
+      "features": {
+        "title": "Cosa ripulire",
+        "removeFillers": {
+          "title": "Rimuovi le parole riempitive",
+          "description": "Elimina «ehm», «cioè», «tipo» e unisce le ripetizioni."
+        },
+        "fixSelfCorrections": {
+          "title": "Taglia le autocorrezioni",
+          "description": "Quando cambi idea a metà frase, la formulazione abbandonata viene rimossa."
+        },
+        "fixPunctuation": {
+          "title": "Correggi la punteggiatura",
+          "description": "Sistema i confini delle frasi e le maiuscole."
+        },
+        "formatStructure": {
+          "title": "Formatta elenchi e paragrafi",
+          "description": "Trasforma la struttura parlata in elenchi e interruzioni di paragrafo reali."
+        },
+        "spokenCommands": {
+          "title": "Obbedisci ai comandi vocali",
+          "description": "Applica «nuovo paragrafo», «punto elenco» e simili, rimuovendoli dal testo."
+        },
+        "contextAwareTone": {
+          "title": "Adatta il tono all'app",
+          "description": "Adatta il registro all'applicazione in cui stai dettando."
+        }
+      },
+      "aggressiveness": {
+        "title": "Quanto tagliare",
+        "description": "Con quanta facilità il modello può eliminare parole che hai davvero detto. La trascrizione originale resta sempre nella cronologia.",
+        "light": "Leggero — solo correzioni esplicite",
+        "balanced": "Bilanciato — anche le false partenze",
+        "aggressive": "Aggressivo — condensa anche le divagazioni"
+      },
+      "verify": {
+        "title": "Verifica che il significato sia preservato",
+        "description": "Esegue un secondo passaggio che confronta la modifica con quanto hai detto e la scarta se il significato è cambiato. Individua errori che i controlli di base non vedono. «Auto» lo salta per le modifiche estetiche e sui computer dove sarebbe troppo lento.",
+        "off": "Disattivato — il più veloce",
+        "auto": "Auto — quando conta, se il computer è abbastanza veloce",
+        "always": "Sempre — verifica ogni modifica"
+      },
+      "useGpu": {
+        "title": "Usa la GPU",
+        "description": "Esegui il modello sulla scheda grafica quando è utilizzabile. Ricade automaticamente sul processore."
+      },
+      "keepLoaded": {
+        "title": "Mantieni il modello in memoria",
+        "description": "Dettatura più rapida, al costo della memoria occupata dal modello quando è inattivo."
+      },
+      "preview": {
+        "title": "Provalo",
+        "description": "Guarda cosa fa il modello con una frase prima di attivarlo.",
+        "placeholder": "ehm allora la riunione è spostata a venerdì no aspetta giovedì alle tre",
+        "run": "Migliora",
+        "running": "Miglioramento…",
+        "result": "Risultato",
+        "unchanged": "Non è stata necessaria alcuna modifica.",
+        "rejected": "La riscrittura è stata rifiutata ({{reason}}), quindi verrebbe usato il testo originale.",
+        "verdictChanged": "Il controllo del significato ha rilevato un cambiamento, quindi verrebbe usato il testo originale.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Cronologia",
       "openFolder": "Apri la cartella delle registrazioni",

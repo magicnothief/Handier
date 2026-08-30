@@ -454,6 +454,95 @@
         "createFirst": "Klicka på 'Skapa ny prompt' ovan för att skapa din första prompt för efterbearbetning."
       }
     },
+    "localEnhancement": {
+      "title": "Lokal förbättring",
+      "description": "Städar upp diktering med en liten språkmodell som körs helt på den här datorn. Ingenting skickas någonstans.",
+      "unavailable": "Förbättringsmotorn ingår inte i den här versionen.",
+      "enable": {
+        "title": "Förbättra transkriptioner",
+        "description": "Kör varje diktering genom den lokala modellen innan den klistras in."
+      },
+      "model": {
+        "title": "Redigeringsmodell",
+        "description": "Modellen som skriver om din transkription. Mindre är snabbare, större är noggrannare.",
+        "placeholder": "Välj en modell",
+        "download": "Ladda ner",
+        "downloading": "Laddar ner…",
+        "delete": "Ta bort",
+        "downloaded": "Nedladdad",
+        "notDownloaded": "Inte nedladdad",
+        "loaded": "Inläst",
+        "size": "{{size}} MB",
+        "ram": "behöver ca {{ram}} MB RAM",
+        "released": "släppt {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralätt",
+        "balanced": "Balanserad",
+        "quality": "Kvalitet"
+      },
+      "features": {
+        "title": "Vad som ska städas",
+        "removeFillers": {
+          "title": "Ta bort utfyllnadsord",
+          "description": "Radera ”öh”, ”alltså” och ”liksom” och slå ihop upprepningar."
+        },
+        "fixSelfCorrections": {
+          "title": "Klipp bort självrättelser",
+          "description": "När du ändrar dig mitt i en mening tas den övergivna formuleringen bort."
+        },
+        "fixPunctuation": {
+          "title": "Rätta interpunktion",
+          "description": "Återställ meningsgränser och versaler."
+        },
+        "formatStructure": {
+          "title": "Formatera listor och stycken",
+          "description": "Gör om talad struktur till riktiga listor och styckebrytningar."
+        },
+        "spokenCommands": {
+          "title": "Följ talade kommandon",
+          "description": "Utför ”nytt stycke”, ”punktlista” och liknande, och ta bort dem ur texten."
+        },
+        "contextAwareTone": {
+          "title": "Anpassa tonen till appen",
+          "description": "Anpassa språket till programmet du dikterar i."
+        }
+      },
+      "aggressiveness": {
+        "title": "Hur mycket som klipps bort",
+        "description": "Hur villigt modellen får ta bort ord du faktiskt sa. Din råa transkription sparas alltid i historiken.",
+        "light": "Lätt — bara uttryckliga rättelser",
+        "balanced": "Balanserad — även falska starter",
+        "aggressive": "Aggressiv — stramar även upp svammel"
+      },
+      "verify": {
+        "title": "Kontrollera att innebörden bevarats",
+        "description": "Kör en andra omgång som jämför ändringen med det du sa och kastar den om innebörden ändrats. Fångar fel som de grundläggande kontrollerna inte ser. ”Automatiskt” hoppar över den vid kosmetiska ändringar och på datorer där den skulle ta för lång tid.",
+        "off": "Av — snabbast",
+        "auto": "Automatiskt — när det spelar roll, om datorn är snabb nog",
+        "always": "Alltid — kontrollera varje ändring"
+      },
+      "useGpu": {
+        "title": "Använd GPU",
+        "description": "Kör modellen på grafikkortet när det går att använda. Faller automatiskt tillbaka på processorn."
+      },
+      "keepLoaded": {
+        "title": "Behåll modellen i minnet",
+        "description": "Snabbare diktering, till priset av minnet modellen håller när den är inaktiv."
+      },
+      "preview": {
+        "title": "Testa",
+        "description": "Se vad modellen gör med en mening innan du slår på den.",
+        "placeholder": "öh alltså mötet är flyttat till fredag nej vänta torsdag klockan tre",
+        "run": "Förbättra",
+        "running": "Förbättrar…",
+        "result": "Resultat",
+        "unchanged": "Inga ändringar behövdes.",
+        "rejected": "Omskrivningen avvisades ({{reason}}), så din ursprungliga text skulle användas.",
+        "verdictChanged": "Innebördskontrollen hittade en ändring, så din ursprungliga text skulle användas.",
+        "took": "{{ms}} ms"
+      }
+    },
     "history": {
       "title": "Historik",
       "openFolder": "Öppna mapp för inspelningar",
