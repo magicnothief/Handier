@@ -1,0 +1,5 @@
+# Built by `bun run build:sidecar`; see scripts/build-sidecar.ts.
+# Binaries are large and platform-specific, so they are produced by the build
+# rather than committed.
+*
+!.gitignore

@@ -168,7 +168,8 @@ pub fn enhance_with_verifier(
     // Second pass: the mechanical guards compare words, so they cannot see a
     // reordering that preserves every word. Only a model reading both versions
     // can catch that.
-    let verdict = run_verification(verifier, opts.verify, trimmed, cleaned);
+    let edit_took = started.elapsed();
+    let verdict = run_verification(verifier, opts.verify, trimmed, cleaned, edit_took);
     if verdict == Some(Verdict::Changed) {
         warn!("verifier judged the meaning changed, pasting raw transcript");
         return Enhanced {
@@ -189,6 +190,24 @@ pub fn enhance_with_verifier(
     }
 }
 
+/// How long an edit pass may take before a second pass is not worth waiting for.
+///
+/// Verification roughly doubles the wait, and deliberation makes it longer
+/// still, so a machine that took this long to edit would take far longer than a
+/// dictation flow tolerates to also verify.
+const VERIFY_BUDGET: Duration = Duration::from_millis(2500);
+
+/// Whether a second pass is affordable, judged by how long the first one took.
+///
+/// This is how `Auto` adapts to the machine instead of to a hardware probe. On
+/// a GPU an edit takes ~130 ms and verification ~1-2 s, which is fine. On a
+/// low-end CPU the same edit can take seconds and verification tens of seconds,
+/// which is not — and those are exactly the machines this layer is meant to
+/// stay usable on. Users who want the check regardless can choose `Always`.
+fn affordable(edit_took: Duration) -> bool {
+    edit_took <= VERIFY_BUDGET
+}
+
 /// Run the meaning check, or decide it is not worth running.
 ///
 /// Returns `None` when no verification happened. A verifier that errors is
@@ -200,11 +219,12 @@ fn run_verification(
     mode: VerifyMode,
     original: &str,
     edited: &str,
+    edit_took: Duration,
 ) -> Option<Verdict> {
     let wanted = match mode {
         VerifyMode::Off => false,
         VerifyMode::Always => true,
-        VerifyMode::Auto => verify::needs_verification(original, edited),
+        VerifyMode::Auto => verify::needs_verification(original, edited) && affordable(edit_took),
     };
     if !wanted || !verifier.is_ready() {
         return None;
@@ -501,6 +521,38 @@ mod tests {
         // Without verification the swap-prone edit is accepted, which is the
         // trade the user makes by turning it off.
         assert_eq!(out.text, "Send it to Jane instead please.");
+    }
+
+    #[test]
+    fn a_slow_edit_skips_verification_in_auto_mode() {
+        // On a machine slow enough that the edit itself took seconds, a second
+        // pass would push the wait past what dictation tolerates.
+        assert!(affordable(Duration::from_millis(130)), "GPU-speed edit");
+        assert!(affordable(Duration::from_millis(800)), "fast CPU edit");
+        assert!(
+            !affordable(Duration::from_secs(6)),
+            "a six-second edit means verification would cost far more"
+        );
+    }
+
+    #[test]
+    fn always_mode_verifies_regardless_of_how_slow_the_edit_was() {
+        // The budget is an `Auto` heuristic. A user who explicitly chose
+        // `Always` has accepted the cost.
+        let b = ScriptedBackend::new("Send it to Jane instead please.", "CHANGED");
+        let always = EnhanceOptions {
+            verify: VerifyMode::Always,
+            ..Default::default()
+        };
+        let verdict = run_verification(
+            &b,
+            always.verify,
+            "send it to john no wait not john send it to jane instead please",
+            "Send it to Jane instead please.",
+            Duration::from_secs(30),
+        );
+        assert_eq!(verdict, Some(Verdict::Changed));
+        assert_eq!(b.verify_calls(), 1);
     }
 
     #[test]

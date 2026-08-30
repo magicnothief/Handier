@@ -692,9 +692,9 @@
       },
       "verify": {
         "title": "Check meaning was preserved",
-        "description": "Run a second pass that compares the edit with what you said and discards it if the meaning changed. Slower, but catches mistakes the basic checks cannot.",
+        "description": "Run a second pass that compares the edit with what you said and discards it if the meaning changed. Catches mistakes the basic checks cannot. Auto skips it for cosmetic edits, and on machines where it would take too long.",
         "off": "Off — fastest",
-        "auto": "Auto — only when the edit could change meaning",
+        "auto": "Auto — when it matters, if this machine is fast enough",
         "always": "Always — check every edit"
       },
       "useGpu": {

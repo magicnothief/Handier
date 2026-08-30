@@ -102,3 +102,9 @@ Sizing that warm-up correctly mattered more than having one. With a token-sized
 dummy prompt the first genuine enhancement still took **13.1 s**; with a
 prompt-shaped one it takes **137 ms**. A warm-up that does not resemble the real
 request compiles the wrong pipelines and buys nothing.
+
+The graphics driver also caches compiled pipelines on disk, and that cache is
+cold for a newly installed binary. Measured on a freshly staged build: 4.4 s for
+the very first enhancement, then 131 ms on every subsequent run. So the first
+dictation after an install or update is slower than steady state, and the
+warm-up shortens that without removing it.

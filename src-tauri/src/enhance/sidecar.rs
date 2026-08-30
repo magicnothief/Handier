@@ -15,8 +15,9 @@ use serde::Serialize;
 use serde_json::Value;
 use std::io::{BufRead, BufReader, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Child, ChildStdin, ChildStdout, Command, Stdio};
+use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::sync::Mutex;
 use std::time::Duration;
 
@@ -29,10 +30,14 @@ use super::{Backend, GenParams};
 const REPLY_TIMEOUT: Duration = Duration::from_secs(120);
 
 /// A running `handy-llm` process.
+///
+/// Replies arrive over a channel rather than being read inline, so a wedged
+/// child can be given up on. A blocking `read_line` on the pipe would hang the
+/// dictation thread with no way out.
 struct Process {
     child: Child,
     stdin: ChildStdin,
-    stdout: BufReader<ChildStdout>,
+    replies: Receiver<String>,
 }
 
 /// Handle to the inference sidecar.
@@ -69,22 +74,37 @@ impl SidecarClient {
             "handy-llm"
         };
 
+        // Tauri strips the target triple when it bundles an `externalBin`, but
+        // the staging directory keeps it, so both spellings are searched.
+        let staged_name = format!(
+            "handy-llm-{}{}",
+            env!("HANDY_TARGET_TRIPLE"),
+            Self::exe_suffix()
+        );
+
         let mut candidates: Vec<PathBuf> = Vec::new();
         if let Some(dir) = resource_dir {
             candidates.push(dir.join(exe_name));
+            candidates.push(dir.join(&staged_name));
         }
         // Alongside the app binary, which is where `externalBin` lands it.
         if let Ok(current) = std::env::current_exe() {
             if let Some(dir) = current.parent() {
                 candidates.push(dir.join(exe_name));
+                candidates.push(dir.join(&staged_name));
             }
         }
-        // Developer builds: the sidecar crate has its own target directory, and
-        // `CARGO_TARGET_DIR` may redirect it (the Vulkan build needs a short
-        // path on Windows).
-        if let Ok(target) = std::env::var("HANDY_LLM_TARGET_DIR") {
-            candidates.push(PathBuf::from(&target).join("release").join(exe_name));
-            candidates.push(PathBuf::from(&target).join("debug").join(exe_name));
+        // An explicit override, mostly for tests and unusual layouts.
+        if let Ok(path) = std::env::var("HANDY_LLM_BIN") {
+            candidates.insert(0, PathBuf::from(path));
+        }
+        // Developer runs: `bun run build:sidecar` stages here, and the crate's
+        // own target directory may be redirected by `CARGO_TARGET_DIR` (the
+        // Vulkan build needs a short path on Windows), so the staged copy is
+        // the reliable one to look for.
+        for base in ["binaries", "src-tauri/binaries", "../src-tauri/binaries"] {
+            candidates.push(PathBuf::from(base).join(&staged_name));
+            candidates.push(PathBuf::from(base).join(exe_name));
         }
         for profile in ["release", "debug"] {
             candidates.push(
@@ -95,6 +115,15 @@ impl SidecarClient {
         }
 
         candidates.into_iter().find(|p| p.is_file())
+    }
+
+    /// Executable suffix for the host platform.
+    fn exe_suffix() -> &'static str {
+        if cfg!(windows) {
+            ".exe"
+        } else {
+            ""
+        }
     }
 
     /// Whether the process is running.
@@ -146,6 +175,17 @@ impl SidecarClient {
             .take()
             .ok_or_else(|| anyhow!("sidecar stdout unavailable"))?;
 
+        // Read replies on a thread and hand them over a channel, so `request`
+        // can wait with a deadline instead of blocking forever on the pipe.
+        let (tx, replies) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            for line in BufReader::new(stdout).lines().map_while(Result::ok) {
+                if tx.send(line).is_err() {
+                    break; // client went away
+                }
+            }
+        });
+
         // llama.cpp is verbose on stderr. Left unread its pipe fills and the
         // child blocks forever, so drain it on a thread and forward to the log.
         if let Some(stderr) = child.stderr.take() {
@@ -160,7 +200,7 @@ impl SidecarClient {
         *guard = Some(Process {
             child,
             stdin,
-            stdout: BufReader::new(stdout),
+            replies,
         });
         Ok(())
     }
@@ -201,17 +241,25 @@ impl SidecarClient {
         writeln!(proc.stdin, "{line}").context("failed to write to sidecar")?;
         proc.stdin.flush().context("failed to flush to sidecar")?;
 
-        let mut reply = String::new();
-        let read = proc
-            .stdout
-            .read_line(&mut reply)
-            .context("failed to read from sidecar")?;
-        if read == 0 {
-            // The process died. Drop it so the next call restarts it rather
-            // than talking to a corpse forever.
-            *guard = None;
-            bail!("sidecar exited unexpectedly");
-        }
+        let reply = match proc.replies.recv_timeout(REPLY_TIMEOUT) {
+            Ok(line) => line,
+            Err(RecvTimeoutError::Timeout) => {
+                // Give up on the process rather than leaving the user's
+                // dictation blocked. The next request starts a fresh one.
+                warn!("sidecar did not reply within {REPLY_TIMEOUT:?}; restarting it");
+                if let Some(mut dead) = guard.take() {
+                    let _ = dead.child.kill();
+                    let _ = dead.child.wait();
+                }
+                bail!("sidecar timed out after {REPLY_TIMEOUT:?}");
+            }
+            Err(RecvTimeoutError::Disconnected) => {
+                // The process died. Drop it so the next call restarts it rather
+                // than talking to a corpse forever.
+                *guard = None;
+                bail!("sidecar exited unexpectedly");
+            }
+        };
 
         let value: Value =
             serde_json::from_str(reply.trim()).context("sidecar sent malformed JSON")?;

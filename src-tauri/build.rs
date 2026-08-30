@@ -2,6 +2,8 @@ fn main() {
     #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
     build_apple_intelligence_bridge();
 
+    export_target_triple();
+
     generate_tray_translations();
 
     // Linux ships transcribe-cpp as a shared libtranscribe + loadable ggml
@@ -35,6 +37,18 @@ fn main() {
     stage_vc_runtime_dlls();
 
     tauri_build::build()
+}
+
+/// Expose the build's target triple to the crate as `HANDY_TARGET_TRIPLE`.
+///
+/// The enhancement sidecar is staged as `handy-llm-<triple>` (Tauri's
+/// `externalBin` naming), so the runtime needs the triple to find it in a
+/// developer checkout. `std::env::consts` cannot reconstruct it, and the value
+/// is only available to build scripts.
+fn export_target_triple() {
+    let target = std::env::var("TARGET").expect("TARGET is set for build scripts");
+    println!("cargo:rustc-env=HANDY_TARGET_TRIPLE={target}");
+    println!("cargo:rerun-if-env-changed=TARGET");
 }
 
 /// Stage the MSVC runtime DLLs into `transcribe-libs/` for app-local deployment.

@@ -445,6 +445,19 @@ jobs:
           Add-Content $env:GITHUB_ENV "CMAKE_PREFIX_PATH=$combined"
           Write-Host "CMAKE_PREFIX_PATH=$combined"
 
+      # The enhancement sidecar is a separate crate with its own target dir (it
+      # cannot share a binary with transcribe-cpp; see
+      # src-tauri/crates/handy-llm/README.md), so `cargo build` on the app does
+      # not produce it. Stage it under src-tauri/binaries/ for `externalBin`.
+      #
+      # Built CPU-only in CI: the Vulkan backend needs a GPU SDK plus the ninja
+      # generator and a short target path on Windows, and a CPU sidecar still
+      # works everywhere. A GPU sidecar can be produced locally with
+      # `bun run build:sidecar`.
+      - name: Build enhancement sidecar
+        shell: bash
+        run: bun run scripts/build-sidecar.ts --cpu
+
       # transcribe-cpp ships as a shared libtranscribe + loadable ggml backend
       # modules on Linux (the `dynamic-backends` posture). They are produced by
       # transcribe-cpp-sys's CMake install during the cargo build, but nothing
