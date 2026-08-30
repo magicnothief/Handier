@@ -45,3 +45,10 @@ result
 
 # Python bytecode (scripts/)
 __pycache__/
+
+# Inference sidecar build output. The crate has its own target directory
+# because it is built separately from the app (see crates/handy-llm/README.md).
+/src-tauri/crates/*/target/
+
+# Local agent scratch state, not part of the project.
+/.headroom/

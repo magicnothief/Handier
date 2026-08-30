@@ -392,6 +392,59 @@ async fn maybe_convert_chinese_variant(
     }
 }
 
+/// Run the local enhancement layer, returning the text to paste.
+///
+/// Returns `None` when the layer did not change anything, so the caller can
+/// leave the transcript exactly as transcribed. Runs on a blocking thread
+/// because inference is synchronous and would otherwise stall the async
+/// runtime for the length of a generation.
+async fn run_local_enhancement(
+    app: &AppHandle,
+    settings: &AppSettings,
+    transcript: &str,
+) -> Option<String> {
+    use crate::enhance::ModelRole;
+    use crate::managers::enhance::{resolve_model, EnhanceManager};
+
+    let manager = app.try_state::<Arc<EnhanceManager>>()?.inner().clone();
+    let opts = settings.enhance_options.clone();
+    let model_id = settings.enhance_model_id.clone();
+    let use_gpu = settings.enhance_use_gpu;
+    let keep_loaded = settings.enhance_keep_loaded;
+    let text = transcript.to_string();
+    let app_name = crate::enhance::AppContext::default();
+
+    let result = tokio::task::spawn_blocking(move || {
+        if let Some(model) = resolve_model(model_id.as_deref(), ModelRole::Editor) {
+            // Loading is idempotent, so this is a no-op once warm.
+            if let Err(e) = manager.load(model, use_gpu) {
+                warn!("enhancement model unavailable, pasting raw transcript: {e:#}");
+                return None;
+            }
+        }
+        let out = manager.enhance(&text, &opts, &app_name);
+        if let Some(reason) = &out.error {
+            warn!("enhancement layer error: {reason}");
+        }
+        if let Some(rejection) = &out.rejected {
+            debug!("enhancement rejected ({rejection:?}); pasted the raw transcript");
+        }
+        if !keep_loaded {
+            manager.unload();
+        }
+        out.changed().then_some(out.text)
+    })
+    .await;
+
+    match result {
+        Ok(text) => text,
+        Err(e) => {
+            warn!("enhancement task failed: {e}");
+            None
+        }
+    }
+}
+
 pub(crate) struct ProcessedTranscription {
     pub final_text: String,
     pub post_processed_text: Option<String>,
@@ -437,6 +490,19 @@ pub(crate) async fn process_transcription_output(
         maybe_convert_chinese_variant(&effective_language, transcription).await
     {
         final_text = converted_text;
+    }
+
+    // Local enhancement runs on every dictation when enabled, independently of
+    // the post-processing shortcut: the point of the layer is that the user does
+    // not have to ask for it. It runs first so that any remote post-processing
+    // operates on already-cleaned text.
+    if settings.enhance_enabled {
+        if let Some(enhanced) = run_local_enhancement(app, &settings, &final_text).await {
+            if enhanced != final_text {
+                post_processed_text = Some(enhanced.clone());
+                final_text = enhanced;
+            }
+        }
     }
 
     if post_process {

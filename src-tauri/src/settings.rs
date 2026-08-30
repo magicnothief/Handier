@@ -457,6 +457,32 @@ pub struct AppSettings {
     pub post_process_prompts: Vec<LLMPrompt>,
     #[serde(default)]
     pub post_process_selected_prompt_id: Option<String>,
+    /// Run the local enhancement layer on every dictation.
+    ///
+    /// Separate from `post_process_enabled`: that is an opt-in shortcut backed
+    /// by a remote API, while this is an always-on local cleanup pass. A user
+    /// can sensibly want either, both, or neither.
+    #[serde(default)]
+    pub enhance_enabled: bool,
+    /// Catalog id of the editing model, or `None` to use the catalog default.
+    #[serde(default)]
+    pub enhance_model_id: Option<String>,
+    /// Catalog id of the verifying model. `None` reuses the editing model,
+    /// which costs no extra memory.
+    #[serde(default)]
+    pub enhance_verifier_model_id: Option<String>,
+    /// Which enhancement behaviours are switched on.
+    #[serde(default)]
+    pub enhance_options: crate::enhance::EnhanceOptions,
+    /// Offload the enhancement model to the GPU when one is usable.
+    #[serde(default = "default_enhance_use_gpu")]
+    pub enhance_use_gpu: bool,
+    /// Keep the model resident between dictations.
+    ///
+    /// Faster, at the cost of holding its memory. Off suits a machine that
+    /// needs the RAM back more than it needs the first dictation to be quick.
+    #[serde(default = "default_enhance_keep_loaded")]
+    pub enhance_keep_loaded: bool,
     #[serde(default)]
     pub mute_while_recording: bool,
     #[serde(default)]
@@ -627,6 +653,23 @@ fn default_sound_theme() -> SoundTheme {
 
 fn default_theme() -> Theme {
     Theme::System
+}
+
+/// Offload to the GPU by default.
+///
+/// A GPU build falls back to CPU on its own when no device is usable, so this
+/// is safe to leave on everywhere and only ever makes things faster.
+fn default_enhance_use_gpu() -> bool {
+    true
+}
+
+/// Keep the model resident by default.
+///
+/// Reloading costs roughly half a second plus GPU warm-up on every dictation,
+/// which is more noticeable than the memory on most machines. Users on a tight
+/// budget can turn it off.
+fn default_enhance_keep_loaded() -> bool {
+    true
 }
 
 fn default_post_process_enabled() -> bool {
@@ -948,6 +991,12 @@ pub fn get_default_settings() -> AppSettings {
         post_process_models: default_post_process_models(),
         post_process_prompts: default_post_process_prompts(),
         post_process_selected_prompt_id: None,
+        enhance_enabled: false,
+        enhance_model_id: None,
+        enhance_verifier_model_id: None,
+        enhance_options: crate::enhance::EnhanceOptions::default(),
+        enhance_use_gpu: default_enhance_use_gpu(),
+        enhance_keep_loaded: default_enhance_keep_loaded(),
         mute_while_recording: false,
         append_trailing_space: false,
         app_language: default_app_language(),

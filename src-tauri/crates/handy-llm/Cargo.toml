@@ -1,0 +1,41 @@
+[package]
+name = "handy-llm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Out-of-process GGUF inference sidecar for Handy's transcript enhancement layer"
+
+# Deliberately a separate crate from `handy`, not another dependency of it.
+# `transcribe-cpp` and `llama.cpp` each vendor a full ggml; linking both into
+# one binary means duplicate `ggml_*` symbols, and merely adding llama-cpp-2 to
+# the app crate was enough to break transcribe-cpp's Vulkan build. A separate
+# process keeps the two runtimes in separate address spaces, and on the low-end
+# machines this targets it also means an out-of-memory kill takes down the
+# sidecar instead of the user's dictation app.
+
+[[bin]]
+name = "handy-llm"
+path = "src/main.rs"
+
+[features]
+# Vulkan by default: Handy already requires the Vulkan SDK to build on Windows
+# and Linux for transcribe-cpp, so this adds no new build dependency, and it is
+# the one backend that covers AMD, Intel and NVIDIA alike.
+#
+# A GPU-enabled build still runs on a machine with no usable device — llama.cpp
+# falls back to CPU, and `Engine::load` retries with zero offloaded layers if a
+# GPU load fails. So the same binary serves both a gaming rig and a potato.
+#
+# macOS builds with `--no-default-features --features metal`; NVIDIA-only builds
+# that want CUDA over Vulkan use `--no-default-features --features cuda`. Build
+# with `--no-default-features` alone for a pure CPU binary.
+default = ["vulkan"]
+vulkan = ["llama-cpp-2/vulkan"]
+cuda = ["llama-cpp-2/cuda"]
+metal = ["llama-cpp-2/metal"]
+
+[dependencies]
+llama-cpp-2 = { version = "0.1.154", default-features = false }
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

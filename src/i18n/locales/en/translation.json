@@ -628,6 +628,95 @@
           "details": "Handy's local speech-to-text is built on transcribe.cpp and ggml. Thanks to the amazing work by Georgi Gerganov and contributors."
         }
       }
+    },
+    "localEnhancement": {
+      "title": "Local Enhancement",
+      "description": "Clean up dictation with a small language model that runs entirely on this computer. Nothing is sent anywhere.",
+      "enable": {
+        "title": "Enhance transcripts",
+        "description": "Run every dictation through the local model before pasting."
+      },
+      "unavailable": "The enhancement engine is not included in this build.",
+      "model": {
+        "title": "Editing model",
+        "description": "The model that rewrites your transcript. Smaller is faster; larger is more accurate.",
+        "placeholder": "Select a model",
+        "download": "Download",
+        "downloading": "Downloading…",
+        "delete": "Delete",
+        "downloaded": "Downloaded",
+        "notDownloaded": "Not downloaded",
+        "loaded": "Loaded",
+        "size": "{{size}} MB",
+        "ram": "needs ~{{ram}} MB RAM",
+        "released": "released {{date}}"
+      },
+      "tier": {
+        "ultralight": "Ultralight",
+        "balanced": "Balanced",
+        "quality": "Quality"
+      },
+      "features": {
+        "title": "What to clean up",
+        "removeFillers": {
+          "title": "Remove filler words",
+          "description": "Delete \"um\", \"uh\", \"like\" and collapse stutters."
+        },
+        "fixSelfCorrections": {
+          "title": "Cut self-corrections",
+          "description": "When you change your mind mid-sentence, remove the wording you abandoned."
+        },
+        "fixPunctuation": {
+          "title": "Fix punctuation",
+          "description": "Repair sentence boundaries and capitalisation."
+        },
+        "formatStructure": {
+          "title": "Format lists and paragraphs",
+          "description": "Turn spoken structure into real lists and paragraph breaks."
+        },
+        "spokenCommands": {
+          "title": "Obey spoken commands",
+          "description": "Act on \"new paragraph\", \"bullet point\" and similar, and remove them from the text."
+        },
+        "contextAwareTone": {
+          "title": "Match the app's tone",
+          "description": "Adapt register to whichever application you are dictating into."
+        }
+      },
+      "aggressiveness": {
+        "title": "How much to cut",
+        "description": "How eagerly the model may delete words you actually said. Your raw transcript is always kept in history.",
+        "light": "Light — only explicit corrections",
+        "balanced": "Balanced — also false starts",
+        "aggressive": "Aggressive — also tighten rambling"
+      },
+      "verify": {
+        "title": "Check meaning was preserved",
+        "description": "Run a second pass that compares the edit with what you said and discards it if the meaning changed. Slower, but catches mistakes the basic checks cannot.",
+        "off": "Off — fastest",
+        "auto": "Auto — only when the edit could change meaning",
+        "always": "Always — check every edit"
+      },
+      "useGpu": {
+        "title": "Use the GPU",
+        "description": "Run the model on the graphics card when one is usable. Falls back to the processor automatically."
+      },
+      "keepLoaded": {
+        "title": "Keep the model in memory",
+        "description": "Faster dictation, at the cost of holding the model's memory while idle."
+      },
+      "preview": {
+        "title": "Try it",
+        "description": "See what the model does to a sentence before turning it on.",
+        "placeholder": "um so the meeting is uh moved to friday no wait thursday at three",
+        "run": "Enhance",
+        "running": "Enhancing…",
+        "result": "Result",
+        "unchanged": "No changes were needed.",
+        "rejected": "The rewrite was rejected ({{reason}}), so your original text would be used.",
+        "verdictChanged": "The meaning check found a change, so your original text would be used.",
+        "took": "{{ms}} ms"
+      }
     }
   },
   "footer": {

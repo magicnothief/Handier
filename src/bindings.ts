@@ -5,6 +5,97 @@
 
 
 export const commands = {
+/**
+ * List enhancement models, optionally narrowed to one role.
+ */
+async enhanceListModels(role: ModelRole | null) : Promise<Result<EnhanceModelInfo[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_list_models", { role }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Current state of the enhancement layer.
+ */
+async enhanceStatus() : Promise<Result<EnhanceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Download a catalog model.
+ */
+async enhanceDownloadModel(modelId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_download_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a downloaded model.
+ */
+async enhanceDeleteModel(modelId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_delete_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load the configured editing model into the sidecar.
+ */
+async enhanceLoadModel() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_load_model") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Release the model's memory without stopping the sidecar.
+ */
+async enhanceUnloadModel() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_unload_model") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Run the enhancement layer over a caller-supplied transcript.
+ * 
+ * Exists so the settings UI can show the user what the layer does to their own
+ * wording before they turn it on for real dictation.
+ */
+async enhancePreview(transcript: string) : Promise<Result<EnhancePreview, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_preview", { transcript }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Turn the enhancement layer on or off, loading or releasing the model to match.
+ */
+async enhanceSetEnabled(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_enabled", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeBinding(id: string, binding: string) : Promise<Result<BindingResponse, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_binding", { id, binding }) };
@@ -908,10 +999,8 @@ async updateRecordingRetentionPeriod(period: string) : Promise<Result<null, stri
 }
 },
 /**
- * Checks if the Mac is a laptop by detecting battery presence
- * 
- * This uses pmset to check for battery information.
- * Returns true if a battery is detected (laptop), false otherwise (desktop)
+ * Stub implementation for non-macOS platforms
+ * Always returns false since laptop detection is macOS-specific
  */
 async isLaptop() : Promise<Result<boolean, string>> {
     try {
@@ -942,6 +1031,26 @@ streamTextEvent: "stream-text-event"
 
 /** user-defined types **/
 
+/**
+ * How eagerly the model is allowed to delete words the speaker actually said.
+ * 
+ * This is the setting with the most potential to destroy user intent, so the
+ * default is the timid end of the range and the raw transcript is always kept
+ * in history regardless of the level.
+ */
+export type Aggressiveness = 
+/**
+ * Only cut when the speaker explicitly flags the correction out loud.
+ */
+"light" | 
+/**
+ * Also cut unflagged false starts and restatements of the same idea.
+ */
+"balanced" | 
+/**
+ * Also tighten rambling and redundant repetition.
+ */
+"aggressive"
 /**
  * The container-level `serde(default)` (backed by the `Default` impl below)
  * guarantees every field — including ones added in the future — falls back to
@@ -982,7 +1091,39 @@ whats_new_last_seen_version?: string; selected_model?: string; onboarding_comple
  * Which input channel to use on the selected microphone device.
  * None means "average all channels" (original behavior).
  */
-selected_channel?: number | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; theme?: Theme; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; paste_delay_after_ms?: number; 
+selected_channel?: number | null; clamshell_microphone?: string | null; selected_output_device?: string | null; translate_to_english?: boolean; selected_language?: string; overlay_position?: OverlayPosition; debug_mode?: boolean; log_level?: LogLevel; custom_words?: string[]; model_unload_timeout?: ModelUnloadTimeout; word_correction_threshold?: number; history_limit?: number; recording_retention_period?: RecordingRetentionPeriod; paste_method?: PasteMethod; clipboard_handling?: ClipboardHandling; auto_submit?: boolean; auto_submit_key?: AutoSubmitKey; post_process_enabled?: boolean; post_process_provider_id?: string; post_process_providers?: PostProcessProvider[]; post_process_api_keys?: SecretMap; post_process_models?: Partial<{ [key in string]: string }>; post_process_prompts?: LLMPrompt[]; post_process_selected_prompt_id?: string | null; 
+/**
+ * Run the local enhancement layer on every dictation.
+ * 
+ * Separate from `post_process_enabled`: that is an opt-in shortcut backed
+ * by a remote API, while this is an always-on local cleanup pass. A user
+ * can sensibly want either, both, or neither.
+ */
+enhance_enabled?: boolean; 
+/**
+ * Catalog id of the editing model, or `None` to use the catalog default.
+ */
+enhance_model_id?: string | null; 
+/**
+ * Catalog id of the verifying model. `None` reuses the editing model,
+ * which costs no extra memory.
+ */
+enhance_verifier_model_id?: string | null; 
+/**
+ * Which enhancement behaviours are switched on.
+ */
+enhance_options?: EnhanceOptions; 
+/**
+ * Offload the enhancement model to the GPU when one is usable.
+ */
+enhance_use_gpu?: boolean; 
+/**
+ * Keep the model resident between dictations.
+ * 
+ * Faster, at the cost of holding its memory. Off suits a machine that
+ * needs the RAM back more than it needs the first dictation to be quick.
+ */
+enhance_keep_loaded?: boolean; mute_while_recording?: boolean; append_trailing_space?: boolean; app_language?: string; theme?: Theme; experimental_enabled?: boolean; lazy_stream_close?: boolean; keyboard_implementation?: KeyboardImplementation; show_tray_icon?: boolean; paste_delay_ms?: number; paste_delay_after_ms?: number; 
 /**
  * Debug-gated ("beta") receipt-sequenced paste: restore the clipboard only
  * after the target app actually reads the transcript, instead of after a
@@ -1018,6 +1159,190 @@ export type EngineType =
  * the file, so this one variant covers the whole transcribe-cpp family.
  */
 "TranscribeCpp" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
+/**
+ * A catalog entry plus whether it is present on disk.
+ */
+export type EnhanceModelInfo = 
+/**
+ * The catalog entry.
+ */
+({ 
+/**
+ * Stable identifier used in settings.
+ */
+id: string; 
+/**
+ * Display name.
+ */
+name: string; 
+/**
+ * Hugging Face repository holding the GGUF.
+ */
+repo_id: string; 
+/**
+ * File to fetch from `repo_id`.
+ */
+filename: string; 
+/**
+ * Download size in bytes.
+ */
+size_bytes: number; 
+/**
+ * Quantisation of `filename`.
+ */
+quant: string; 
+/**
+ * Parameter count, for display.
+ */
+parameters: string; 
+/**
+ * SPDX-ish licence identifier, for display.
+ */
+license: string; 
+/**
+ * Approximate release date (`YYYY-MM`), so users can weigh age.
+ */
+released: string; 
+/**
+ * Whether the model deliberates before answering.
+ * 
+ * Editing must suppress this — a reasoning model spends its whole token
+ * budget thinking and never emits an edit. Verification is the opposite:
+ * it is a judgement call on short input, so deliberation helps.
+ */
+reasoning: boolean; 
+/**
+ * What this model is offered for.
+ */
+roles: ModelRole[]; 
+/**
+ * Approximate resident memory while loaded, in MiB.
+ */
+min_ram_mb: number; 
+/**
+ * Capability band.
+ */
+tier: ModelTier; 
+/**
+ * Whether this is the out-of-the-box editing model.
+ */
+default_editor?: boolean; 
+/**
+ * Whether this is the out-of-the-box verifying model.
+ */
+default_verifier?: boolean; 
+/**
+ * One-line guidance shown next to the name.
+ */
+description: string }) & { 
+/**
+ * Whether the GGUF has been downloaded.
+ */
+downloaded: boolean; 
+/**
+ * Whether this model is currently resident in the sidecar.
+ */
+loaded: boolean }
+/**
+ * Which enhancement behaviours are switched on.
+ * 
+ * Every field maps to a section of the prompt; a disabled feature contributes
+ * no text at all, keeping the prompt (and therefore the prefill cost) roughly
+ * proportional to what the user actually asked for.
+ */
+export type EnhanceOptions = { 
+/**
+ * Strip filler words ("um", "uh", "like", "you know").
+ */
+removeFillers: boolean; 
+/**
+ * Cut self-corrections and abandoned phrasing from the final transcript.
+ */
+fixSelfCorrections: boolean; 
+/**
+ * How eagerly `fix_self_corrections` is allowed to delete.
+ */
+aggressiveness: Aggressiveness; 
+/**
+ * Repair sentence boundaries, capitalisation and punctuation.
+ */
+fixPunctuation: boolean; 
+/**
+ * Turn spoken structure cues into real paragraphs and lists.
+ */
+formatStructure: boolean; 
+/**
+ * Obey spoken formatting commands ("new paragraph", "bullet that").
+ */
+spokenCommands: boolean; 
+/**
+ * Adapt register to the app being dictated into.
+ */
+contextAwareTone: boolean; 
+/**
+ * Free-text tone instruction from the user, if any.
+ */
+tonePreset: string | null; 
+/**
+ * Vocabulary the model should prefer when a word is ambiguous.
+ */
+vocabulary: string[]; 
+/**
+ * When to run the second-pass meaning check.
+ */
+verify: VerifyMode }
+/**
+ * Result of a preview run, including why it fell back when it did.
+ */
+export type EnhancePreview = { 
+/**
+ * Text that would be pasted.
+ */
+text: string; 
+/**
+ * The untouched transcript.
+ */
+original: string; 
+/**
+ * Whether the layer changed anything.
+ */
+changed: boolean; 
+/**
+ * Set when a mechanical guard refused the rewrite.
+ */
+rejected: string | null; 
+/**
+ * Set when the meaning check ran.
+ */
+verdict: string | null; 
+/**
+ * Set when the model could not run.
+ */
+error: string | null; 
+/**
+ * Wall-clock milliseconds spent.
+ */
+elapsedMs: number }
+/**
+ * Runtime state of the enhancement layer, for the settings UI.
+ */
+export type EnhanceStatus = { 
+/**
+ * Whether the sidecar binary was found at all.
+ */
+available: boolean; 
+/**
+ * Whether the sidecar process is running.
+ */
+running: boolean; 
+/**
+ * Catalog id of the resident model, if any.
+ */
+loadedModelId: string | null; 
+/**
+ * Why the layer is unusable, when it is.
+ */
+error: string | null }
 export type GpuDeviceOption = { id: string; name: string; total_vram_mb: number }
 export type HistoryEntry = { id: number; file_name: string; timestamp: number; saved: boolean; title: string; transcription_text: string; post_processed_text: string | null; post_process_prompt: string | null; post_process_requested: boolean }
 export type HistoryUpdatePayload = { action: "added"; entry: HistoryEntry } | { action: "updated"; entry: HistoryEntry } | { action: "deleted"; id: number } | { action: "toggled"; id: number }
@@ -1039,6 +1364,23 @@ export type LLMPrompt = { id: string; name: string; prompt: string }
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error"
 export type ModelInfo = { id: string; name: string; description: string; filename: string; source: ModelSource; size_mb: number; is_downloaded: boolean; is_downloading: boolean; partial_size: number; is_directory: boolean; engine_type: EngineType; accuracy_score: number; speed_score: number; supports_translation: boolean; is_recommended: boolean; supported_languages: string[]; supports_language_selection: boolean; is_custom: boolean; supports_streaming: boolean; supports_language_detection: boolean }
 export type ModelLoadStatus = { is_loaded: boolean; current_model: string | null }
+/**
+ * What a model is offered for.
+ * 
+ * Editing and verifying want different things: an editor must rewrite text
+ * obediently, while a verifier only answers one question about two passages.
+ * The smallest models can do the first acceptably but are too unreliable to
+ * be trusted as a safety net, so they are not offered as verifiers.
+ */
+export type ModelRole = 
+/**
+ * Rewrites the transcript.
+ */
+"editor" | 
+/**
+ * Checks that a rewrite preserved the meaning.
+ */
+"verifier"
 /**
  * Where a model comes from and how Handy obtains it — the routing discriminant
  * for downloading and on-disk resolution.
@@ -1063,6 +1405,22 @@ sha256: string | null } } |
  * in a shared cache. Nothing to download.
  */
 "Local"
+/**
+ * Rough capability/cost band, used to steer users to a sensible default.
+ */
+export type ModelTier = 
+/**
+ * Runs on almost anything; weakest at spotting self-corrections.
+ */
+"ultralight" | 
+/**
+ * The recommended balance of size and edit quality.
+ */
+"balanced" | 
+/**
+ * Best rewrites, but wants real headroom.
+ */
+"quality"
 export type ModelUnloadTimeout = "never" | "immediately" | "min_2" | "min_5" | "min_10" | "min_15" | "hour_1" | "sec_15"
 export type OrtAcceleratorSetting = "auto" | "cpu" | "cuda" | "directml" | "rocm"
 export type OverlayPosition = "top" | "bottom"
@@ -1171,6 +1529,22 @@ export type Theme = "system" | "light" | "dark"
 export type TranscribeAcceleratorSetting = "auto" | "cpu" | "gpu"
 export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "xdotool"
 export type VadBackend = "silero" | "earshot"
+/**
+ * When the verifier runs.
+ */
+export type VerifyMode = 
+/**
+ * Never verify. Fastest, and what the mechanical guards alone give you.
+ */
+"off" | 
+/**
+ * Verify only when the edit could plausibly have changed meaning.
+ */
+"auto" | 
+/**
+ * Verify every edit, including ones that only touched punctuation.
+ */
+"always"
 export type WindowsMicrophonePermissionStatus = { supported: boolean; overall_access: PermissionAccess; device_access: PermissionAccess; app_access: PermissionAccess; desktop_app_access: PermissionAccess }
 
 /** tauri-specta globals **/

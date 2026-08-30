@@ -8,6 +8,7 @@ mod catalog;
 pub mod cli;
 mod clipboard;
 mod commands;
+pub mod enhance;
 mod helpers;
 mod input;
 mod llm_client;
@@ -180,6 +181,12 @@ fn initialize_core_logic(app_handle: &AppHandle) {
     app_handle.manage(model_manager.clone());
     app_handle.manage(transcription_manager.clone());
     app_handle.manage(history_manager.clone());
+    match managers::enhance::EnhanceManager::new(app_handle) {
+        Ok(m) => {
+            app_handle.manage(std::sync::Arc::new(m));
+        }
+        Err(e) => log::warn!("enhancement layer unavailable: {e:#}"),
+    }
     app_handle.manage(tray::TrayState::new());
 
     // Note: Shortcuts are NOT initialized here.
@@ -615,6 +622,14 @@ pub fn run(cli_args: CliArgs) {
 
     let specta_builder = Builder::<tauri::Wry>::new()
         .commands(collect_commands![
+            commands::enhance::enhance_list_models,
+            commands::enhance::enhance_status,
+            commands::enhance::enhance_download_model,
+            commands::enhance::enhance_delete_model,
+            commands::enhance::enhance_load_model,
+            commands::enhance::enhance_unload_model,
+            commands::enhance::enhance_preview,
+            commands::enhance::enhance_set_enabled,
             shortcut::change_binding,
             shortcut::reset_binding,
             shortcut::change_shortcut_activation_setting,
