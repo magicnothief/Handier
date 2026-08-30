@@ -474,7 +474,9 @@
         "loaded": "Inläst",
         "size": "{{size}} MB",
         "ram": "behöver ca {{ram}} MB RAM",
-        "released": "släppt {{date}}"
+        "released": "släppt {{date}}",
+        "downloadingPercent": "Laddar ner {{percent}} %",
+        "downloadedOf": "{{done}} MB av {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultralätt",

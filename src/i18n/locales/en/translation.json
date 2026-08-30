@@ -649,7 +649,9 @@
         "loaded": "Loaded",
         "size": "{{size}} MB",
         "ram": "needs ~{{ram}} MB RAM",
-        "released": "released {{date}}"
+        "released": "released {{date}}",
+        "downloadingPercent": "Downloading {{percent}}%",
+        "downloadedOf": "{{done}} MB of {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultralight",

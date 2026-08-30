@@ -474,7 +474,9 @@
         "loaded": "Загружена",
         "size": "{{size}} МБ",
         "ram": "нужно ~{{ram}} МБ ОЗУ",
-        "released": "выпущено {{date}}"
+        "released": "выпущено {{date}}",
+        "downloadingPercent": "Скачивание {{percent}} %",
+        "downloadedOf": "{{done}} МБ из {{total}} МБ"
       },
       "tier": {
         "ultralight": "Сверхлёгкая",

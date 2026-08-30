@@ -474,7 +474,9 @@
         "loaded": "Indlæst",
         "size": "{{size}} MB",
         "ram": "kræver ca. {{ram}} MB RAM",
-        "released": "udgivet {{date}}"
+        "released": "udgivet {{date}}",
+        "downloadingPercent": "Henter {{percent}} %",
+        "downloadedOf": "{{done}} MB af {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultralet",

@@ -451,7 +451,9 @@
         "loaded": "مُحمَّل",
         "size": "{{size}} ميغابايت",
         "ram": "يحتاج نحو {{ram}} ميغابايت من الذاكرة",
-        "released": "صدر في {{date}}"
+        "released": "صدر في {{date}}",
+        "downloadingPercent": "جارٍ التنزيل {{percent}}٪",
+        "downloadedOf": "{{done}} ميغابايت من {{total}} ميغابايت"
       },
       "tier": {
         "ultralight": "خفيف جدًا",

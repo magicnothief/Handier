@@ -96,6 +96,65 @@ async enhanceSetEnabled(enabled: boolean) : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+/**
+ * Choose the editing model.
+ * 
+ * Each enhancement setting gets its own command because the frontend store
+ * dispatches per key; a setting with no command silently updates the UI and
+ * never reaches disk.
+ */
+async enhanceSetModel(modelId: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Choose the verifying model.
+ */
+async enhanceSetVerifierModel(modelId: string | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_verifier_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Replace the set of enabled enhancement behaviours.
+ */
+async enhanceSetOptions(options: EnhanceOptions) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_options", { options }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Turn GPU offload on or off, reloading so it takes effect immediately.
+ */
+async enhanceSetUseGpu(useGpu: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_use_gpu", { useGpu }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Choose whether the model stays resident between dictations.
+ */
+async enhanceSetKeepLoaded(keepLoaded: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_keep_loaded", { keepLoaded }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async changeBinding(id: string, binding: string) : Promise<Result<BindingResponse, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("change_binding", { id, binding }) };
@@ -1016,10 +1075,12 @@ async isLaptop() : Promise<Result<boolean, string>> {
 
 
 export const events = __makeEvents__<{
+enhanceDownloadProgress: EnhanceDownloadProgress,
 historyUpdatePayload: HistoryUpdatePayload,
 streamPhaseEvent: StreamPhaseEvent,
 streamTextEvent: StreamTextEvent
 }>({
+enhanceDownloadProgress: "enhance-download-progress",
 historyUpdatePayload: "history-update-payload",
 streamPhaseEvent: "stream-phase-event",
 streamTextEvent: "stream-text-event"
@@ -1159,6 +1220,29 @@ export type EngineType =
  * the file, so this one variant covers the whole transcribe-cpp family.
  */
 "TranscribeCpp" | "Parakeet" | "Moonshine" | "MoonshineStreaming" | "SenseVoice" | "GigaAM" | "Canary" | "Cohere"
+/**
+ * Progress of an enhancement model download, sent to the settings UI.
+ * 
+ * A typed `tauri_specta` event rather than a bare `emit`, so the frontend gets
+ * a generated listener and the payload type reaches `bindings.ts`.
+ */
+export type EnhanceDownloadProgress = { 
+/**
+ * Catalog id of the model being fetched.
+ */
+modelId: string; 
+/**
+ * Bytes received so far.
+ */
+downloaded: number; 
+/**
+ * Total bytes expected, or 0 before the size is known.
+ */
+total: number; 
+/**
+ * Convenience percentage, so the UI does not repeat the division.
+ */
+percentage: number }
 /**
  * A catalog entry plus whether it is present on disk.
  */

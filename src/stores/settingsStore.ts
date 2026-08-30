@@ -4,9 +4,10 @@ import { listen } from "@tauri-apps/api/event";
 import type {
   AppSettings as Settings,
   AudioDevice,
-  TranscribeAcceleratorSetting,
+  EnhanceOptions,
   OrtAcceleratorSetting,
   ShortcutActivation,
+  TranscribeAcceleratorSetting,
   VadBackend,
 } from "@/bindings";
 import { commands } from "@/bindings";
@@ -82,6 +83,20 @@ const DEFAULT_AUDIO_DEVICE: AudioDevice = {
 const settingUpdaters: {
   [K in keyof Settings]?: (value: Settings[K]) => Promise<unknown>;
 } = {
+  // The enhancement layer. Without an entry here `updateSetting` only mutates
+  // local state and warns, so the UI appears to accept a change that never
+  // reaches disk.
+  enhance_enabled: (value) => commands.enhanceSetEnabled(value as boolean),
+  enhance_model_id: (value) =>
+    commands.enhanceSetModel((value as string | null) ?? null),
+  enhance_verifier_model_id: (value) =>
+    commands.enhanceSetVerifierModel((value as string | null) ?? null),
+  enhance_options: (value) =>
+    commands.enhanceSetOptions(value as EnhanceOptions),
+  enhance_use_gpu: (value) => commands.enhanceSetUseGpu(value as boolean),
+  enhance_keep_loaded: (value) =>
+    commands.enhanceSetKeepLoaded(value as boolean),
+
   always_on_microphone: (value) =>
     commands.updateMicrophoneMode(value as boolean),
   audio_feedback: (value) =>

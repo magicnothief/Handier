@@ -474,7 +474,9 @@
         "loaded": "Caricato",
         "size": "{{size}} MB",
         "ram": "richiede circa {{ram}} MB di RAM",
-        "released": "pubblicato il {{date}}"
+        "released": "pubblicato il {{date}}",
+        "downloadingPercent": "Download {{percent}} %",
+        "downloadedOf": "{{done}} MB di {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultraleggero",

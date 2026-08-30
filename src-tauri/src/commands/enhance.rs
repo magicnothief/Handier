@@ -148,3 +148,95 @@ pub fn enhance_set_enabled(app: AppHandle, enabled: bool) -> Result<(), String> 
     }
     Ok(())
 }
+
+/// Choose the editing model.
+///
+/// Each enhancement setting gets its own command because the frontend store
+/// dispatches per key; a setting with no command silently updates the UI and
+/// never reaches disk.
+#[tauri::command]
+#[specta::specta]
+pub fn enhance_set_model(app: AppHandle, model_id: Option<String>) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.enhance_model_id = model_id.clone();
+    let use_gpu = settings.enhance_use_gpu;
+    let keep_loaded = settings.enhance_keep_loaded;
+    let enabled = settings.enhance_enabled;
+    write_settings(&app, settings);
+
+    // Swap the resident model so the next dictation uses the new choice
+    // without waiting for a restart.
+    let mgr = manager(&app)?;
+    if enabled && keep_loaded {
+        if let Some(model) = resolve_model(model_id.as_deref(), ModelRole::Editor) {
+            if let Err(e) = mgr.load(model, use_gpu) {
+                // Not fatal: it loads lazily on the next dictation instead.
+                log::warn!("could not switch enhancement model: {e:#}");
+            }
+        }
+    } else {
+        mgr.unload();
+    }
+    Ok(())
+}
+
+/// Choose the verifying model.
+#[tauri::command]
+#[specta::specta]
+pub fn enhance_set_verifier_model(app: AppHandle, model_id: Option<String>) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.enhance_verifier_model_id = model_id;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+/// Replace the set of enabled enhancement behaviours.
+#[tauri::command]
+#[specta::specta]
+pub fn enhance_set_options(
+    app: AppHandle,
+    options: crate::enhance::EnhanceOptions,
+) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.enhance_options = options;
+    write_settings(&app, settings);
+    Ok(())
+}
+
+/// Turn GPU offload on or off, reloading so it takes effect immediately.
+#[tauri::command]
+#[specta::specta]
+pub fn enhance_set_use_gpu(app: AppHandle, use_gpu: bool) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.enhance_use_gpu = use_gpu;
+    let model_id = settings.enhance_model_id.clone();
+    let enabled = settings.enhance_enabled;
+    let keep_loaded = settings.enhance_keep_loaded;
+    write_settings(&app, settings);
+
+    let mgr = manager(&app)?;
+    // The backend is chosen at load time, so an already-resident model keeps
+    // running on the old one until it is reloaded.
+    mgr.unload();
+    if enabled && keep_loaded {
+        if let Some(model) = resolve_model(model_id.as_deref(), ModelRole::Editor) {
+            if let Err(e) = mgr.load(model, use_gpu) {
+                log::warn!("could not reload enhancement model: {e:#}");
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Choose whether the model stays resident between dictations.
+#[tauri::command]
+#[specta::specta]
+pub fn enhance_set_keep_loaded(app: AppHandle, keep_loaded: bool) -> Result<(), String> {
+    let mut settings = get_settings(&app);
+    settings.enhance_keep_loaded = keep_loaded;
+    write_settings(&app, settings);
+    if !keep_loaded {
+        manager(&app)?.unload();
+    }
+    Ok(())
+}

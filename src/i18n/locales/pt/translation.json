@@ -474,7 +474,9 @@
         "loaded": "Carregado",
         "size": "{{size}} MB",
         "ram": "precisa de ~{{ram}} MB de RAM",
-        "released": "lançado em {{date}}"
+        "released": "lançado em {{date}}",
+        "downloadingPercent": "Baixando {{percent}}%",
+        "downloadedOf": "{{done}} MB de {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultraleve",

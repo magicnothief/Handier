@@ -474,7 +474,9 @@
         "loaded": "लोड भयो",
         "size": "{{size}} MB",
         "ram": "लगभग {{ram}} MB RAM चाहिन्छ",
-        "released": "{{date}} मा जारी"
+        "released": "{{date}} मा जारी",
+        "downloadingPercent": "डाउनलोड हुँदै {{percent}}%",
+        "downloadedOf": "{{total}} MB मध्ये {{done}} MB"
       },
       "tier": {
         "ultralight": "अति हल्का",

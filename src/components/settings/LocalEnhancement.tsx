@@ -1,7 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commands } from "../../bindings";
-import type { EnhanceModelInfo, EnhanceStatus } from "../../bindings";
+import { commands, events } from "../../bindings";
+import type {
+  EnhanceDownloadProgress,
+  EnhanceModelInfo,
+  EnhanceStatus,
+} from "../../bindings";
+import { ProgressBar } from "../shared";
 import { useSettings } from "../../hooks/useSettings";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Select";
@@ -35,6 +40,9 @@ export const LocalEnhancement: React.FC = React.memo(() => {
   const [status, setStatus] = useState<EnhanceStatus | null>(null);
   const [models, setModels] = useState<EnhanceModelInfo[]>([]);
   const [busyModelId, setBusyModelId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<EnhanceDownloadProgress | null>(
+    null,
+  );
   const [previewInput, setPreviewInput] = useState("");
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -56,6 +64,17 @@ export const LocalEnhancement: React.FC = React.memo(() => {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  // A multi-hundred-megabyte download with no feedback looks like a hang, so
+  // follow the backend's progress events for the duration.
+  useEffect(() => {
+    const unlisten = events.enhanceDownloadProgress.listen((event) =>
+      setProgress(event.payload),
+    );
+    return () => {
+      void unlisten.then((off) => off());
+    };
+  }, []);
 
   const activeModel = useMemo(
     () =>
@@ -90,9 +109,11 @@ export const LocalEnhancement: React.FC = React.memo(() => {
     async (modelId: string) => {
       setBusyModelId(modelId);
       setError(null);
+      setProgress(null);
       const result = await commands.enhanceDownloadModel(modelId);
       if (result.status === "error") setError(result.error);
       setBusyModelId(null);
+      setProgress(null);
       void refresh();
     },
     [refresh],
@@ -180,7 +201,11 @@ export const LocalEnhancement: React.FC = React.memo(() => {
               disabled={busyModelId === activeModel.id}
             >
               {busyModelId === activeModel.id
-                ? t("settings.localEnhancement.model.downloading")
+                ? progress && progress.modelId === activeModel.id
+                  ? t("settings.localEnhancement.model.downloadingPercent", {
+                      percent: Math.floor(progress.percentage),
+                    })
+                  : t("settings.localEnhancement.model.downloading")
                 : t("settings.localEnhancement.model.download")}
             </Button>
           )}
@@ -194,6 +219,22 @@ export const LocalEnhancement: React.FC = React.memo(() => {
             </Button>
           )}
         </div>
+        {busyModelId && progress && progress.modelId === busyModelId && (
+          <div className="mt-2 w-full">
+            <ProgressBar
+              progress={[
+                { id: progress.modelId, percentage: progress.percentage },
+              ]}
+              size="small"
+            />
+            <p className="text-xs text-mid-gray/70 mt-1">
+              {t("settings.localEnhancement.model.downloadedOf", {
+                done: Math.round(progress.downloaded / 1048576),
+                total: Math.round(progress.total / 1048576),
+              })}
+            </p>
+          </div>
+        )}
         {activeModel && (
           <p className="text-xs text-mid-gray/70 mt-1">
             {activeModel.description}{" "}

@@ -474,7 +474,9 @@
         "loaded": "已載入",
         "size": "{{size}} MB",
         "ram": "約需 {{ram}} MB 記憶體",
-        "released": "{{date}} 發布"
+        "released": "{{date}} 發布",
+        "downloadingPercent": "正在下載 {{percent}}%",
+        "downloadedOf": "{{done}} MB／共 {{total}} MB"
       },
       "tier": {
         "ultralight": "超輕量",

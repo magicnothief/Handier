@@ -474,7 +474,9 @@
         "loaded": "Завантажена",
         "size": "{{size}} МБ",
         "ram": "потрібно ~{{ram}} МБ ОЗП",
-        "released": "випущено {{date}}"
+        "released": "випущено {{date}}",
+        "downloadingPercent": "Завантаження {{percent}} %",
+        "downloadedOf": "{{done}} МБ з {{total}} МБ"
       },
       "tier": {
         "ultralight": "Наднадлегка",

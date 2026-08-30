@@ -474,7 +474,9 @@
         "loaded": "読み込み済み",
         "size": "{{size}} MB",
         "ram": "約 {{ram}} MB のメモリが必要",
-        "released": "{{date}} 公開"
+        "released": "{{date}} 公開",
+        "downloadingPercent": "ダウンロード中 {{percent}}%",
+        "downloadedOf": "{{total}} MB 中 {{done}} MB"
       },
       "tier": {
         "ultralight": "超軽量",

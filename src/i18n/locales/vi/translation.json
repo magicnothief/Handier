@@ -474,7 +474,9 @@
         "loaded": "Đã nạp",
         "size": "{{size}} MB",
         "ram": "cần khoảng {{ram}} MB RAM",
-        "released": "phát hành {{date}}"
+        "released": "phát hành {{date}}",
+        "downloadingPercent": "Đang tải xuống {{percent}}%",
+        "downloadedOf": "{{done}} MB trên {{total}} MB"
       },
       "tier": {
         "ultralight": "Siêu nhẹ",

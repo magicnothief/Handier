@@ -630,6 +630,11 @@ pub fn run(cli_args: CliArgs) {
             commands::enhance::enhance_unload_model,
             commands::enhance::enhance_preview,
             commands::enhance::enhance_set_enabled,
+            commands::enhance::enhance_set_model,
+            commands::enhance::enhance_set_verifier_model,
+            commands::enhance::enhance_set_options,
+            commands::enhance::enhance_set_use_gpu,
+            commands::enhance::enhance_set_keep_loaded,
             shortcut::change_binding,
             shortcut::reset_binding,
             shortcut::change_shortcut_activation_setting,
@@ -748,6 +753,7 @@ pub fn run(cli_args: CliArgs) {
             helpers::clamshell::is_laptop,
         ])
         .events(collect_events![
+            managers::enhance::EnhanceDownloadProgress,
             managers::history::HistoryUpdatePayload,
             managers::transcription::StreamTextEvent,
             managers::transcription::StreamPhaseEvent,

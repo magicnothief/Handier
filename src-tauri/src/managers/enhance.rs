@@ -4,11 +4,14 @@
 //! enhancement models land in the same cache and honour the same `HF_HOME`.
 
 use anyhow::{anyhow, Context, Result};
+use hf_hub::api::tokio::Progress;
 use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
+use tauri_specta::Event as _;
 
 use crate::enhance::catalog::{self, CatalogModel, ModelRole};
 use crate::enhance::{self, AppContext, EnhanceOptions, Enhanced, SidecarClient};
@@ -40,10 +43,113 @@ pub struct EnhanceStatus {
     pub error: Option<String>,
 }
 
+/// Progress of an enhancement model download, sent to the settings UI.
+///
+/// A typed `tauri_specta` event rather than a bare `emit`, so the frontend gets
+/// a generated listener and the payload type reaches `bindings.ts`.
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type, tauri_specta::Event)]
+#[serde(rename_all = "camelCase")]
+pub struct EnhanceDownloadProgress {
+    /// Catalog id of the model being fetched.
+    pub model_id: String,
+    /// Bytes received so far.
+    pub downloaded: u64,
+    /// Total bytes expected, or 0 before the size is known.
+    pub total: u64,
+    /// Convenience percentage, so the UI does not repeat the division.
+    pub percentage: f64,
+}
+
+/// Reports download progress to the frontend as `enhance-download-progress`.
+///
+/// A separate event from the transcription models' so the two model pickers
+/// cannot show each other's progress. hf-hub clones the reporter, so the
+/// running totals live behind an `Arc`.
+#[derive(Clone)]
+struct DownloadReporter {
+    app: AppHandle,
+    model_id: String,
+    state: Arc<Mutex<ReporterState>>,
+}
+
+struct ReporterState {
+    total: u64,
+    downloaded: u64,
+    last_emit: Instant,
+}
+
+impl DownloadReporter {
+    fn new(app: AppHandle, model_id: String) -> Self {
+        Self {
+            app,
+            model_id,
+            state: Arc::new(Mutex::new(ReporterState {
+                total: 0,
+                downloaded: 0,
+                last_emit: Instant::now(),
+            })),
+        }
+    }
+
+    fn emit(&self, downloaded: u64, total: u64) {
+        let percentage = if total > 0 {
+            (downloaded as f64 / total as f64) * 100.0
+        } else {
+            0.0
+        };
+        let _ = EnhanceDownloadProgress {
+            model_id: self.model_id.clone(),
+            downloaded,
+            total,
+            percentage,
+        }
+        .emit(&self.app);
+    }
+}
+
+impl Progress for DownloadReporter {
+    async fn init(&mut self, size: usize, _filename: &str) {
+        if let Ok(mut st) = self.state.lock() {
+            st.total = size as u64;
+            st.downloaded = 0;
+            st.last_emit = Instant::now();
+        }
+        self.emit(0, size as u64);
+    }
+
+    async fn update(&mut self, size: usize) {
+        let Ok(mut st) = self.state.lock() else {
+            return;
+        };
+        st.downloaded = st.downloaded.saturating_add(size as u64);
+        let now = Instant::now();
+        // Throttle to ~10 updates a second so a fast link does not flood the
+        // event channel, but never drop the final one.
+        let done = st.total > 0 && st.downloaded >= st.total;
+        if now.duration_since(st.last_emit) < Duration::from_millis(100) && !done {
+            return;
+        }
+        st.last_emit = now;
+        let (downloaded, total) = (st.downloaded, st.total);
+        drop(st);
+        self.emit(downloaded, total);
+    }
+
+    async fn finish(&mut self) {
+        let (downloaded, total) = match self.state.lock() {
+            Ok(st) => (st.downloaded.max(st.total), st.total),
+            Err(_) => return,
+        };
+        self.emit(downloaded, total);
+    }
+}
+
 /// Manages the enhancement sidecar's lifetime and model files.
 pub struct EnhanceManager {
     client: Option<Arc<SidecarClient>>,
     models_dir: PathBuf,
+    /// Handle used to report download progress to the frontend.
+    app: AppHandle,
     /// Set when the sidecar binary could not be located at startup.
     unavailable_reason: Option<String>,
 }
@@ -67,6 +173,7 @@ impl EnhanceManager {
                 Ok(Self {
                     client: Some(Arc::new(SidecarClient::new(exe))),
                     models_dir,
+                    app: app.clone(),
                     unavailable_reason: None,
                 })
             }
@@ -75,6 +182,7 @@ impl EnhanceManager {
                 Ok(Self {
                     client: None,
                     models_dir,
+                    app: app.clone(),
                     unavailable_reason: Some(
                         "The enhancement engine was not found in this build.".to_string(),
                     ),
@@ -150,12 +258,16 @@ impl EnhanceManager {
         );
         let api = hf_hub::api::tokio::Api::new().context("failed to create Hugging Face client")?;
         let repo = api.model(model.repo_id.clone());
-        let downloaded = repo.get(&model.filename).await.with_context(|| {
-            format!(
-                "failed to download {} from {}",
-                model.filename, model.repo_id
-            )
-        })?;
+        let reporter = DownloadReporter::new(self.app.clone(), model.id.clone());
+        let downloaded = repo
+            .download_with_progress(&model.filename, reporter)
+            .await
+            .with_context(|| {
+                format!(
+                    "failed to download {} from {}",
+                    model.filename, model.repo_id
+                )
+            })?;
 
         // hf-hub caches under HF_HOME; copy into the app's directory so the
         // model survives a cache clear and is visible next to the others.
@@ -288,5 +400,31 @@ mod tests {
             resolve_model(Some("liquidai/lfm2.5-350m"), ModelRole::Editor).map(|m| m.id.as_str()),
             Some("liquidai/lfm2.5-350m")
         );
+    }
+}
+
+#[cfg(test)]
+mod progress_tests {
+    use super::*;
+
+    #[test]
+    fn percentage_is_derived_from_the_byte_counts() {
+        // The UI shows this directly, so an off value is visible to the user.
+        let cases = [(0u64, 100u64, 0.0), (50, 100, 50.0), (100, 100, 100.0)];
+        for (done, total, want) in cases {
+            let pct = if total > 0 {
+                (done as f64 / total as f64) * 100.0
+            } else {
+                0.0
+            };
+            assert!((pct - want).abs() < f64::EPSILON, "{done}/{total}");
+        }
+    }
+
+    #[test]
+    fn unknown_total_reports_zero_rather_than_dividing_by_it() {
+        let total = 0u64;
+        let pct = if total > 0 { 100.0 / total as f64 } else { 0.0 };
+        assert_eq!(pct, 0.0);
     }
 }

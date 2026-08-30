@@ -474,7 +474,9 @@
         "loaded": "נטען",
         "size": "{{size}} מ״ב",
         "ram": "דורש כ-{{ram}} מ״ב זיכרון",
-        "released": "שוחרר ב-{{date}}"
+        "released": "שוחרר ב-{{date}}",
+        "downloadingPercent": "מוריד {{percent}}%",
+        "downloadedOf": "{{done}} מ״ב מתוך {{total}} מ״ב"
       },
       "tier": {
         "ultralight": "קל במיוחד",

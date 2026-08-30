@@ -474,7 +474,9 @@
         "loaded": "로드됨",
         "size": "{{size}} MB",
         "ram": "약 {{ram}} MB RAM 필요",
-        "released": "{{date}} 출시"
+        "released": "{{date}} 출시",
+        "downloadingPercent": "다운로드 중 {{percent}}%",
+        "downloadedOf": "{{total}} MB 중 {{done}} MB"
       },
       "tier": {
         "ultralight": "초경량",

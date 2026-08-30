@@ -474,7 +474,9 @@
         "loaded": "Načteno",
         "size": "{{size}} MB",
         "ram": "potřebuje ~{{ram}} MB RAM",
-        "released": "vydáno {{date}}"
+        "released": "vydáno {{date}}",
+        "downloadingPercent": "Stahování {{percent}} %",
+        "downloadedOf": "{{done}} MB z {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultralehký",

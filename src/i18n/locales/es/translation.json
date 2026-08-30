@@ -474,7 +474,9 @@
         "loaded": "Cargado",
         "size": "{{size}} MB",
         "ram": "necesita ~{{ram}} MB de RAM",
-        "released": "publicado en {{date}}"
+        "released": "publicado en {{date}}",
+        "downloadingPercent": "Descargando {{percent}} %",
+        "downloadedOf": "{{done}} MB de {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultraligero",

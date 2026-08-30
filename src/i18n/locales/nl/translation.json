@@ -474,7 +474,9 @@
         "loaded": "Geladen",
         "size": "{{size}} MB",
         "ram": "heeft ~{{ram}} MB RAM nodig",
-        "released": "uitgebracht {{date}}"
+        "released": "uitgebracht {{date}}",
+        "downloadingPercent": "Bezig met downloaden: {{percent}}%",
+        "downloadedOf": "{{done}} MB van {{total}} MB"
       },
       "tier": {
         "ultralight": "Ultralicht",

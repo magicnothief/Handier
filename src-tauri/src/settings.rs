@@ -1289,6 +1289,50 @@ pub fn get_recording_retention_period(app: &AppHandle) -> RecordingRetentionPeri
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn enhancement_settings_survive_a_serialisation_round_trip() {
+        // These reach disk through serde. The settings UI appeared to accept
+        // model changes that never persisted, so pin the round trip.
+        let mut settings = get_default_settings();
+        settings.enhance_enabled = true;
+        settings.enhance_model_id = Some("qwen/qwen3-1.7b".to_string());
+        settings.enhance_verifier_model_id = Some("qwen/qwen3-1.7b".to_string());
+        settings.enhance_use_gpu = false;
+        settings.enhance_keep_loaded = false;
+        settings.enhance_options.aggressiveness = crate::enhance::Aggressiveness::Aggressive;
+        settings.enhance_options.remove_fillers = false;
+
+        let json = serde_json::to_string(&settings).expect("serialises");
+        let back: AppSettings = serde_json::from_str(&json).expect("deserialises");
+
+        assert!(back.enhance_enabled);
+        assert_eq!(back.enhance_model_id.as_deref(), Some("qwen/qwen3-1.7b"));
+        assert_eq!(
+            back.enhance_verifier_model_id.as_deref(),
+            Some("qwen/qwen3-1.7b")
+        );
+        assert!(!back.enhance_use_gpu);
+        assert!(!back.enhance_keep_loaded);
+        assert_eq!(
+            back.enhance_options.aggressiveness,
+            crate::enhance::Aggressiveness::Aggressive
+        );
+        assert!(!back.enhance_options.remove_fillers);
+    }
+
+    #[test]
+    fn enhancement_defaults_are_off_but_configured() {
+        // Enabling is the user's choice; everything else should be ready.
+        let s = get_default_settings();
+        assert!(!s.enhance_enabled, "must not enable itself");
+        assert!(s.enhance_use_gpu, "GPU offload falls back on its own");
+        assert!(s.enhance_keep_loaded);
+        assert!(
+            s.enhance_model_id.is_none(),
+            "falls back to the catalog default"
+        );
+    }
+
     use super::*;
 
     fn default_settings_json() -> serde_json::Value {

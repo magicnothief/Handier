@@ -474,7 +474,9 @@
         "loaded": "已加载",
         "size": "{{size}} MB",
         "ram": "约需 {{ram}} MB 内存",
-        "released": "{{date}} 发布"
+        "released": "{{date}} 发布",
+        "downloadingPercent": "正在下载 {{percent}}%",
+        "downloadedOf": "{{done}} MB / 共 {{total}} MB"
       },
       "tier": {
         "ultralight": "超轻量",

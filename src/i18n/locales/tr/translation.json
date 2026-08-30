@@ -474,7 +474,9 @@
         "loaded": "Yüklendi",
         "size": "{{size}} MB",
         "ram": "yaklaşık {{ram}} MB RAM gerekir",
-        "released": "{{date}} tarihinde yayımlandı"
+        "released": "{{date}} tarihinde yayımlandı",
+        "downloadingPercent": "İndiriliyor %{{percent}}",
+        "downloadedOf": "{{total}} MB / {{done}} MB"
       },
       "tier": {
         "ultralight": "Ultra hafif",
