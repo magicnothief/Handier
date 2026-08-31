@@ -376,7 +376,7 @@ mod tests {
     fn resolve_falls_back_to_the_role_default() {
         assert_eq!(
             resolve_model(None, ModelRole::Editor).map(|m| m.id.as_str()),
-            Some("qwen/qwen3-0.6b")
+            Some("qwen/qwen3-4b-instruct-iq3")
         );
         assert_eq!(
             resolve_model(None, ModelRole::Verifier).map(|m| m.id.as_str()),
@@ -390,7 +390,7 @@ mod tests {
         // feature; falling back keeps it working across catalog changes.
         assert_eq!(
             resolve_model(Some("deleted/model"), ModelRole::Editor).map(|m| m.id.as_str()),
-            Some("qwen/qwen3-0.6b")
+            Some("qwen/qwen3-4b-instruct-iq3")
         );
     }
 

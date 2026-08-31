@@ -1,5 +1,5 @@
 {
-  "catalog_version": 4,
+  "catalog_version": 5,
   "models": [
     {
       "id": "liquidai/lfm2.5-230m",
@@ -12,10 +12,13 @@
       "license": "lfm1.0",
       "released": "2026-08",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 500,
       "tier": "ultralight",
-      "description": "Smallest option. For machines where nothing else fits."
+      "description": "Smallest option. For machines where nothing else fits.",
+      "default_editor": false
     },
     {
       "id": "liquidai/lfm2.5-350m",
@@ -28,10 +31,13 @@
       "license": "lfm1.0",
       "released": "2026-08",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 650,
       "tier": "ultralight",
-      "description": "Purpose-built for edge devices. Fast, and no thinking mode to suppress."
+      "description": "Purpose-built for edge devices. Fast, and no thinking mode to suppress.",
+      "default_editor": false
     },
     {
       "id": "google/gemma-3-270m-it",
@@ -44,10 +50,13 @@
       "license": "gemma",
       "released": "2025-08",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 700,
       "tier": "ultralight",
-      "description": "Fewest parameters of the Gemma family. Weak at spotting self-corrections."
+      "description": "Fewest parameters of the Gemma family. Weak at spotting self-corrections.",
+      "default_editor": false
     },
     {
       "id": "huggingfacetb/smollm2-360m",
@@ -60,10 +69,13 @@
       "license": "apache-2.0",
       "released": "2024-10",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 750,
       "tier": "ultralight",
-      "description": "Older but fully permissive licence, if that matters to you."
+      "description": "Older but fully permissive licence, if that matters to you.",
+      "default_editor": false
     },
     {
       "id": "qwen/qwen3-0.6b",
@@ -76,10 +88,12 @@
       "license": "apache-2.0",
       "released": "2025-04",
       "reasoning": true,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 1000,
       "tier": "balanced",
-      "default_editor": true,
+      "default_editor": false,
       "description": "Recommended default editor. Best quality per megabyte for transcript cleanup."
     },
     {
@@ -93,10 +107,13 @@
       "license": "lfm1.0",
       "released": "2026-08",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 1400,
       "tier": "balanced",
-      "description": "Noticeably better edits than the 0.6B class, without a thinking mode."
+      "description": "Noticeably better edits than the 0.6B class, without a thinking mode.",
+      "default_editor": false
     },
     {
       "id": "google/gemma-3-1b-it",
@@ -109,10 +126,13 @@
       "license": "gemma",
       "released": "2025-03",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 1500,
       "tier": "balanced",
-      "description": "Strong instruction following for its size."
+      "description": "Strong instruction following for its size.",
+      "default_editor": false
     },
     {
       "id": "meta/llama-3.2-1b",
@@ -125,10 +145,13 @@
       "license": "llama3.2",
       "released": "2024-09",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 1500,
       "tier": "balanced",
-      "description": "Older, but well understood and widely tested."
+      "description": "Older, but well understood and widely tested.",
+      "default_editor": false
     },
     {
       "id": "qwen/qwen3-1.7b",
@@ -141,11 +164,15 @@
       "license": "apache-2.0",
       "released": "2025-04",
       "reasoning": true,
-      "roles": ["editor", "verifier"],
+      "roles": [
+        "editor",
+        "verifier"
+      ],
       "min_ram_mb": 2200,
       "tier": "quality",
       "default_verifier": true,
-      "description": "Best all-rounder. Its thinking mode makes it the recommended verifier."
+      "description": "Best all-rounder. Its thinking mode makes it the recommended verifier.",
+      "default_editor": false
     },
     {
       "id": "qwen/qwen2.5-1.5b",
@@ -158,10 +185,13 @@
       "license": "apache-2.0",
       "released": "2024-09",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 2200,
       "tier": "quality",
-      "description": "Previous Qwen generation. No thinking mode, so lower latency than Qwen3 1.7B."
+      "description": "Previous Qwen generation. No thinking mode, so lower latency than Qwen3 1.7B.",
+      "default_editor": false
     },
     {
       "id": "liquidai/lfm2.5-2.6b",
@@ -174,10 +204,52 @@
       "license": "lfm1.0",
       "released": "2026-08",
       "reasoning": false,
-      "roles": ["editor"],
+      "roles": [
+        "editor"
+      ],
       "min_ram_mb": 2900,
       "tier": "quality",
-      "description": "Highest edit quality here. Wants a GPU or a genuinely fast CPU."
+      "description": "Highest edit quality here. Wants a GPU or a genuinely fast CPU.",
+      "default_editor": false
+    },
+    {
+      "id": "qwen/qwen3-4b-instruct-iq3",
+      "name": "Qwen3 4B Instruct (IQ3)",
+      "repo_id": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+      "filename": "Qwen3-4B-Instruct-2507-UD-IQ3_XXS.gguf",
+      "size_bytes": 1674376800,
+      "quant": "UD-IQ3_XXS",
+      "parameters": "4B",
+      "license": "apache-2.0",
+      "released": "2025-08",
+      "reasoning": true,
+      "roles": [
+        "editor",
+        "verifier"
+      ],
+      "min_ram_mb": 2400,
+      "tier": "quality",
+      "default_editor": true,
+      "description": "Smallest model that scored 100% on the self-correction suite. Recommended."
+    },
+    {
+      "id": "qwen/qwen3-4b-instruct",
+      "name": "Qwen3 4B Instruct (Q4)",
+      "repo_id": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+      "filename": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+      "size_bytes": 2497281120,
+      "quant": "Q4_K_M",
+      "parameters": "4B",
+      "license": "apache-2.0",
+      "released": "2025-08",
+      "reasoning": true,
+      "roles": [
+        "editor",
+        "verifier"
+      ],
+      "min_ram_mb": 3300,
+      "tier": "quality",
+      "description": "Same model at a less aggressive quantisation. Also 100%, with more headroom."
     }
   ]
 }

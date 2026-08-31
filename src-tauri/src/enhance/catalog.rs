@@ -186,7 +186,7 @@ mod tests {
 
         assert_eq!(
             default_editor().map(|m| m.id.as_str()),
-            Some("qwen/qwen3-0.6b")
+            Some("qwen/qwen3-4b-instruct-iq3")
         );
         assert_eq!(
             default_verifier().map(|m| m.id.as_str()),
@@ -271,6 +271,17 @@ mod tests {
     }
 
     #[test]
+    fn the_default_editor_is_one_that_scored_full_marks() {
+        // The default is the smallest model measured at 68/68 on the
+        // self-correction suite. Everything smaller topped out at 66/68, and
+        // several inverted meaning rather than merely missing an edit, so a
+        // smaller default would be choosing a known-wrong answer.
+        let e = default_editor().expect("an editor default exists");
+        assert_eq!(e.parameters, "4B");
+        assert!(e.supports(ModelRole::Editor));
+    }
+
+    #[test]
     fn the_low_tiers_fit_the_target_hardware() {
         // The layer promises to run alongside a transcription model on a 4 GB
         // machine. Only the explicitly-labelled quality tier may exceed that;
@@ -279,7 +290,10 @@ mod tests {
             let ceiling = match m.tier {
                 ModelTier::Ultralight => 800,
                 ModelTier::Balanced => 1600,
-                ModelTier::Quality => 3072,
+                // Raised from 3072 when the default became a 4B: measurement
+                // showed nothing below that size handles self-correction
+                // reliably, so the quality tier now has to accommodate it.
+                ModelTier::Quality => 3584,
             };
             assert!(
                 m.min_ram_mb <= ceiling,

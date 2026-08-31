@@ -86,10 +86,21 @@ impl Aggressiveness {
     fn rules(self) -> &'static str {
         match self {
             Self::Light => {
-                "- If the speaker corrects themselves with an explicit signal (\"no wait\", \
-                 \"I mean\", \"sorry\", \"scratch that\", \"actually\"), delete the abandoned \
-                 wording and the signal itself, keeping only what they settled on.\n\
-                 - If you are not certain a phrase was abandoned, keep it."
+                // One literal line per prompt line. The exact wording was
+                // measured against a 68-case suite, and a stray space left by
+                // a `\` continuation would make the shipped prompt differ from
+                // the tested one.
+                //
+                // Listing the signals is not enough by itself: an earlier
+                // version named five and the model still ignored "sorry",
+                // which was on that list. What made it generalise was saying
+                // that the replaced part may be a verb or a whole phrase,
+                // rather than implying it is always a name or a date.
+                concat!(
+                    "- If the speaker corrects themselves, delete the wording they abandoned along with the phrase that signalled the change, and keep only what they settled on. Signals include \"no wait\", \"never mind\", \"sorry\", \"scratch that\", \"I mean\", \"I meant\", \"or rather\", \"actually no\", \"make that\", \"correction\", \"hold on\", \"strike that\", and any equivalent.\n",
+                    "- What gets replaced may be anything: a name, a date, a time, a number, a place, a verb, or a whole phrase. Replace it wherever it appears in the sentence, however long the sentence is.\n",
+                    "- If the speaker did not take anything back, keep every word.",
+                )
             }
             Self::Balanced => {
                 "- If the speaker corrects themselves, delete the abandoned wording and keep \
@@ -294,6 +305,14 @@ fn worked_examples(opts: &EnhanceOptions) -> String {
             "send it to john no wait not john send it to jane instead please",
             "Send it to Jane instead please.",
         ));
+        // A verb replacement, not another name. Without it the model treats
+        // retraction as something that only happens to nouns: every 4B quant
+        // below 2 GB kept "postpone" over "cancel" until this example was
+        // added, and adding it took them from 66/68 to 68/68.
+        ex.push((
+            "we should postpone the launch i mean cancel the launch",
+            "We should cancel the launch.",
+        ));
         if opts.aggressiveness != Aggressiveness::Light {
             ex.push((
                 "let's ship it on tuesday actually no let's ship it on thursday so qa has time",
@@ -469,7 +488,10 @@ mod tests {
             },
             &ctx,
         );
-        assert!(light.contains("not certain"));
+        // Light names the retraction signals and says the replaced part
+        // may be a verb; Aggressive additionally licenses tightening.
+        assert!(light.contains("Signals include"));
+        assert!(light.contains("a verb, or a whole phrase"));
         assert!(aggressive.contains("Tighten rambling"));
     }
 
