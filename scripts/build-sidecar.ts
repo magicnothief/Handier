@@ -45,7 +45,13 @@ function hostTriple(): string {
   return line.slice("host:".length).trim();
 }
 
-const target = explicitTarget ?? hostTriple();
+const host = hostTriple();
+const target = explicitTarget ?? host;
+// A `--target` naming the host is a host build. CI passes the triple
+// unconditionally so the staged filename always matches what Tauri looks
+// for; honouring it literally as a cross-compile would nest the output for
+// no reason. See `targetArgs`.
+const crossTarget = target === host ? undefined : target;
 const isWindows = target.includes("windows");
 const isMac = target.includes("apple");
 const exeSuffix = isWindows ? ".exe" : "";
@@ -237,12 +243,12 @@ function findNinja(): string | undefined {
  * enough to overflow the nested shader build's path budget.
  */
 function targetArgs(): string[] {
-  return explicitTarget ? ["--target", explicitTarget] : [];
+  return crossTarget ? ["--target", crossTarget] : [];
 }
 
 /** Where cargo puts the binary, mirroring `targetArgs`. */
 function builtSubdir(): string[] {
-  return explicitTarget ? [explicitTarget, "release"] : ["release"];
+  return crossTarget ? [crossTarget, "release"] : ["release"];
 }
 
 const env = buildEnv();
