@@ -20,7 +20,11 @@
 
 use serde::Serialize;
 use specta::Type;
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Manager};
+// Only the macOS half of this module emits; importing unconditionally warns
+// on every other platform.
+#[cfg(target_os = "macos")]
+use tauri::Emitter;
 
 #[derive(Debug, Clone, Serialize, Type)]
 pub struct SecureInputStatus {
