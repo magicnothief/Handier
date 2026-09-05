@@ -41,7 +41,7 @@ locally, on a laptop with no GPU, without adding a pause you can feel before you
 text appears.
 
 Fine-tuned from [`LiquidAI/LFM2.5-350M`](https://huggingface.co/LiquidAI/LFM2.5-350M)
-for [Handy](https://github.com/MagicNoThief/Handy-Flow)'s on-device enhancement
+for [Handier](https://github.com/MagicNoThief/Handy-Flow)'s on-device enhancement
 layer.
 
 ## Prompt format
@@ -184,12 +184,12 @@ of people would ship on. On the held-out set it gets \_half* the edits wrong. A
 you make must be run through both evaluations before you trust it. Do not infer
 quality from the suite alone.
 
-## Using it in Handy
+## Using it in Handier
 
 1. **Settings → Models → Enhancement Models → Your Own Model → Choose a GGUF
    file…**
 2. Leave **How to prompt this model** on **Fine-tuned for editing**. That is what
-   sends the empty system turn instead of Handy's own instruction prompt.
+   sends the empty system turn instead of Handier's own instruction prompt.
 
 ## Limitations
 

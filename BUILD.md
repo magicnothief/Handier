@@ -156,8 +156,8 @@ After installing the final bundle at `/Applications/Handy.app`, quit Handy, clea
 stale Accessibility record, then reopen it:
 
 ```bash
-osascript -e 'tell application id "com.magicnothief.handyflow" to quit' || true
-tccutil reset Accessibility com.magicnothief.handyflow
+osascript -e 'tell application id "com.magicnothief.handier" to quit' || true
+tccutil reset Accessibility com.magicnothief.handier
 open /Applications/Handy.app
 ```
 

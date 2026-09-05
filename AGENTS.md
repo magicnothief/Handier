@@ -209,7 +209,7 @@ See the [Troubleshooting](README.md#troubleshooting) section in README.md.
 
 **This is a fork.** The rules below are upstream `cjpais/Handy`'s and apply when
 contributing _there_ — including the feature freeze, which is the reason this
-fork exists. Work that lands in Handy-Flow's own enhancement layer
+fork exists. Work that lands in Handier's own enhancement layer
 (`src-tauri/src/enhance/`, `src-tauri/crates/handy-llm/`, `scripts/enhance-*`)
 is not covered by upstream's freeze. Anything touching the transcription path is
 upstream's code: keep changes there minimal and upstream-shaped so fixes still

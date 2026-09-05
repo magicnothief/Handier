@@ -1,6 +1,6 @@
 # handy-llm
 
-Out-of-process GGUF inference for Handy-Flow's transcript enhancement layer.
+Out-of-process GGUF inference for Handier's transcript enhancement layer.
 
 Reads line-delimited JSON on stdin, writes one JSON response per line on stdout.
 Diagnostics go to stderr, so they can never corrupt the response stream.

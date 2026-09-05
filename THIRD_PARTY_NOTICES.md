@@ -1,6 +1,6 @@
 # Third-party notices
 
-Handy-Flow is distributed under the MIT licence (see [`LICENSE`](LICENSE)). It
+Handier is distributed under the MIT licence (see [`LICENSE`](LICENSE)). It
 also ships, links, or downloads third-party work that carries its own terms.
 
 This file records what those are. It is a summary for people redistributing the
@@ -9,7 +9,7 @@ project's own licence file.
 
 ## Upstream project
 
-Handy-Flow is a fork of **[Handy](https://github.com/cjpais/Handy)**, MIT
+Handier is a fork of **[Handy](https://github.com/cjpais/Handy)**, MIT
 licensed, Copyright (c) 2025 CJ Pais. The MIT terms and copyright notice in
 [`LICENSE`](LICENSE) are inherited from it and must be preserved in any further
 redistribution.
@@ -58,7 +58,7 @@ The 19 **MPL-2.0** components are worth naming because MPL is weak copyleft:
 
 MPL-2.0 is file-level copyleft. Linking them into an MIT application is
 permitted; the obligation is to make the source of _those files_ available if you
-modify them. Handy-Flow does not modify any of them, so pointing at their upstream
+modify them. Handier does not modify any of them, so pointing at their upstream
 repositories satisfies it.
 
 Regenerate this inventory with:
@@ -72,7 +72,7 @@ cd src-tauri && cargo metadata --format-version 1   # `license` field per packag
 
 Models are **not** shipped in the installer. The app fetches them from Hugging
 Face on request, so each user obtains them directly from the publisher under that
-publisher's terms. Handy-Flow does not redistribute model weights.
+publisher's terms. Handier does not redistribute model weights.
 
 That said, the licences differ, and two of them are **not** open-source licences:
 

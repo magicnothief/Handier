@@ -49,7 +49,7 @@ wording they abandoned and keeps only what they settled on.
 
 Fine-tuned from [`LiquidAI/LFM2.5-350M-Base`](https://huggingface.co/LiquidAI/LFM2.5-350M-Base)
 on [TODO/handy-dictation-editing](https://huggingface.co/datasets/TODO/handy-dictation-editing),
-for [Handy](https://github.com/zselybence/Handy-Flow)'s on-device enhancement
+for [Handy](https://github.com/zselybence/Handier)'s on-device enhancement
 layer: a dictation app that has to clean up your words locally, on a laptop with
 no GPU, without adding a noticeable pause before the text appears.
 
@@ -107,7 +107,7 @@ print(tok.decode(out[0][inputs["input_ids"].shape[1]:], skip_special_tokens=True
      prompt format. -->
 
 Two independent measurements, both in
-[`scripts/enhance-eval/`](https://github.com/zselybence/Handy-Flow/tree/main/scripts/enhance-eval):
+[`scripts/enhance-eval/`](https://github.com/zselybence/Handier/tree/main/scripts/enhance-eval):
 
 | Metric                                               | Result      |
 | ---------------------------------------------------- | ----------- |

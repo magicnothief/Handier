@@ -1,4 +1,4 @@
-# Releasing Handy-Flow
+# Releasing Handier
 
 The fork inherits upstream Handy's release machinery, and several parts of it
 point at **upstream's** accounts and infrastructure. Those have been repointed;
@@ -12,7 +12,7 @@ this file records what was changed and what still needs a human.
       publishes.
 
       ```bash
-      bun tauri signer generate -w ~/.tauri/handy-flow.key
+      bun tauri signer generate -w ~/.tauri/handier.key
       ```
 
       Put the **public** key in `tauri.conf.json` under `plugins.updater.pubkey`,
@@ -53,12 +53,12 @@ this file records what was changed and what still needs a human.
 
 These were upstream's and would have misbehaved if shipped as-is:
 
-| What                         | Was                                     | Now                                |
-| ---------------------------- | --------------------------------------- | ---------------------------------- |
-| `bundle.identifier`          | `com.pais.handy`                        | `com.magicnothief.handyflow`       |
-| `productName`                | `Handy`                                 | `Handy Flow`                       |
-| `updater.endpoints`          | `cjpais/Handy` releases                 | `MagicNoThief/Handy-Flow` releases |
-| `bundle.windows.signCommand` | CJ Pais's Azure Trusted Signing account | removed                            |
+| What                         | Was                                     | Now                             |
+| ---------------------------- | --------------------------------------- | ------------------------------- |
+| `bundle.identifier`          | `com.pais.handy`                        | `com.magicnothief.handier`      |
+| `productName`                | `Handy`                                 | `Handier`                       |
+| `updater.endpoints`          | `cjpais/Handy` releases                 | `MagicNoThief/Handier` releases |
+| `bundle.windows.signCommand` | CJ Pais's Azure Trusted Signing account | removed                         |
 
 The updater one mattered most: with upstream's endpoint **and** upstream's
 identifier, a released fork would have found upstream's `latest.json`, judged it
@@ -72,14 +72,14 @@ identifier keeps their settings only if they copy the folder:
 
 ```powershell
 # Windows
-Copy-Item "$env:APPDATA\com.pais.handy\*" "$env:APPDATA\com.magicnothief.handyflow\" -Recurse
+Copy-Item "$env:APPDATA\com.pais.handy\*" "$env:APPDATA\com.magicnothief.handier\" -Recurse
 ```
 
 ```bash
 # macOS
-cp -R ~/Library/Application\ Support/com.pais.handy/ ~/Library/Application\ Support/com.magicnothief.handyflow/
+cp -R ~/Library/Application\ Support/com.pais.handy/ ~/Library/Application\ Support/com.magicnothief.handier/
 # Linux
-cp -R ~/.config/com.pais.handy/ ~/.config/com.magicnothief.handyflow/
+cp -R ~/.config/com.pais.handy/ ~/.config/com.magicnothief.handier/
 ```
 
 ### Windows builds are unsigned
@@ -94,8 +94,8 @@ Verified on Windows with a throwaway signing key:
 
 ```
 src-tauri/target/release/bundle/
-  msi/Handy Flow_0.9.6_x64_en-US.msi        73 MB
-  nsis/Handy Flow_0.9.6_x64-setup.exe       28 MB
+  msi/Handier_0.9.6_x64_en-US.msi        73 MB
+  nsis/Handier_0.9.6_x64-setup.exe       28 MB
 ```
 
 The MSI contains 35 files including `handy.exe`, **`handy-llm.exe`** (the

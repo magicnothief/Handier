@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Handy Flow",
+  "productName": "Handier",
   "version": "0.9.6",
-  "identifier": "com.magicnothief.handyflow",
+  "identifier": "com.magicnothief.handier",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -28,7 +28,7 @@
     "targets": "all",
     "publisher": "MagicNoThief",
     "homepage": "https://github.com/MagicNoThief/Handy-Flow",
-    "copyright": "Copyright (c) 2025 CJ Pais and Handy-Flow contributors. MIT licensed.",
+    "copyright": "Copyright (c) 2025 CJ Pais and Handier contributors. MIT licensed.",
     "licenseFile": "../LICENSE",
     "shortDescription": "Offline speech-to-text that cleans up your dictation locally.",
     "externalBin": ["binaries/handy-llm"],

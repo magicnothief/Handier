@@ -1,10 +1,10 @@
-# Handy-Flow
+# Handier
 
 **A fork of [Handy](https://github.com/cjpais/Handy) that cleans up your dictation before it lands.**
 
 Handy is a free, open source, offline speech-to-text app: press a shortcut,
 speak, and your words appear in whatever text field you are in, without anything
-leaving your machine. Handy-Flow keeps all of that and adds one thing —
+leaving your machine. Handier keeps all of that and adds one thing —
 a **local enhancement layer** that edits the transcript into what you meant to
 write, before it is pasted.
 
@@ -41,12 +41,12 @@ There is also a purpose-trained alternative,
 [**handy-editor-lfm2.5-350m**](https://huggingface.co/MagicNoThief/handy-editor-lfm2.5-350m),
 a 350M fine-tune that matches it at a fraction of the cost:
 
-|                                   | Handy-Flow editor | Qwen3-4B (general purpose) |
-| --------------------------------- | ----------------: | -------------------------: |
-| Self-correction suite             |         **68/68** |                      68/68 |
-| Held-out exact match (2,152 rows) |         **97.4%** |                          — |
-| Median latency                    |       **~100 ms** |                    ~350 ms |
-| Size on disk                      |        **229 MB** |                    1.67 GB |
+|                                   | Handier editor | Qwen3-4B (general purpose) |
+| --------------------------------- | -------------: | -------------------------: |
+| Self-correction suite             |      **68/68** |                      68/68 |
+| Held-out exact match (2,152 rows) |      **97.4%** |                          — |
+| Median latency                    |    **~100 ms** |                    ~350 ms |
+| Size on disk                      |     **229 MB** |                    1.67 GB |
 
 Same accuracy as a model 7× its size, about 3× faster. That trade is the whole
 point: this has to run alongside a transcription model on an ordinary laptop
@@ -88,7 +88,7 @@ HANDY WRITES  The meeting is Thursday at three.
 ### Bring your own model
 
 **Models → Enhancement Models → Your Own Model → Choose a GGUF file…** points
-Handy-Flow at any GGUF on disk, with no Hugging Face upload in the loop. Set
+Handier at any GGUF on disk, with no Hugging Face upload in the loop. Set
 **How to prompt this model** to match how it was trained:
 
 | Setting                      | Sends                                       |
@@ -127,7 +127,7 @@ a warning. The exact incantation is in
 
 ## Licences
 
-Handy-Flow is MIT, inherited from upstream Handy (Copyright (c) 2025 CJ Pais).
+Handier is MIT, inherited from upstream Handy (Copyright (c) 2025 CJ Pais).
 
 Models are downloaded at runtime rather than bundled, and **not all of them are
 under open-source licences** — LFM2.5 carries Liquid AI's own terms, Gemma
@@ -139,7 +139,7 @@ sidecar.
 
 ## Relationship to upstream
 
-Handy-Flow tracks [cjpais/Handy](https://github.com/cjpais/Handy) and exists
+Handier tracks [cjpais/Handy](https://github.com/cjpais/Handy) and exists
 because upstream is under a feature freeze and has declined local-LLM additions.
 Everything the fork adds is confined to the enhancement layer; the transcription
 path is upstream's and stays that way, so fixes flow in cleanly.
@@ -183,7 +183,7 @@ The process is entirely local:
 
 ### Installation
 
-Handy-Flow has no binary releases yet — build from source (see
+Handier has no binary releases yet — build from source (see
 [Building](#building) above, and [BUILD.md](BUILD.md)).
 
 For upstream Handy's prebuilt binaries, see its
@@ -434,13 +434,13 @@ We're actively working on several features and improvements. Contributions and f
 
 ## Verify Release Signatures
 
-Handy-Flow release artifacts are signed with Tauri's updater signature format, using the fork's own key (not upstream's). The public key is stored in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json) under `plugins.updater.pubkey`.
+Handier release artifacts are signed with Tauri's updater signature format, using the fork's own key (not upstream's). The public key is stored in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json) under `plugins.updater.pubkey`.
 
 To verify a release manually, set `ARTIFACT` to the filename you downloaded, save the `pubkey` value from `src-tauri/tauri.conf.json` to `handy.pub.b64`, then decode the public key and matching `.sig` file from base64 and verify the artifact with `minisign`:
 
 ```bash
 # Replace with the file you downloaded
-ARTIFACT="Handy Flow_0.9.6_x64-setup.exe"
+ARTIFACT="Handier_0.9.6_x64-setup.exe"
 
 python3 - "$ARTIFACT" <<'PY'
 import base64, pathlib, sys
@@ -483,9 +483,9 @@ If you're behind a proxy, firewall, or in a restricted network environment where
 
 The typical paths are:
 
-- **macOS**: `~/Library/Application Support/com.magicnothief.handyflow/`
-- **Windows**: `C:\Users\{username}\AppData\Roaming\com.magicnothief.handyflow\`
-- **Linux**: `~/.config/com.magicnothief.handyflow/`
+- **macOS**: `~/Library/Application Support/com.magicnothief.handier/`
+- **Windows**: `C:\Users\{username}\AppData\Roaming\com.magicnothief.handier\`
+- **Linux**: `~/.config/com.magicnothief.handier/`
 
 #### Step 2: Create Models Directory
 
@@ -493,10 +493,10 @@ Inside your app data directory, create a `models` folder if it doesn't already e
 
 ```bash
 # macOS/Linux
-mkdir -p ~/Library/Application\ Support/com.magicnothief.handyflow/models
+mkdir -p ~/Library/Application\ Support/com.magicnothief.handier/models
 
 # Windows (PowerShell)
-New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.magicnothief.handyflow\models"
+New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.magicnothief.handier\models"
 ```
 
 #### Step 3: Download Model Files
