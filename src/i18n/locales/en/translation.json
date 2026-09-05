@@ -227,7 +227,36 @@
         "label": "Rescan",
         "tooltip": "Rescan for models added to the models folder or Hugging Face cache outside Handy"
       },
-      "noModelsMatch": "No models match this filter."
+      "noModelsMatch": "No models match this filter.",
+      "enhance": {
+        "title": "Enhancement Models",
+        "description": "Models that clean up your dictation on this computer. Nothing is sent anywhere.",
+        "available": "Available to Download",
+        "noneDownloaded": "No enhancement model downloaded yet.",
+        "starting": "Starting…",
+        "parametersTooltip": "Parameter count",
+        "memoryTooltip": "Memory needed to run this model",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Quantisation of this file",
+        "local": {
+          "title": "Your Own Model",
+          "description": "Point Handy at a GGUF you trained yourself. It runs on this computer like any other enhancement model.",
+          "badge": "Your model",
+          "pick": "Choose a GGUF file…",
+          "replace": "Choose a different file…",
+          "pickTitle": "Choose an enhancement model",
+          "fileType": "GGUF model",
+          "forget": "Remove",
+          "forgetTooltip": "Stop using this file. It is not deleted from your disk.",
+          "styleTitle": "How to prompt this model",
+          "styleTuned": "Fine-tuned for editing",
+          "styleTunedHint": "Sends no instructions. Correct when you trained this model to clean up transcripts.",
+          "styleInstructed": "General-purpose model",
+          "styleInstructedHint": "Sends Handy's editing instructions. Correct when this is a stock model you downloaded yourself.",
+          "styleAlpaca": "Fine-tuned from a base model",
+          "styleAlpacaHint": "Sends the Alpaca instruction Handy trains with. Correct when you fine-tuned a base checkpoint, which has no chat template of its own."
+        }
+      }
     },
     "sound": {
       "title": "Sound",
@@ -640,18 +669,11 @@
       "model": {
         "title": "Editing model",
         "description": "The model that rewrites your transcript. Smaller is faster; larger is more accurate.",
-        "placeholder": "Select a model",
-        "download": "Download",
-        "downloading": "Downloading…",
-        "delete": "Delete",
-        "downloaded": "Downloaded",
         "notDownloaded": "Not downloaded",
-        "loaded": "Loaded",
-        "size": "{{size}} MB",
-        "ram": "needs ~{{ram}} MB RAM",
-        "released": "released {{date}}",
         "downloadingPercent": "Downloading {{percent}}%",
-        "downloadedOf": "{{done}} MB of {{total}} MB"
+        "none": "No model selected",
+        "ready": "Ready",
+        "manage": "Manage models"
       },
       "tier": {
         "ultralight": "Ultralight",
@@ -687,17 +709,17 @@
       },
       "aggressiveness": {
         "title": "How much to cut",
-        "description": "How eagerly the model may delete words you actually said. Your raw transcript is always kept in history.",
-        "light": "Light — only explicit corrections",
-        "balanced": "Balanced — also false starts",
-        "aggressive": "Aggressive — also tighten rambling"
+        "description": "How eagerly the model may delete words you actually said: Light cuts only explicit corrections, Balanced also cuts false starts, Aggressive also tightens rambling. Your raw transcript is always kept in history.",
+        "light": "Light",
+        "balanced": "Balanced",
+        "aggressive": "Aggressive"
       },
       "verify": {
         "title": "Check meaning was preserved",
-        "description": "Run a second pass that compares the edit with what you said and discards it if the meaning changed. Catches mistakes the basic checks cannot. Auto skips it for cosmetic edits, and on machines where it would take too long.",
-        "off": "Off — fastest",
-        "auto": "Auto — when it matters, if this machine is fast enough",
-        "always": "Always — check every edit"
+        "description": "A second pass that re-reads the edit and discards it if the meaning changed. Auto runs only when an edit could have changed meaning; Always checks every edit. Off by default: measured against the shipped editor it threw away more good edits than bad ones.",
+        "off": "Off",
+        "auto": "Auto",
+        "always": "Always"
       },
       "useGpu": {
         "title": "Use the GPU",
@@ -717,8 +739,15 @@
         "unchanged": "No changes were needed.",
         "rejected": "The rewrite was rejected ({{reason}}), so your original text would be used.",
         "verdictChanged": "The meaning check found a change, so your original text would be used.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "The first run loads the model and can take a moment.",
+        "needsModel": "Download an enhancement model first.",
+        "before": "You said",
+        "after": "Handy writes",
+        "legendCut": "cut",
+        "legendAdded": "added"
+      },
+      "tunedNotice": "{{modelName}} is fine-tuned for this job, so the cleanup rules are built into it rather than sent as instructions. The switches below shape those instructions, so they do not apply — and neither does the meaning check, which needs a model trained to judge edits."
     }
   },
   "footer": {

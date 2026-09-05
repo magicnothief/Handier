@@ -227,7 +227,36 @@
         "label": "Søg igen",
         "tooltip": "Søg igen efter modeller, der er tilføjet til modelmappen eller Hugging Face-cachen uden for Handy"
       },
-      "noModelsMatch": "Ingen modeller matcher dette filter."
+      "noModelsMatch": "Ingen modeller matcher dette filter.",
+      "enhance": {
+        "title": "Forbedringsmodeller",
+        "description": "Modeller, der rydder op i din diktering på denne computer. Intet sendes nogen steder.",
+        "available": "Tilgængelig til download",
+        "noneDownloaded": "Ingen forbedringsmodel er hentet endnu.",
+        "starting": "Starter…",
+        "parametersTooltip": "Antal parametre",
+        "memoryTooltip": "Hukommelse, der kræves til denne model",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Kvantisering af denne fil",
+        "local": {
+          "title": "Din egen model",
+          "description": "Peg Handy på en GGUF-fil, du selv har trænet. Den kører på denne computer som enhver anden forbedringsmodel.",
+          "badge": "Din model",
+          "pick": "Vælg en GGUF-fil…",
+          "replace": "Vælg en anden fil…",
+          "pickTitle": "Vælg en forbedringsmodel",
+          "fileType": "GGUF-model",
+          "forget": "Fjern",
+          "forgetTooltip": "Stop med at bruge denne fil. Den slettes ikke fra din disk.",
+          "styleTitle": "Sådan får denne model sin opgave",
+          "styleTuned": "Finjusteret til redigering",
+          "styleTunedHint": "Sender ingen instruktioner. Korrekt, hvis du har trænet denne model til at rydde op i diktater.",
+          "styleInstructed": "Alsidig model",
+          "styleInstructedHint": "Sender Handys redigeringsinstruktioner. Korrekt, hvis det er en almindelig model, du selv har hentet.",
+          "styleAlpaca": "Finjusteret fra en basismodel",
+          "styleAlpacaHint": "Sender den Alpaca-instruktion, Handy træner med. Korrekt, hvis du har finjusteret et basis-checkpoint, som ikke har sin egen chatskabelon."
+        }
+      }
     },
     "sound": {
       "title": "Lyd",
@@ -465,18 +494,11 @@
       "model": {
         "title": "Redigeringsmodel",
         "description": "Modellen, der omskriver din transskription. Mindre er hurtigere, større er mere præcis.",
-        "placeholder": "Vælg en model",
-        "download": "Hent",
-        "downloading": "Henter…",
-        "delete": "Slet",
-        "downloaded": "Hentet",
         "notDownloaded": "Ikke hentet",
-        "loaded": "Indlæst",
-        "size": "{{size}} MB",
-        "ram": "kræver ca. {{ram}} MB RAM",
-        "released": "udgivet {{date}}",
         "downloadingPercent": "Henter {{percent}} %",
-        "downloadedOf": "{{done}} MB af {{total}} MB"
+        "none": "Ingen model valgt",
+        "ready": "Klar",
+        "manage": "Administrer modeller"
       },
       "tier": {
         "ultralight": "Ultralet",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Hvor meget der skæres væk",
-        "description": "Hvor villigt modellen må slette ord, du faktisk sagde. Din rå transskription gemmes altid i historikken.",
-        "light": "Let — kun udtrykkelige rettelser",
-        "balanced": "Balanceret — også falske starter",
-        "aggressive": "Aggressiv — strammer også op på vidtløftighed"
+        "description": "Hvor frit modellen må slette ord, du faktisk sagde: Let fjerner kun udtrykkelige rettelser, Balanceret fjerner også falske starter, og Aggressiv strammer desuden op på omsvøb. Dit rå transskript gemmes altid i historikken.",
+        "light": "Let",
+        "balanced": "Balanceret",
+        "aggressive": "Aggressiv"
       },
       "verify": {
         "title": "Kontrollér at betydningen er bevaret",
-        "description": "Kører en anden gennemgang, der sammenligner redigeringen med det, du sagde, og kasserer den, hvis betydningen har ændret sig. Fanger fejl, de grundlæggende tjek ikke ser. „Automatisk“ springer den over ved kosmetiske ændringer og på maskiner, hvor den ville tage for lang tid.",
-        "off": "Fra — hurtigst",
-        "auto": "Automatisk — når det betyder noget, hvis maskinen er hurtig nok",
-        "always": "Altid — kontrollér hver redigering"
+        "description": "En anden gennemgang, der læser redigeringen igen og kasserer den, hvis betydningen ændrede sig. Automatisk kører kun, når en redigering kan have ændret betydningen; Altid tjekker hver redigering. Slået fra som standard: målt med den medfølgende editor kasserede den flere gode end dårlige redigeringer.",
+        "off": "Fra",
+        "auto": "Automatisk",
+        "always": "Altid"
       },
       "useGpu": {
         "title": "Brug GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Der var ingen ændringer nødvendige.",
         "rejected": "Omskrivningen blev afvist ({{reason}}), så din oprindelige tekst ville blive brugt.",
         "verdictChanged": "Betydningskontrollen fandt en ændring, så din oprindelige tekst ville blive brugt.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "Første kørsel indlæser modellen og kan tage et øjeblik.",
+        "needsModel": "Download først en forbedringsmodel.",
+        "before": "Du sagde",
+        "after": "Handy skriver",
+        "legendCut": "fjernet",
+        "legendAdded": "tilføjet"
+      },
+      "tunedNotice": "{{modelName}} er finjusteret til denne opgave, så oprydningsreglerne ligger i selve modellen og sendes ikke med som instruktioner. Kontakterne nedenfor former netop de instruktioner og har derfor ingen virkning — det har betydningstjekket heller ikke, da det kræver en model, der er trænet til at vurdere redigeringer."
     },
     "history": {
       "title": "Historik",

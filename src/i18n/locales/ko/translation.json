@@ -256,6 +256,35 @@
       "rescan": {
         "label": "다시 스캔",
         "tooltip": "Handy 외부에서 모델 폴더 또는 Hugging Face 캐시에 추가된 모델을 다시 스캔합니다"
+      },
+      "enhance": {
+        "title": "향상 모델",
+        "description": "이 컴퓨터에서 받아쓴 내용을 정리하는 모델입니다. 아무것도 전송되지 않습니다.",
+        "available": "다운로드 가능",
+        "noneDownloaded": "아직 다운로드한 향상 모델이 없습니다.",
+        "starting": "시작 중…",
+        "parametersTooltip": "매개변수 수",
+        "memoryTooltip": "이 모델을 실행하는 데 필요한 메모리",
+        "memoryValue": "{{ram}} 메모리",
+        "quantTooltip": "이 파일의 양자화",
+        "local": {
+          "title": "내 모델",
+          "description": "직접 학습시킨 GGUF 파일을 Handy에 지정하세요. 다른 향상 모델과 똑같이 이 컴퓨터에서 실행됩니다.",
+          "badge": "내 모델",
+          "pick": "GGUF 파일 선택…",
+          "replace": "다른 파일 선택…",
+          "pickTitle": "향상 모델 선택",
+          "fileType": "GGUF 모델",
+          "forget": "해제",
+          "forgetTooltip": "이 파일 사용을 중지합니다. 디스크에서 삭제되지는 않습니다.",
+          "styleTitle": "이 모델에 작업을 전달하는 방식",
+          "styleTuned": "교정용으로 미세 조정됨",
+          "styleTunedHint": "지시문을 보내지 않습니다. 받아쓴 내용을 정리하도록 직접 학습시킨 모델이라면 이 항목을 선택하세요.",
+          "styleInstructed": "범용 모델",
+          "styleInstructedHint": "Handy의 교정 지시문을 보냅니다. 직접 내려받은 일반 모델이라면 이 항목을 선택하세요.",
+          "styleAlpaca": "베이스 모델에서 미세 조정됨",
+          "styleAlpacaHint": "Handy가 학습에 사용하는 Alpaca 지시문을 보냅니다. 자체 채팅 템플릿이 없는 베이스 체크포인트를 미세 조정했다면 이 항목을 선택하세요."
+        }
       }
     },
     "advanced": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "편집 모델",
         "description": "전사 내용을 다시 쓰는 모델입니다. 작을수록 빠르고, 클수록 정확합니다.",
-        "placeholder": "모델 선택",
-        "download": "다운로드",
-        "downloading": "다운로드 중…",
-        "delete": "삭제",
-        "downloaded": "다운로드됨",
         "notDownloaded": "다운로드되지 않음",
-        "loaded": "로드됨",
-        "size": "{{size}} MB",
-        "ram": "약 {{ram}} MB RAM 필요",
-        "released": "{{date}} 출시",
         "downloadingPercent": "다운로드 중 {{percent}}%",
-        "downloadedOf": "{{total}} MB 중 {{done}} MB"
+        "none": "선택된 모델 없음",
+        "ready": "준비됨",
+        "manage": "모델 관리"
       },
       "tier": {
         "ultralight": "초경량",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "얼마나 덜어낼지",
-        "description": "실제로 말한 단어를 모델이 얼마나 적극적으로 지울 수 있는지입니다. 원본 전사본은 항상 기록에 남습니다.",
-        "light": "약하게 — 명시적인 정정만",
-        "balanced": "균형 — 말을 잘못 시작한 경우도 포함",
-        "aggressive": "강하게 — 장황한 부분도 다듬음"
+        "description": "실제로 말한 단어를 모델이 얼마나 과감하게 지울 수 있는지 정합니다. 약하게는 명시적인 정정만, 균형은 말을 더듬은 부분까지, 강하게는 장황한 표현까지 정리합니다. 원본 받아쓰기는 항상 기록에 남습니다.",
+        "light": "약하게",
+        "balanced": "균형",
+        "aggressive": "강하게"
       },
       "verify": {
         "title": "의미가 유지되었는지 확인",
-        "description": "두 번째 단계에서 수정 결과를 말한 내용과 비교하고, 의미가 바뀌었으면 버립니다. 기본 검사로는 잡을 수 없는 오류를 잡아냅니다. '자동'은 겉모양만 바뀐 수정과 너무 오래 걸리는 컴퓨터에서는 건너뜁니다.",
-        "off": "끔 — 가장 빠름",
-        "auto": "자동 — 중요할 때, 컴퓨터가 충분히 빠른 경우",
-        "always": "항상 — 모든 수정을 확인"
+        "description": "편집 결과를 다시 읽어 의미가 바뀌었으면 버리는 2차 검사입니다. 자동은 의미가 바뀔 수 있는 편집에서만 실행하고, 항상은 모든 편집을 검사합니다. 기본값은 끔입니다. 기본 편집 모델로 측정한 결과 잘못된 편집보다 올바른 편집을 더 많이 버렸습니다.",
+        "off": "끔",
+        "auto": "자동",
+        "always": "항상"
       },
       "useGpu": {
         "title": "GPU 사용",
@@ -542,8 +564,15 @@
         "unchanged": "변경할 내용이 없었습니다.",
         "rejected": "다시 쓴 결과가 거부되어({{reason}}) 원본 텍스트가 사용됩니다.",
         "verdictChanged": "의미 검사에서 변화가 발견되어 원본 텍스트가 사용됩니다.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "첫 실행은 모델을 불러오므로 잠시 걸릴 수 있습니다.",
+        "needsModel": "먼저 향상 모델을 다운로드하세요.",
+        "before": "말한 내용",
+        "after": "Handy의 결과",
+        "legendCut": "삭제됨",
+        "legendAdded": "추가됨"
+      },
+      "tunedNotice": "{{modelName}}은(는) 이 작업에 맞게 미세 조정되어 있어 정리 규칙이 모델 자체에 들어 있으며 지시문으로 전달되지 않습니다. 아래 스위치는 그 지시문을 구성하는 것이라 효과가 없고, 편집을 판단하도록 학습된 모델이 필요한 의미 검사도 마찬가지입니다."
     },
     "history": {
       "title": "히스토리",

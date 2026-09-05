@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Znovu prohledat",
         "tooltip": "Znovu prohledat modely přidané do složky modelů nebo mezipaměti Hugging Face mimo Handy"
+      },
+      "enhance": {
+        "title": "Modely pro vylepšení",
+        "description": "Modely, které vyčistí vaši diktovanou řeč přímo v tomto počítači. Nic se nikam neodesílá.",
+        "available": "Dostupné ke stažení",
+        "noneDownloaded": "Zatím není stažen žádný model pro vylepšení.",
+        "starting": "Spouštění…",
+        "parametersTooltip": "Počet parametrů",
+        "memoryTooltip": "Paměť potřebná pro tento model",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Kvantizace tohoto souboru",
+        "local": {
+          "title": "Váš vlastní model",
+          "description": "Nasměrujte Handy na soubor GGUF, který jste sami natrénovali. Běží v tomto počítači jako každý jiný model pro vylepšení.",
+          "badge": "Váš model",
+          "pick": "Vybrat soubor GGUF…",
+          "replace": "Vybrat jiný soubor…",
+          "pickTitle": "Vyberte model pro vylepšení",
+          "fileType": "Model GGUF",
+          "forget": "Odebrat",
+          "forgetTooltip": "Přestat tento soubor používat. Z disku se nesmaže.",
+          "styleTitle": "Jak tomuto modelu zadávat úkol",
+          "styleTuned": "Doladěný pro úpravy",
+          "styleTunedHint": "Neposílá žádné pokyny. Správné, pokud jste tento model natrénovali na čištění diktátů.",
+          "styleInstructed": "Univerzální model",
+          "styleInstructedHint": "Posílá pokyny k úpravám od Handy. Správné, pokud jde o běžný model, který jste si sami stáhli.",
+          "styleAlpaca": "Doladěný ze základního modelu",
+          "styleAlpacaHint": "Posílá instrukci Alpaca, na které Handy trénuje. Správné, pokud jste doladili základní model, který nemá vlastní šablonu chatu."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Model pro úpravy",
         "description": "Model, který přepisuje váš přepis. Menší je rychlejší, větší je přesnější.",
-        "placeholder": "Vyberte model",
-        "download": "Stáhnout",
-        "downloading": "Stahování…",
-        "delete": "Smazat",
-        "downloaded": "Staženo",
         "notDownloaded": "Nestaženo",
-        "loaded": "Načteno",
-        "size": "{{size}} MB",
-        "ram": "potřebuje ~{{ram}} MB RAM",
-        "released": "vydáno {{date}}",
         "downloadingPercent": "Stahování {{percent}} %",
-        "downloadedOf": "{{done}} MB z {{total}} MB"
+        "none": "Není vybrán žádný model",
+        "ready": "Připraveno",
+        "manage": "Spravovat modely"
       },
       "tier": {
         "ultralight": "Ultralehký",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Kolik vypustit",
-        "description": "Jak ochotně smí model mazat slova, která jste opravdu řekli. Původní přepis zůstává vždy v historii.",
-        "light": "Mírně — jen výslovné opravy",
-        "balanced": "Vyváženě — také falešné starty",
-        "aggressive": "Agresivně — také zkracovat rozvláčnost"
+        "description": "Jak volně smí model mazat slova, která jste opravdu řekli: Mírně odstraní jen výslovné opravy, Vyváženě také falešné začátky a Agresivně navíc zhutní rozvláčnost. Váš původní přepis zůstává vždy v historii.",
+        "light": "Mírně",
+        "balanced": "Vyváženě",
+        "aggressive": "Agresivně"
       },
       "verify": {
         "title": "Ověřit, že se význam zachoval",
-        "description": "Spustí druhý průchod, který porovná úpravu s tím, co jste řekli, a zahodí ji, pokud se význam změnil. Zachytí chyby, které základní kontroly nevidí. „Automaticky“ ji přeskočí u kosmetických úprav a na počítačích, kde by trvala příliš dlouho.",
-        "off": "Vypnuto — nejrychlejší",
-        "auto": "Automaticky — když na tom záleží a počítač je dost rychlý",
-        "always": "Vždy — kontrolovat každou úpravu"
+        "description": "Druhý průchod, který si úpravu znovu přečte a zahodí ji, pokud se změnil význam. Automaticky se spustí jen tehdy, když úprava mohla změnit význam; Vždy kontroluje každou úpravu. Ve výchozím stavu vypnuto: měřeno s dodávaným editorem zahazoval více dobrých úprav než špatných.",
+        "off": "Vypnuto",
+        "auto": "Automaticky",
+        "always": "Vždy"
       },
       "useGpu": {
         "title": "Použít GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Žádné změny nebyly potřeba.",
         "rejected": "Přepis byl odmítnut ({{reason}}), takže by se použil váš původní text.",
         "verdictChanged": "Kontrola významu našla změnu, takže by se použil váš původní text.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "První spuštění načítá model a může chvíli trvat.",
+        "needsModel": "Nejprve stáhněte model pro vylepšení.",
+        "before": "Řekli jste",
+        "after": "Handy píše",
+        "legendCut": "vypuštěno",
+        "legendAdded": "přidáno"
+      },
+      "tunedNotice": "{{modelName}} je doladěný pro tuto úlohu, pravidla čištění tedy nese samotný model a neposílají se jako pokyny. Přepínače níže utvářejí právě tyto pokyny, takže nemají žádný účinek — a stejně tak ani kontrola významu, která potřebuje model natrénovaný na posuzování úprav."
     },
     "history": {
       "title": "Historie",

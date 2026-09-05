@@ -227,6 +227,35 @@
       "rescan": {
         "label": "重新掃描",
         "tooltip": "重新掃描在 Handy 之外新增到模型資料夾或 Hugging Face 快取中的模型"
+      },
+      "enhance": {
+        "title": "增強模型",
+        "description": "在本機整理口述內容的模型。資料不會傳送到任何地方。",
+        "available": "可供下載",
+        "noneDownloaded": "尚未下載增強模型。",
+        "starting": "正在開始…",
+        "parametersTooltip": "參數量",
+        "memoryTooltip": "執行此模型所需的記憶體",
+        "memoryValue": "{{ram}} 記憶體",
+        "quantTooltip": "此檔案的量化方式",
+        "local": {
+          "title": "你自己的模型",
+          "description": "讓 Handy 使用你自己訓練的 GGUF 檔案。它和其他增強模型一樣，在本機執行。",
+          "badge": "你的模型",
+          "pick": "選擇 GGUF 檔案…",
+          "replace": "選擇其他檔案…",
+          "pickTitle": "選擇增強模型",
+          "fileType": "GGUF 模型",
+          "forget": "移除",
+          "forgetTooltip": "不再使用此檔案。檔案不會從磁碟中刪除。",
+          "styleTitle": "如何向此模型下達任務",
+          "styleTuned": "針對文字整理微調過",
+          "styleTunedHint": "不傳送任何指令。如果你訓練過此模型整理口述內容，請選這項。",
+          "styleInstructed": "通用模型",
+          "styleInstructedHint": "傳送 Handy 的整理指令。如果這是你自己下載的通用模型，請選這項。",
+          "styleAlpaca": "以基礎模型微調",
+          "styleAlpacaHint": "傳送 Handy 訓練時使用的 Alpaca 指令。如果你微調的是沒有內建對話範本的基礎模型，請選這項。"
+        }
       }
     },
     "sound": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "編輯模型",
         "description": "負責改寫轉錄內容的模型。越小越快，越大越準確。",
-        "placeholder": "選擇模型",
-        "download": "下載",
-        "downloading": "正在下載…",
-        "delete": "刪除",
-        "downloaded": "已下載",
         "notDownloaded": "未下載",
-        "loaded": "已載入",
-        "size": "{{size}} MB",
-        "ram": "約需 {{ram}} MB 記憶體",
-        "released": "{{date}} 發布",
         "downloadingPercent": "正在下載 {{percent}}%",
-        "downloadedOf": "{{done}} MB／共 {{total}} MB"
+        "none": "未選擇模型",
+        "ready": "就緒",
+        "manage": "管理模型"
       },
       "tier": {
         "ultralight": "超輕量",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "刪減幅度",
-        "description": "模型刪除你確實說過的字詞的積極程度。原始轉錄一律保留在歷史記錄中。",
-        "light": "輕度 — 僅明確的更正",
-        "balanced": "均衡 — 也處理說到一半重來的情況",
-        "aggressive": "積極 — 也精簡冗長內容"
+        "description": "模型可以多大程度刪除你確實說過的字：輕度只刪除明確的更正，均衡還會刪除口誤開頭，積極還會精簡冗贅內容。原始逐字稿一律保留在歷史記錄中。",
+        "light": "輕度",
+        "balanced": "均衡",
+        "aggressive": "積極"
       },
       "verify": {
         "title": "檢查語意是否保留",
-        "description": "執行第二輪檢查，將修改結果與你所說的內容比對，若語意改變就捨棄。可找出基本檢查看不到的錯誤。「自動」會略過純格式修改，以及在耗時過久的電腦上略過。",
-        "off": "關閉 — 最快",
-        "auto": "自動 — 在重要時執行，前提是電腦夠快",
-        "always": "一律 — 檢查每一次修改"
+        "description": "第二輪重新審視改寫結果，若語意有變就捨棄。自動只在改動可能改變語意時執行，一律則檢查每一次改動。預設關閉：以隨附的編輯模型實測，它捨棄的正確改寫多於錯誤改寫。",
+        "off": "關閉",
+        "auto": "自動",
+        "always": "一律"
       },
       "useGpu": {
         "title": "使用 GPU",
@@ -542,8 +564,15 @@
         "unchanged": "不需要任何變更。",
         "rejected": "改寫遭到拒絕（{{reason}}），因此將使用你的原始文字。",
         "verdictChanged": "語意檢查發現變動，因此將使用你的原始文字。",
-        "took": "{{ms}} 毫秒"
-      }
+        "took": "{{ms}} 毫秒",
+        "firstRunHint": "首次執行需要載入模型，可能需要片刻。",
+        "needsModel": "請先下載一個增強模型。",
+        "before": "你說的",
+        "after": "Handy 寫成",
+        "legendCut": "刪除",
+        "legendAdded": "新增"
+      },
+      "tunedNotice": "{{modelName}} 已針對此任務微調，整理規則內建於模型中，不會以指令形式傳送。下方的開關只用於組成這些指令，因此不會生效；語意檢查也一樣，它需要專門訓練來判斷修改的模型。"
     },
     "history": {
       "title": "歷史紀錄",

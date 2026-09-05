@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Quét lại",
         "tooltip": "Quét lại các mô hình được thêm vào thư mục mô hình hoặc bộ nhớ đệm Hugging Face bên ngoài Handy"
+      },
+      "enhance": {
+        "title": "Mô hình cải thiện",
+        "description": "Các mô hình dọn dẹp nội dung bạn đọc chính tả ngay trên máy này. Không có gì được gửi đi.",
+        "available": "Có sẵn để tải xuống",
+        "noneDownloaded": "Chưa tải mô hình cải thiện nào.",
+        "starting": "Đang bắt đầu…",
+        "parametersTooltip": "Số tham số",
+        "memoryTooltip": "Bộ nhớ cần để chạy mô hình này",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Mức lượng tử hóa của tệp này",
+        "local": {
+          "title": "Mô hình của riêng bạn",
+          "description": "Trỏ Handy đến một tệp GGUF do chính bạn huấn luyện. Nó chạy trên máy này như mọi mô hình cải thiện khác.",
+          "badge": "Mô hình của bạn",
+          "pick": "Chọn tệp GGUF…",
+          "replace": "Chọn tệp khác…",
+          "pickTitle": "Chọn mô hình cải thiện",
+          "fileType": "Mô hình GGUF",
+          "forget": "Gỡ bỏ",
+          "forgetTooltip": "Ngừng dùng tệp này. Tệp không bị xóa khỏi ổ đĩa.",
+          "styleTitle": "Cách giao việc cho mô hình này",
+          "styleTuned": "Được tinh chỉnh để biên tập",
+          "styleTunedHint": "Không gửi hướng dẫn nào. Đúng nếu bạn đã huấn luyện mô hình này để dọn dẹp nội dung đọc chính tả.",
+          "styleInstructed": "Mô hình đa dụng",
+          "styleInstructedHint": "Gửi hướng dẫn biên tập của Handy. Đúng nếu đây là mô hình thông thường mà bạn tự tải về.",
+          "styleAlpaca": "Tinh chỉnh từ mô hình nền",
+          "styleAlpacaHint": "Gửi hướng dẫn Alpaca mà Handy dùng để huấn luyện. Đúng nếu bạn tinh chỉnh một mô hình nền, vốn không có khuôn mẫu trò chuyện riêng."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Mô hình biên tập",
         "description": "Mô hình viết lại bản ghi của bạn. Nhỏ hơn thì nhanh hơn, lớn hơn thì chính xác hơn.",
-        "placeholder": "Chọn một mô hình",
-        "download": "Tải xuống",
-        "downloading": "Đang tải xuống…",
-        "delete": "Xóa",
-        "downloaded": "Đã tải xuống",
         "notDownloaded": "Chưa tải xuống",
-        "loaded": "Đã nạp",
-        "size": "{{size}} MB",
-        "ram": "cần khoảng {{ram}} MB RAM",
-        "released": "phát hành {{date}}",
         "downloadingPercent": "Đang tải xuống {{percent}}%",
-        "downloadedOf": "{{done}} MB trên {{total}} MB"
+        "none": "Chưa chọn mô hình",
+        "ready": "Sẵn sàng",
+        "manage": "Quản lý mô hình"
       },
       "tier": {
         "ultralight": "Siêu nhẹ",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Cắt bớt bao nhiêu",
-        "description": "Mức độ sẵn sàng của mô hình khi xóa những từ bạn thực sự đã nói. Bản ghi gốc luôn được giữ trong lịch sử.",
-        "light": "Nhẹ — chỉ những chỗ sửa rõ ràng",
-        "balanced": "Cân bằng — kể cả những câu nói hụt",
-        "aggressive": "Mạnh — cô đọng cả những đoạn dài dòng"
+        "description": "Mức độ tự do của mô hình khi xóa những từ bạn thực sự đã nói: Nhẹ chỉ bỏ các đính chính rõ ràng, Cân bằng bỏ thêm các đoạn mở lời hỏng, Mạnh còn rút gọn phần lan man. Bản ghi thô của bạn luôn được giữ trong lịch sử.",
+        "light": "Nhẹ",
+        "balanced": "Cân bằng",
+        "aggressive": "Mạnh"
       },
       "verify": {
         "title": "Kiểm tra ý nghĩa được giữ nguyên",
-        "description": "Chạy lượt thứ hai để so sánh bản sửa với những gì bạn đã nói và loại bỏ nếu ý nghĩa thay đổi. Bắt được lỗi mà các kiểm tra cơ bản không thấy. «Tự động» bỏ qua với các sửa đổi hình thức và trên máy quá chậm.",
-        "off": "Tắt — nhanh nhất",
-        "auto": "Tự động — khi cần thiết, nếu máy đủ nhanh",
-        "always": "Luôn luôn — kiểm tra mọi sửa đổi"
+        "description": "Một lượt thứ hai đọc lại bản sửa và loại bỏ nếu ý nghĩa đã thay đổi. Tự động chỉ chạy khi một bản sửa có thể đã làm đổi nghĩa; Luôn luôn kiểm tra mọi bản sửa. Mặc định tắt: khi đo với trình biên tập đi kèm, nó loại bỏ nhiều bản sửa tốt hơn là bản sửa hỏng.",
+        "off": "Tắt",
+        "auto": "Tự động",
+        "always": "Luôn luôn"
       },
       "useGpu": {
         "title": "Dùng GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Không cần thay đổi gì.",
         "rejected": "Bản viết lại đã bị từ chối ({{reason}}), nên văn bản gốc của bạn sẽ được dùng.",
         "verdictChanged": "Việc kiểm tra ý nghĩa phát hiện có thay đổi, nên văn bản gốc của bạn sẽ được dùng.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "Lần chạy đầu tiên sẽ tải mô hình và có thể mất một lúc.",
+        "needsModel": "Hãy tải một mô hình cải thiện trước.",
+        "before": "Bạn đã nói",
+        "after": "Handy viết",
+        "legendCut": "đã cắt",
+        "legendAdded": "đã thêm"
+      },
+      "tunedNotice": "{{modelName}} đã được tinh chỉnh cho việc này, nên các quy tắc dọn dẹp nằm sẵn trong mô hình chứ không được gửi kèm dưới dạng hướng dẫn. Các công tắc bên dưới chỉ định hình những hướng dẫn đó nên không có tác dụng — kiểm tra ý nghĩa cũng vậy, vì nó cần một mô hình được huấn luyện để đánh giá bản sửa."
     },
     "history": {
       "title": "Lịch sử",

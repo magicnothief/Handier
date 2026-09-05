@@ -227,7 +227,36 @@
         "label": "Opnieuw scannen",
         "tooltip": "Scannen naar modellen die buiten Handy om zijn toegevoegd aan de modellenmap of Hugging Face-cache"
       },
-      "noModelsMatch": "Geen modellen voldoen aan dit filter."
+      "noModelsMatch": "Geen modellen voldoen aan dit filter.",
+      "enhance": {
+        "title": "Verbeteringsmodellen",
+        "description": "Modellen die je dictaat op deze computer opschonen. Er wordt niets verstuurd.",
+        "available": "Beschikbaar voor download",
+        "noneDownloaded": "Nog geen verbeteringsmodel gedownload.",
+        "starting": "Starten…",
+        "parametersTooltip": "Aantal parameters",
+        "memoryTooltip": "Geheugen dat dit model nodig heeft",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Kwantisatie van dit bestand",
+        "local": {
+          "title": "Je eigen model",
+          "description": "Wijs Handy een GGUF-bestand aan dat je zelf hebt getraind. Het draait op deze computer als elk ander verbeteringsmodel.",
+          "badge": "Jouw model",
+          "pick": "Kies een GGUF-bestand…",
+          "replace": "Kies een ander bestand…",
+          "pickTitle": "Kies een verbeteringsmodel",
+          "fileType": "GGUF-model",
+          "forget": "Verwijderen",
+          "forgetTooltip": "Dit bestand niet meer gebruiken. Het wordt niet van je schijf gewist.",
+          "styleTitle": "Hoe dit model zijn opdracht krijgt",
+          "styleTuned": "Fijnafgestemd op redigeren",
+          "styleTunedHint": "Stuurt geen instructies. Juist als je dit model hebt getraind om dictaat op te schonen.",
+          "styleInstructed": "Algemeen model",
+          "styleInstructedHint": "Stuurt de redigeerinstructies van Handy. Juist als dit een gewoon model is dat je zelf hebt gedownload.",
+          "styleAlpaca": "Fijnafgestemd vanaf een basismodel",
+          "styleAlpacaHint": "Stuurt de Alpaca-instructie waarmee Handy traint. Juist als je een basismodel hebt fijnafgestemd, dat geen eigen chatsjabloon heeft."
+        }
+      }
     },
     "sound": {
       "title": "Geluid",
@@ -465,18 +494,11 @@
       "model": {
         "title": "Bewerkingsmodel",
         "description": "Het model dat je transcriptie herschrijft. Kleiner is sneller, groter is nauwkeuriger.",
-        "placeholder": "Kies een model",
-        "download": "Downloaden",
-        "downloading": "Bezig met downloaden…",
-        "delete": "Verwijderen",
-        "downloaded": "Gedownload",
         "notDownloaded": "Niet gedownload",
-        "loaded": "Geladen",
-        "size": "{{size}} MB",
-        "ram": "heeft ~{{ram}} MB RAM nodig",
-        "released": "uitgebracht {{date}}",
         "downloadingPercent": "Bezig met downloaden: {{percent}}%",
-        "downloadedOf": "{{done}} MB van {{total}} MB"
+        "none": "Geen model geselecteerd",
+        "ready": "Gereed",
+        "manage": "Modellen beheren"
       },
       "tier": {
         "ultralight": "Ultralicht",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Hoeveel er wegvalt",
-        "description": "Hoe gretig het model woorden mag schrappen die je echt hebt gezegd. Je ruwe transcriptie blijft altijd in de geschiedenis staan.",
-        "light": "Licht — alleen expliciete correcties",
-        "balanced": "Gebalanceerd — ook valse starts",
-        "aggressive": "Agressief — ook uitweidingen inkorten"
+        "description": "Hoe vrij het model woorden mag schrappen die je echt hebt gezegd: Licht haalt alleen expliciete correcties weg, Gebalanceerd ook valse starts, Agressief bekort daarnaast uitweidingen. Je ruwe transcript blijft altijd in de geschiedenis staan.",
+        "light": "Licht",
+        "balanced": "Gebalanceerd",
+        "aggressive": "Agressief"
       },
       "verify": {
         "title": "Controleren of de betekenis behouden blijft",
-        "description": "Voert een tweede ronde uit die de bewerking vergelijkt met wat je zei en haar verwerpt als de betekenis is veranderd. Vangt fouten die de basiscontroles niet zien. „Automatisch” slaat dit over bij cosmetische bewerkingen en op computers waar het te lang zou duren.",
-        "off": "Uit — het snelst",
-        "auto": "Automatisch — als het ertoe doet en de computer snel genoeg is",
-        "always": "Altijd — elke bewerking controleren"
+        "description": "Een tweede ronde die de bewerking herleest en weggooit als de betekenis is veranderd. Automatisch draait alleen wanneer een bewerking de betekenis kan hebben veranderd; Altijd controleert elke bewerking. Standaard uit: gemeten met de meegeleverde editor gooide het meer goede dan slechte bewerkingen weg.",
+        "off": "Uit",
+        "auto": "Automatisch",
+        "always": "Altijd"
       },
       "useGpu": {
         "title": "De GPU gebruiken",
@@ -542,8 +564,15 @@
         "unchanged": "Er waren geen wijzigingen nodig.",
         "rejected": "De herschrijving is afgewezen ({{reason}}), dus je oorspronkelijke tekst zou worden gebruikt.",
         "verdictChanged": "De betekeniscontrole vond een wijziging, dus je oorspronkelijke tekst zou worden gebruikt.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "De eerste keer wordt het model geladen; dat kan even duren.",
+        "needsModel": "Download eerst een verbeteringsmodel.",
+        "before": "Jij zei",
+        "after": "Handy schrijft",
+        "legendCut": "geschrapt",
+        "legendAdded": "toegevoegd"
+      },
+      "tunedNotice": "{{modelName}} is fijnafgestemd op deze taak, dus de opschoonregels zitten in het model zelf en worden niet als instructies meegestuurd. De schakelaars hieronder vormen juist die instructies en hebben dus geen effect — net zomin als de betekeniscontrole, die een model nodig heeft dat is getraind om bewerkingen te beoordelen."
     },
     "history": {
       "title": "Geschiedenis",

@@ -227,6 +227,35 @@
       "rescan": {
         "label": "Skanna om",
         "tooltip": "Skanna om efter modeller som lagts till i modellmappen eller Hugging Face-cachen utanför Handy"
+      },
+      "enhance": {
+        "title": "Förbättringsmodeller",
+        "description": "Modeller som städar upp din diktering på den här datorn. Inget skickas någonstans.",
+        "available": "Tillgängliga att ladda ner",
+        "noneDownloaded": "Ingen förbättringsmodell har hämtats än.",
+        "starting": "Startar…",
+        "parametersTooltip": "Antal parametrar",
+        "memoryTooltip": "Minne som krävs för den här modellen",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Kvantisering av den här filen",
+        "local": {
+          "title": "Din egen modell",
+          "description": "Peka ut en GGUF-fil som du själv har tränat. Den körs på den här datorn som vilken annan förbättringsmodell som helst.",
+          "badge": "Din modell",
+          "pick": "Välj en GGUF-fil…",
+          "replace": "Välj en annan fil…",
+          "pickTitle": "Välj en förbättringsmodell",
+          "fileType": "GGUF-modell",
+          "forget": "Ta bort",
+          "forgetTooltip": "Sluta använda den här filen. Den raderas inte från din disk.",
+          "styleTitle": "Så får modellen sin uppgift",
+          "styleTuned": "Finjusterad för redigering",
+          "styleTunedHint": "Skickar inga instruktioner. Rätt om du har tränat modellen att städa upp diktering.",
+          "styleInstructed": "Allmän modell",
+          "styleInstructedHint": "Skickar Handys redigeringsinstruktioner. Rätt om det är en vanlig modell som du själv har laddat ner.",
+          "styleAlpaca": "Finjusterad från en basmodell",
+          "styleAlpacaHint": "Skickar den Alpaca-instruktion som Handy tränar med. Rätt om du har finjusterat en basmodell, som saknar egen chattmall."
+        }
       }
     },
     "sound": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Redigeringsmodell",
         "description": "Modellen som skriver om din transkription. Mindre är snabbare, större är noggrannare.",
-        "placeholder": "Välj en modell",
-        "download": "Ladda ner",
-        "downloading": "Laddar ner…",
-        "delete": "Ta bort",
-        "downloaded": "Nedladdad",
         "notDownloaded": "Inte nedladdad",
-        "loaded": "Inläst",
-        "size": "{{size}} MB",
-        "ram": "behöver ca {{ram}} MB RAM",
-        "released": "släppt {{date}}",
         "downloadingPercent": "Laddar ner {{percent}} %",
-        "downloadedOf": "{{done}} MB av {{total}} MB"
+        "none": "Ingen modell vald",
+        "ready": "Klar",
+        "manage": "Hantera modeller"
       },
       "tier": {
         "ultralight": "Ultralätt",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Hur mycket som klipps bort",
-        "description": "Hur villigt modellen får ta bort ord du faktiskt sa. Din råa transkription sparas alltid i historiken.",
-        "light": "Lätt — bara uttryckliga rättelser",
-        "balanced": "Balanserad — även falska starter",
-        "aggressive": "Aggressiv — stramar även upp svammel"
+        "description": "Hur fritt modellen får stryka ord du faktiskt sa: Lätt tar bara bort uttryckliga rättelser, Balanserad tar även bort falska starter och Aggressiv stramar dessutom upp svammel. Din råa transkription sparas alltid i historiken.",
+        "light": "Lätt",
+        "balanced": "Balanserad",
+        "aggressive": "Aggressiv"
       },
       "verify": {
         "title": "Kontrollera att innebörden bevarats",
-        "description": "Kör en andra omgång som jämför ändringen med det du sa och kastar den om innebörden ändrats. Fångar fel som de grundläggande kontrollerna inte ser. ”Automatiskt” hoppar över den vid kosmetiska ändringar och på datorer där den skulle ta för lång tid.",
-        "off": "Av — snabbast",
-        "auto": "Automatiskt — när det spelar roll, om datorn är snabb nog",
-        "always": "Alltid — kontrollera varje ändring"
+        "description": "En andra genomgång som läser om redigeringen och kastar den om betydelsen ändrats. Automatiskt körs bara när en redigering kan ha ändrat betydelsen; Alltid kontrollerar varje redigering. Av som standard: mätt mot den medföljande redigeraren kastade den fler bra än dåliga redigeringar.",
+        "off": "Av",
+        "auto": "Automatiskt",
+        "always": "Alltid"
       },
       "useGpu": {
         "title": "Använd GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Inga ändringar behövdes.",
         "rejected": "Omskrivningen avvisades ({{reason}}), så din ursprungliga text skulle användas.",
         "verdictChanged": "Innebördskontrollen hittade en ändring, så din ursprungliga text skulle användas.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "Första körningen laddar modellen och kan ta en stund.",
+        "needsModel": "Ladda först ner en förbättringsmodell.",
+        "before": "Du sa",
+        "after": "Handy skriver",
+        "legendCut": "borttaget",
+        "legendAdded": "tillagt"
+      },
+      "tunedNotice": "{{modelName}} är finjusterad för den här uppgiften, så städreglerna sitter i modellen och skickas inte med som instruktioner. Reglagen nedan formar just de instruktionerna och har därför ingen effekt — det har inte betydelsekontrollen heller, som kräver en modell tränad att bedöma redigeringar."
     },
     "history": {
       "title": "Historik",

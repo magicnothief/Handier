@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Skanuj ponownie",
         "tooltip": "Skanuj ponownie w poszukiwaniu modeli dodanych do folderu modeli lub pamięci podręcznej Hugging Face poza Handy"
+      },
+      "enhance": {
+        "title": "Modele ulepszania",
+        "description": "Modele, które porządkują dyktowany tekst na tym komputerze. Nic nie jest nigdzie wysyłane.",
+        "available": "Dostępne do pobrania",
+        "noneDownloaded": "Nie pobrano jeszcze żadnego modelu ulepszania.",
+        "starting": "Uruchamianie…",
+        "parametersTooltip": "Liczba parametrów",
+        "memoryTooltip": "Pamięć wymagana przez ten model",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Kwantyzacja tego pliku",
+        "local": {
+          "title": "Twój własny model",
+          "description": "Wskaż Handy plik GGUF, który samodzielnie wytrenowałeś. Działa na tym komputerze jak każdy inny model ulepszania.",
+          "badge": "Twój model",
+          "pick": "Wybierz plik GGUF…",
+          "replace": "Wybierz inny plik…",
+          "pickTitle": "Wybierz model ulepszania",
+          "fileType": "Model GGUF",
+          "forget": "Usuń",
+          "forgetTooltip": "Przestań używać tego pliku. Nie zostanie on skasowany z dysku.",
+          "styleTitle": "Jak przekazywać zadanie temu modelowi",
+          "styleTuned": "Dostrojony do redagowania",
+          "styleTunedHint": "Nie wysyła instrukcji. Właściwe, jeśli wytrenowałeś ten model do porządkowania dyktowanego tekstu.",
+          "styleInstructed": "Model ogólnego przeznaczenia",
+          "styleInstructedHint": "Wysyła instrukcje redagowania od Handy. Właściwe, jeśli to zwykły model, który sam pobrałeś.",
+          "styleAlpaca": "Dostrojony z modelu bazowego",
+          "styleAlpacaHint": "Wysyła instrukcję Alpaca, na której trenuje Handy. Właściwe, jeśli dostroiłeś model bazowy, który nie ma własnego szablonu czatu."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Model redagujący",
         "description": "Model, który przepisuje Twoją transkrypcję. Mniejszy jest szybszy, większy dokładniejszy.",
-        "placeholder": "Wybierz model",
-        "download": "Pobierz",
-        "downloading": "Pobieranie…",
-        "delete": "Usuń",
-        "downloaded": "Pobrany",
         "notDownloaded": "Niepobrany",
-        "loaded": "Załadowany",
-        "size": "{{size}} MB",
-        "ram": "wymaga ok. {{ram}} MB RAM",
-        "released": "wydany {{date}}",
         "downloadingPercent": "Pobieranie {{percent}}%",
-        "downloadedOf": "{{done}} MB z {{total}} MB"
+        "none": "Nie wybrano modelu",
+        "ready": "Gotowy",
+        "manage": "Zarządzaj modelami"
       },
       "tier": {
         "ultralight": "Ultralekki",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Jak dużo wycinać",
-        "description": "Jak chętnie model może usuwać słowa, które naprawdę wypowiedziałeś. Surowa transkrypcja zawsze zostaje w historii.",
-        "light": "Lekko — tylko wyraźne poprawki",
-        "balanced": "Zrównoważenie — także falstarty",
-        "aggressive": "Agresywnie — także skracanie dygresji"
+        "description": "Jak swobodnie model może usuwać słowa, które naprawdę padły: Lekko usuwa tylko wyraźne poprawki, Zrównoważenie także falstarty, a Agresywnie dodatkowo skraca dygresje. Surowa transkrypcja zawsze zostaje w historii.",
+        "light": "Lekko",
+        "balanced": "Zrównoważenie",
+        "aggressive": "Agresywnie"
       },
       "verify": {
         "title": "Sprawdzaj, czy sens został zachowany",
-        "description": "Uruchamia drugie przejście, które porównuje zmianę z tym, co powiedziałeś, i odrzuca ją, jeśli sens się zmienił. Wychwytuje błędy niewidoczne dla podstawowych kontroli. „Automatycznie” pomija zmiany kosmetyczne oraz komputery, na których trwałoby to zbyt długo.",
-        "off": "Wyłączone — najszybsze",
-        "auto": "Automatycznie — gdy ma to znaczenie i komputer jest wystarczająco szybki",
-        "always": "Zawsze — sprawdzaj każdą zmianę"
+        "description": "Drugie przejście, które ponownie czyta zmianę i odrzuca ją, jeśli znaczenie się zmieniło. Automatycznie uruchamia się tylko wtedy, gdy zmiana mogła zmienić znaczenie; Zawsze sprawdza każdą zmianę. Domyślnie wyłączone: w pomiarach z dołączonym edytorem odrzucało więcej dobrych zmian niż złych.",
+        "off": "Wyłączone",
+        "auto": "Automatycznie",
+        "always": "Zawsze"
       },
       "useGpu": {
         "title": "Używaj GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Żadne zmiany nie były potrzebne.",
         "rejected": "Przeredagowanie zostało odrzucone ({{reason}}), więc użyty zostałby Twój oryginalny tekst.",
         "verdictChanged": "Kontrola sensu wykryła zmianę, więc użyty zostałby Twój oryginalny tekst.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "Pierwsze uruchomienie ładuje model i może chwilę potrwać.",
+        "needsModel": "Najpierw pobierz model ulepszania.",
+        "before": "Powiedziano",
+        "after": "Handy pisze",
+        "legendCut": "usunięto",
+        "legendAdded": "dodano"
+      },
+      "tunedNotice": "{{modelName}} jest dostrojony do tego zadania, więc reguły porządkowania są w samym modelu i nie są wysyłane jako instrukcje. Przełączniki poniżej kształtują właśnie te instrukcje, więc nie mają żadnego wpływu — podobnie jak kontrola znaczenia, która wymaga modelu wytrenowanego do oceniania zmian."
     },
     "history": {
       "title": "Historia",

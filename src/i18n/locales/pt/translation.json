@@ -227,6 +227,35 @@
       "rescan": {
         "label": "Reescanear",
         "tooltip": "Reescaneia em busca de modelos adicionados à pasta de modelos ou ao cache do Hugging Face fora do Handy"
+      },
+      "enhance": {
+        "title": "Modelos de melhoria",
+        "description": "Modelos que limpam o seu ditado neste computador. Nada é enviado para lado nenhum.",
+        "available": "Disponíveis para download",
+        "noneDownloaded": "Ainda não foi transferido nenhum modelo de melhoria.",
+        "starting": "A iniciar…",
+        "parametersTooltip": "Número de parâmetros",
+        "memoryTooltip": "Memória necessária para este modelo",
+        "memoryValue": "{{ram}} de RAM",
+        "quantTooltip": "Quantização deste ficheiro",
+        "local": {
+          "title": "O seu próprio modelo",
+          "description": "Indique ao Handy um ficheiro GGUF que tenha treinado. Funciona neste computador como qualquer outro modelo de melhoria.",
+          "badge": "O seu modelo",
+          "pick": "Escolher um ficheiro GGUF…",
+          "replace": "Escolher outro ficheiro…",
+          "pickTitle": "Escolher um modelo de melhoria",
+          "fileType": "Modelo GGUF",
+          "forget": "Remover",
+          "forgetTooltip": "Deixar de usar este ficheiro. Não é apagado do disco.",
+          "styleTitle": "Como este modelo recebe a tarefa",
+          "styleTuned": "Afinado para edição",
+          "styleTunedHint": "Não envia instruções. Correto se treinou este modelo para limpar ditados.",
+          "styleInstructed": "Modelo de uso geral",
+          "styleInstructedHint": "Envia as instruções de edição do Handy. Correto se for um modelo comum que descarregou.",
+          "styleAlpaca": "Afinado a partir de um modelo base",
+          "styleAlpacaHint": "Envia a instrução Alpaca com que o Handy treina. Correto se afinou um modelo base, que não tem um modelo de conversa próprio."
+        }
       }
     },
     "sound": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Modelo de edição",
         "description": "O modelo que reescreve a sua transcrição. Menor é mais rápido; maior é mais preciso.",
-        "placeholder": "Selecionar um modelo",
-        "download": "Baixar",
-        "downloading": "Baixando…",
-        "delete": "Excluir",
-        "downloaded": "Baixado",
         "notDownloaded": "Não baixado",
-        "loaded": "Carregado",
-        "size": "{{size}} MB",
-        "ram": "precisa de ~{{ram}} MB de RAM",
-        "released": "lançado em {{date}}",
         "downloadingPercent": "Baixando {{percent}}%",
-        "downloadedOf": "{{done}} MB de {{total}} MB"
+        "none": "Nenhum modelo selecionado",
+        "ready": "Pronto",
+        "manage": "Gerir modelos"
       },
       "tier": {
         "ultralight": "Ultraleve",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Quanto cortar",
-        "description": "Com que facilidade o modelo pode apagar palavras que você realmente disse. A sua transcrição bruta é sempre mantida no histórico.",
-        "light": "Leve — apenas correções explícitas",
-        "balanced": "Equilibrado — também recomeços",
-        "aggressive": "Agressivo — também condensa divagações"
+        "description": "Com que liberdade o modelo pode apagar palavras que disse mesmo: Leve retira apenas correções explícitas, Equilibrado retira também falsos começos e Agressivo condensa ainda as divagações. A sua transcrição original fica sempre no histórico.",
+        "light": "Leve",
+        "balanced": "Equilibrado",
+        "aggressive": "Agressivo"
       },
       "verify": {
         "title": "Verificar se o sentido foi preservado",
-        "description": "Executa uma segunda passagem que compara a edição com o que você disse e a descarta se o sentido mudou. Detecta erros que as verificações básicas não pegam. «Automático» pula edições cosméticas e máquinas onde demoraria demais.",
-        "off": "Desligado — o mais rápido",
-        "auto": "Automático — quando importa, se a máquina for rápida o bastante",
-        "always": "Sempre — verificar todas as edições"
+        "description": "Uma segunda passagem que relê a edição e a descarta se o significado mudou. Automático só corre quando uma edição pode ter mudado o significado; Sempre verifica todas. Desligado por omissão: medido com o editor incluído, descartava mais edições boas do que más.",
+        "off": "Desligado",
+        "auto": "Automático",
+        "always": "Sempre"
       },
       "useGpu": {
         "title": "Usar a GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Nenhuma alteração foi necessária.",
         "rejected": "A reescrita foi rejeitada ({{reason}}), então o seu texto original seria usado.",
         "verdictChanged": "A verificação de sentido encontrou uma mudança, então o seu texto original seria usado.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "A primeira execução carrega o modelo e pode demorar um momento.",
+        "needsModel": "Transfira primeiro um modelo de melhoria.",
+        "before": "Disse",
+        "after": "O Handy escreve",
+        "legendCut": "removido",
+        "legendAdded": "acrescentado"
+      },
+      "tunedNotice": "O {{modelName}} está afinado para esta tarefa, por isso as regras de limpeza estão no próprio modelo e não lhe são enviadas como instruções. Os interruptores abaixo moldam essas instruções, pelo que não têm efeito — nem a verificação de significado, que precisa de um modelo treinado para avaliar edições."
     },
     "history": {
       "title": "Histórico",

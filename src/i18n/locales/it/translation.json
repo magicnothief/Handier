@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Riscansiona",
         "tooltip": "Riscansiona per trovare modelli aggiunti alla cartella dei modelli o alla cache di Hugging Face al di fuori di Handy"
+      },
+      "enhance": {
+        "title": "Modelli di miglioramento",
+        "description": "Modelli che ripuliscono la tua dettatura su questo computer. Nulla viene inviato altrove.",
+        "available": "Disponibili per il Download",
+        "noneDownloaded": "Nessun modello di miglioramento ancora scaricato.",
+        "starting": "Avvio…",
+        "parametersTooltip": "Numero di parametri",
+        "memoryTooltip": "Memoria necessaria per questo modello",
+        "memoryValue": "{{ram}} di RAM",
+        "quantTooltip": "Quantizzazione di questo file",
+        "local": {
+          "title": "Il tuo modello",
+          "description": "Indica a Handy un file GGUF che hai addestrato tu. Viene eseguito su questo computer come qualsiasi altro modello di miglioramento.",
+          "badge": "Il tuo modello",
+          "pick": "Scegli un file GGUF…",
+          "replace": "Scegli un altro file…",
+          "pickTitle": "Scegli un modello di miglioramento",
+          "fileType": "Modello GGUF",
+          "forget": "Rimuovi",
+          "forgetTooltip": "Smetti di usare questo file. Non viene eliminato dal disco.",
+          "styleTitle": "Come viene istruito questo modello",
+          "styleTuned": "Ottimizzato per la revisione",
+          "styleTunedHint": "Non invia istruzioni. Corretto se hai addestrato questo modello a ripulire le dettature.",
+          "styleInstructed": "Modello generico",
+          "styleInstructedHint": "Invia le istruzioni di revisione di Handy. Corretto se è un modello standard che hai scaricato tu.",
+          "styleAlpaca": "Ottimizzato da un modello base",
+          "styleAlpacaHint": "Invia l'istruzione Alpaca con cui Handy addestra. Corretto se hai ottimizzato un checkpoint base, che non ha un proprio modello di chat."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Modello di modifica",
         "description": "Il modello che riscrive la tua trascrizione. Più piccolo è più veloce, più grande è più accurato.",
-        "placeholder": "Seleziona un modello",
-        "download": "Scarica",
-        "downloading": "Download in corso…",
-        "delete": "Elimina",
-        "downloaded": "Scaricato",
         "notDownloaded": "Non scaricato",
-        "loaded": "Caricato",
-        "size": "{{size}} MB",
-        "ram": "richiede circa {{ram}} MB di RAM",
-        "released": "pubblicato il {{date}}",
         "downloadingPercent": "Download {{percent}} %",
-        "downloadedOf": "{{done}} MB di {{total}} MB"
+        "none": "Nessun modello selezionato",
+        "ready": "Pronto",
+        "manage": "Gestisci modelli"
       },
       "tier": {
         "ultralight": "Ultraleggero",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Quanto tagliare",
-        "description": "Con quanta facilità il modello può eliminare parole che hai davvero detto. La trascrizione originale resta sempre nella cronologia.",
-        "light": "Leggero — solo correzioni esplicite",
-        "balanced": "Bilanciato — anche le false partenze",
-        "aggressive": "Aggressivo — condensa anche le divagazioni"
+        "description": "Quanta libertà ha il modello di cancellare parole che hai davvero detto: Leggero rimuove solo le correzioni esplicite, Bilanciato anche le false partenze, Aggressivo condensa pure le divagazioni. La trascrizione grezza resta sempre nella cronologia.",
+        "light": "Leggero",
+        "balanced": "Bilanciato",
+        "aggressive": "Aggressivo"
       },
       "verify": {
         "title": "Verifica che il significato sia preservato",
-        "description": "Esegue un secondo passaggio che confronta la modifica con quanto hai detto e la scarta se il significato è cambiato. Individua errori che i controlli di base non vedono. «Auto» lo salta per le modifiche estetiche e sui computer dove sarebbe troppo lento.",
-        "off": "Disattivato — il più veloce",
-        "auto": "Auto — quando conta, se il computer è abbastanza veloce",
-        "always": "Sempre — verifica ogni modifica"
+        "description": "Una seconda passata che rilegge la modifica e la scarta se il significato è cambiato. Auto viene eseguita solo quando una modifica potrebbe aver cambiato il significato; Sempre controlla ogni modifica. Disattivata per impostazione predefinita: misurata con l'editor incluso, scartava più modifiche buone che cattive.",
+        "off": "Disattivato",
+        "auto": "Auto",
+        "always": "Sempre"
       },
       "useGpu": {
         "title": "Usa la GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Non è stata necessaria alcuna modifica.",
         "rejected": "La riscrittura è stata rifiutata ({{reason}}), quindi verrebbe usato il testo originale.",
         "verdictChanged": "Il controllo del significato ha rilevato un cambiamento, quindi verrebbe usato il testo originale.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "La prima esecuzione carica il modello e può richiedere un momento.",
+        "needsModel": "Scarica prima un modello di miglioramento.",
+        "before": "Hai detto",
+        "after": "Handy scrive",
+        "legendCut": "rimosso",
+        "legendAdded": "aggiunto"
+      },
+      "tunedNotice": "{{modelName}} è ottimizzato per questo compito: le regole di pulizia sono nel modello, non vengono inviate come istruzioni. Gli interruttori qui sotto danno forma a quelle istruzioni, quindi non hanno effetto — e nemmeno il controllo del significato, che richiede un modello addestrato a giudicare le modifiche."
     },
     "history": {
       "title": "Cronologia",

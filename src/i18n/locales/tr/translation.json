@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Yeniden Tara",
         "tooltip": "Handy dışında modeller klasörüne veya Hugging Face önbelleğine eklenen modelleri yeniden tara"
+      },
+      "enhance": {
+        "title": "İyileştirme modelleri",
+        "description": "Dikte ettiğiniz metni bu bilgisayarda düzenleyen modeller. Hiçbir şey gönderilmez.",
+        "available": "İndirilebilir",
+        "noneDownloaded": "Henüz bir iyileştirme modeli indirilmedi.",
+        "starting": "Başlatılıyor…",
+        "parametersTooltip": "Parametre sayısı",
+        "memoryTooltip": "Bu modeli çalıştırmak için gereken bellek",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Bu dosyanın niceleme düzeyi",
+        "local": {
+          "title": "Kendi modeliniz",
+          "description": "Handy'ye kendi eğittiğiniz bir GGUF dosyasını gösterin. Diğer iyileştirme modelleri gibi bu bilgisayarda çalışır.",
+          "badge": "Sizin modeliniz",
+          "pick": "GGUF dosyası seçin…",
+          "replace": "Başka bir dosya seçin…",
+          "pickTitle": "İyileştirme modeli seçin",
+          "fileType": "GGUF modeli",
+          "forget": "Kaldır",
+          "forgetTooltip": "Bu dosyayı kullanmayı bırakır. Diskinizden silinmez.",
+          "styleTitle": "Bu modele görev nasıl verilsin",
+          "styleTuned": "Düzenleme için ince ayarlı",
+          "styleTunedHint": "Hiçbir yönerge göndermez. Bu modeli dikte metinlerini temizlemek için eğittiyseniz doğru seçim budur.",
+          "styleInstructed": "Genel amaçlı model",
+          "styleInstructedHint": "Handy'nin düzenleme yönergelerini gönderir. Bu, kendi indirdiğiniz standart bir modelse doğru seçim budur.",
+          "styleAlpaca": "Temel modelden ince ayarlı",
+          "styleAlpacaHint": "Handy'nin eğitimde kullandığı Alpaca yönergesini gönderir. Kendi sohbet şablonu olmayan bir temel modeli ince ayarladıysanız doğru seçim budur."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Düzenleme modeli",
         "description": "Yazıya dökümünüzü yeniden yazan model. Küçük olan daha hızlı, büyük olan daha isabetli.",
-        "placeholder": "Bir model seçin",
-        "download": "İndir",
-        "downloading": "İndiriliyor…",
-        "delete": "Sil",
-        "downloaded": "İndirildi",
         "notDownloaded": "İndirilmedi",
-        "loaded": "Yüklendi",
-        "size": "{{size}} MB",
-        "ram": "yaklaşık {{ram}} MB RAM gerekir",
-        "released": "{{date}} tarihinde yayımlandı",
         "downloadingPercent": "İndiriliyor %{{percent}}",
-        "downloadedOf": "{{total}} MB / {{done}} MB"
+        "none": "Model seçilmedi",
+        "ready": "Hazır",
+        "manage": "Modelleri yönet"
       },
       "tier": {
         "ultralight": "Ultra hafif",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Ne kadar kısaltılsın",
-        "description": "Modelin gerçekten söylediğiniz sözcükleri silme konusundaki istekliliği. Ham dökümünüz her zaman geçmişte saklanır.",
-        "light": "Hafif — yalnızca açık düzeltmeler",
-        "balanced": "Dengeli — yarım kalan başlangıçlar da",
-        "aggressive": "Agresif — dağınık anlatımı da toparlar"
+        "description": "Modelin gerçekten söylediğiniz kelimeleri ne kadar rahat silebileceği: Hafif yalnızca açık düzeltmeleri, Dengeli ayrıca yanlış başlangıçları, Agresif buna ek olarak dağınık anlatımı toparlar. Ham dökümünüz her zaman geçmişte saklanır.",
+        "light": "Hafif",
+        "balanced": "Dengeli",
+        "aggressive": "Agresif"
       },
       "verify": {
         "title": "Anlamın korunduğunu denetle",
-        "description": "Düzenlemeyi söylediklerinizle karşılaştıran ikinci bir geçiş yapar ve anlam değiştiyse onu atar. Temel denetimlerin göremediği hataları yakalar. «Otomatik», yalnızca biçimsel düzenlemelerde ve çok uzun sürecek bilgisayarlarda bunu atlar.",
-        "off": "Kapalı — en hızlısı",
-        "auto": "Otomatik — önemli olduğunda, bilgisayar yeterince hızlıysa",
-        "always": "Her zaman — her düzenlemeyi denetle"
+        "description": "Düzenlemeyi yeniden okuyup anlam değiştiyse onu atan ikinci bir geçiş. Otomatik yalnızca bir düzenleme anlamı değiştirmiş olabileceğinde çalışır; Her zaman ise her düzenlemeyi denetler. Varsayılan olarak kapalı: ürünle gelen düzenleyiciyle ölçüldüğünde iyi düzenlemeleri kötülerden daha çok atıyordu.",
+        "off": "Kapalı",
+        "auto": "Otomatik",
+        "always": "Her zaman"
       },
       "useGpu": {
         "title": "GPU kullan",
@@ -542,8 +564,15 @@
         "unchanged": "Hiçbir değişiklik gerekmedi.",
         "rejected": "Yeniden yazım reddedildi ({{reason}}), bu yüzden özgün metniniz kullanılacaktı.",
         "verdictChanged": "Anlam denetimi bir değişiklik buldu, bu yüzden özgün metniniz kullanılacaktı.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "İlk çalıştırma modeli yükler ve biraz sürebilir.",
+        "needsModel": "Önce bir iyileştirme modeli indirin.",
+        "before": "Siz dediniz",
+        "after": "Handy şöyle yazıyor",
+        "legendCut": "çıkarıldı",
+        "legendAdded": "eklendi"
+      },
+      "tunedNotice": "{{modelName}} bu iş için ince ayarlı; temizleme kuralları modelin kendisinde, yönerge olarak gönderilmiyor. Aşağıdaki anahtarlar tam da o yönergeleri biçimlendirdiği için etkisiz kalır — düzenlemeleri değerlendirmek üzere eğitilmiş bir model gerektiren anlam denetimi de öyle."
     },
     "history": {
       "title": "Geçmiş",

@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Réanalyser",
         "tooltip": "Réanalyser pour détecter les modèles ajoutés au dossier des modèles ou au cache Hugging Face en dehors de Handy"
+      },
+      "enhance": {
+        "title": "Modèles d'amélioration",
+        "description": "Des modèles qui nettoient votre dictée sur cet ordinateur. Rien n'est envoyé nulle part.",
+        "available": "Disponibles au téléchargement",
+        "noneDownloaded": "Aucun modèle d'amélioration téléchargé pour l'instant.",
+        "starting": "Démarrage…",
+        "parametersTooltip": "Nombre de paramètres",
+        "memoryTooltip": "Mémoire nécessaire pour ce modèle",
+        "memoryValue": "{{ram}} de RAM",
+        "quantTooltip": "Quantification de ce fichier",
+        "local": {
+          "title": "Votre propre modèle",
+          "description": "Indiquez à Handy un fichier GGUF que vous avez entraîné vous-même. Il s'exécute sur cet ordinateur comme tout autre modèle d'amélioration.",
+          "badge": "Votre modèle",
+          "pick": "Choisir un fichier GGUF…",
+          "replace": "Choisir un autre fichier…",
+          "pickTitle": "Choisir un modèle d'amélioration",
+          "fileType": "Modèle GGUF",
+          "forget": "Retirer",
+          "forgetTooltip": "Ne plus utiliser ce fichier. Il n'est pas supprimé de votre disque.",
+          "styleTitle": "Comment ce modèle reçoit sa consigne",
+          "styleTuned": "Affiné pour l'édition",
+          "styleTunedHint": "N'envoie aucune consigne. Correct si vous avez entraîné ce modèle à nettoyer des dictées.",
+          "styleInstructed": "Modèle polyvalent",
+          "styleInstructedHint": "Envoie les consignes d'édition de Handy. Correct s'il s'agit d'un modèle standard que vous avez téléchargé vous-même.",
+          "styleAlpaca": "Affiné depuis un modèle de base",
+          "styleAlpacaHint": "Envoie la consigne Alpaca avec laquelle Handy entraîne. Correct si vous avez affiné un modèle de base, qui n'a pas de gabarit de conversation propre."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Modèle d'édition",
         "description": "Le modèle qui réécrit votre transcription. Plus petit est plus rapide, plus grand est plus précis.",
-        "placeholder": "Sélectionner un modèle",
-        "download": "Télécharger",
-        "downloading": "Téléchargement…",
-        "delete": "Supprimer",
-        "downloaded": "Téléchargé",
         "notDownloaded": "Non téléchargé",
-        "loaded": "Chargé",
-        "size": "{{size}} Mo",
-        "ram": "nécessite environ {{ram}} Mo de RAM",
-        "released": "publié en {{date}}",
         "downloadingPercent": "Téléchargement : {{percent}} %",
-        "downloadedOf": "{{done}} Mo sur {{total}} Mo"
+        "none": "Aucun modèle sélectionné",
+        "ready": "Prêt",
+        "manage": "Gérer les modèles"
       },
       "tier": {
         "ultralight": "Ultraléger",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Ampleur des coupes",
-        "description": "Avec quelle facilité le modèle peut supprimer des mots que vous avez réellement prononcés. Votre transcription brute est toujours conservée dans l'historique.",
-        "light": "Légère — uniquement les corrections explicites",
-        "balanced": "Équilibrée — aussi les faux départs",
-        "aggressive": "Agressive — resserre aussi les digressions"
+        "description": "Avec quelle liberté le modèle peut supprimer des mots que vous avez réellement dits : Légère ne retire que les corrections explicites, Équilibrée retire aussi les faux départs, Agressive resserre en plus les digressions. Votre transcription brute est toujours conservée dans l'historique.",
+        "light": "Légère",
+        "balanced": "Équilibrée",
+        "aggressive": "Agressive"
       },
       "verify": {
         "title": "Vérifier que le sens est préservé",
-        "description": "Effectue une seconde passe qui compare la modification à ce que vous avez dit et l'écarte si le sens a changé. Détecte des erreurs que les vérifications de base ne voient pas. « Auto » l'ignore pour les modifications cosmétiques et sur les machines où ce serait trop lent.",
-        "off": "Désactivé — le plus rapide",
-        "auto": "Auto — quand c'est important, si la machine est assez rapide",
-        "always": "Toujours — vérifier chaque modification"
+        "description": "Une seconde passe qui relit la modification et l'abandonne si le sens a changé. Auto ne s'exécute que lorsqu'une modification a pu changer le sens ; Toujours vérifie chaque modification. Désactivé par défaut : mesuré avec l'éditeur fourni, il rejetait plus de bonnes modifications que de mauvaises.",
+        "off": "Désactivé",
+        "auto": "Auto",
+        "always": "Toujours"
       },
       "useGpu": {
         "title": "Utiliser le GPU",
@@ -542,8 +564,15 @@
         "unchanged": "Aucune modification n'était nécessaire.",
         "rejected": "La réécriture a été rejetée ({{reason}}), votre texte d'origine serait donc utilisé.",
         "verdictChanged": "La vérification du sens a détecté un changement, votre texte d'origine serait donc utilisé.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "La première exécution charge le modèle et peut prendre un instant.",
+        "needsModel": "Téléchargez d'abord un modèle d'amélioration.",
+        "before": "Vous avez dit",
+        "after": "Handy écrit",
+        "legendCut": "retiré",
+        "legendAdded": "ajouté"
+      },
+      "tunedNotice": "{{modelName}} est affiné pour cette tâche : les règles de nettoyage sont dans le modèle et ne lui sont pas envoyées comme consignes. Les interrupteurs ci-dessous façonnent ces consignes et n'ont donc aucun effet — pas plus que la vérification du sens, qui exige un modèle entraîné à juger des modifications."
     },
     "history": {
       "title": "Historique",

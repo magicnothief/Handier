@@ -176,6 +176,35 @@
       "rescan": {
         "label": "Neu scannen",
         "tooltip": "Erneut nach Modellen scannen, die außerhalb von Handy zum Modellordner oder Hugging-Face-Cache hinzugefügt wurden"
+      },
+      "enhance": {
+        "title": "Verbesserungsmodelle",
+        "description": "Modelle, die Ihr Diktat auf diesem Computer bereinigen. Es wird nichts übertragen.",
+        "available": "Zum Download verfügbar",
+        "noneDownloaded": "Noch kein Verbesserungsmodell heruntergeladen.",
+        "starting": "Wird gestartet…",
+        "parametersTooltip": "Anzahl der Parameter",
+        "memoryTooltip": "Für dieses Modell benötigter Speicher",
+        "memoryValue": "{{ram}} RAM",
+        "quantTooltip": "Quantisierung dieser Datei",
+        "local": {
+          "title": "Ihr eigenes Modell",
+          "description": "Verweisen Sie Handy auf eine GGUF-Datei, die Sie selbst trainiert haben. Sie läuft auf diesem Computer wie jedes andere Verbesserungsmodell.",
+          "badge": "Ihr Modell",
+          "pick": "GGUF-Datei auswählen…",
+          "replace": "Andere Datei auswählen…",
+          "pickTitle": "Verbesserungsmodell auswählen",
+          "fileType": "GGUF-Modell",
+          "forget": "Entfernen",
+          "forgetTooltip": "Diese Datei nicht mehr verwenden. Sie wird nicht von der Festplatte gelöscht.",
+          "styleTitle": "Wie dieses Modell angesprochen wird",
+          "styleTuned": "Für die Bearbeitung feinabgestimmt",
+          "styleTunedHint": "Sendet keine Anweisungen. Richtig, wenn Sie dieses Modell zum Bereinigen von Diktaten trainiert haben.",
+          "styleInstructed": "Allzweckmodell",
+          "styleInstructedHint": "Sendet die Bearbeitungsanweisungen von Handy. Richtig, wenn es ein Standardmodell ist, das Sie selbst heruntergeladen haben.",
+          "styleAlpaca": "Aus einem Basismodell feinabgestimmt",
+          "styleAlpacaHint": "Sendet die Alpaca-Anweisung, mit der Handy trainiert. Richtig, wenn Sie ein Basismodell feinabgestimmt haben, das keine eigene Chatvorlage besitzt."
+        }
       }
     },
     "general": {
@@ -465,18 +494,11 @@
       "model": {
         "title": "Bearbeitungsmodell",
         "description": "Das Modell, das dein Transkript umschreibt. Kleiner ist schneller, größer ist genauer.",
-        "placeholder": "Modell auswählen",
-        "download": "Herunterladen",
-        "downloading": "Wird heruntergeladen …",
-        "delete": "Löschen",
-        "downloaded": "Heruntergeladen",
         "notDownloaded": "Nicht heruntergeladen",
-        "loaded": "Geladen",
-        "size": "{{size}} MB",
-        "ram": "benötigt ca. {{ram}} MB RAM",
-        "released": "veröffentlicht {{date}}",
         "downloadingPercent": "Wird heruntergeladen: {{percent}} %",
-        "downloadedOf": "{{done}} MB von {{total}} MB"
+        "none": "Kein Modell ausgewählt",
+        "ready": "Bereit",
+        "manage": "Modelle verwalten"
       },
       "tier": {
         "ultralight": "Ultraleicht",
@@ -512,17 +534,17 @@
       },
       "aggressiveness": {
         "title": "Wie viel gekürzt wird",
-        "description": "Wie bereitwillig das Modell tatsächlich Gesagtes löschen darf. Dein Rohtranskript bleibt immer im Verlauf erhalten.",
-        "light": "Leicht – nur ausdrückliche Korrekturen",
-        "balanced": "Ausgewogen – auch Fehlstarts",
-        "aggressive": "Aggressiv – auch Abschweifungen straffen"
+        "description": "Wie beherzt das Modell Wörter streichen darf, die Sie tatsächlich gesagt haben: Leicht entfernt nur ausdrückliche Korrekturen, Ausgewogen auch Fehlstarts, Aggressiv strafft zusätzlich Abschweifungen. Ihr Rohtranskript bleibt immer im Verlauf erhalten.",
+        "light": "Leicht",
+        "balanced": "Ausgewogen",
+        "aggressive": "Aggressiv"
       },
       "verify": {
         "title": "Prüfen, ob die Bedeutung erhalten bleibt",
-        "description": "Ein zweiter Durchlauf vergleicht die Bearbeitung mit dem Gesagten und verwirft sie, wenn sich die Bedeutung geändert hat. Erkennt Fehler, die die einfachen Prüfungen nicht finden. „Automatisch“ überspringt rein kosmetische Änderungen und Geräte, auf denen es zu lange dauern würde.",
-        "off": "Aus – am schnellsten",
-        "auto": "Automatisch – wenn es darauf ankommt und das Gerät schnell genug ist",
-        "always": "Immer – jede Bearbeitung prüfen"
+        "description": "Ein zweiter Durchgang, der die Bearbeitung erneut liest und sie verwirft, falls sich die Bedeutung geändert hat. Automatisch läuft nur, wenn eine Bearbeitung die Bedeutung verändert haben könnte; Immer prüft jede Bearbeitung. Standardmäßig aus: gemessen am mitgelieferten Editor verwarf er mehr gute als schlechte Bearbeitungen.",
+        "off": "Aus",
+        "auto": "Automatisch",
+        "always": "Immer"
       },
       "useGpu": {
         "title": "GPU verwenden",
@@ -542,8 +564,15 @@
         "unchanged": "Es waren keine Änderungen nötig.",
         "rejected": "Die Umschreibung wurde abgelehnt ({{reason}}), daher würde dein Originaltext verwendet.",
         "verdictChanged": "Die Bedeutungsprüfung hat eine Änderung festgestellt, daher würde dein Originaltext verwendet.",
-        "took": "{{ms}} ms"
-      }
+        "took": "{{ms}} ms",
+        "firstRunHint": "Der erste Durchlauf lädt das Modell und kann einen Moment dauern.",
+        "needsModel": "Laden Sie zuerst ein Verbesserungsmodell herunter.",
+        "before": "Gesagt",
+        "after": "Handy schreibt",
+        "legendCut": "entfernt",
+        "legendAdded": "ergänzt"
+      },
+      "tunedNotice": "{{modelName}} ist für diese Aufgabe feinabgestimmt, die Bereinigungsregeln stecken also im Modell selbst und werden nicht als Anweisungen mitgeschickt. Die Schalter unten formen genau diese Anweisungen und bleiben daher wirkungslos – ebenso die Bedeutungsprüfung, die ein Modell braucht, das Bearbeitungen beurteilen kann."
     },
     "history": {
       "title": "Verlauf",
