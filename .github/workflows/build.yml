@@ -233,13 +233,37 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           security find-identity -v -p codesigning build.keychain
 
-      - name: verify certificate
+      # tauri-bundler decides whether to codesign by probing these with
+      # `env::var_os`, which returns Some("") for a variable that is set but
+      # empty. Passing `APPLE_CERTIFICATE: ''` on the build step below therefore
+      # reads as "a certificate was supplied", and bundling dies with
+      #
+      #   failed codesign application: failed to run command security import
+      #
+      # on the empty base64. A step-level `env:` map cannot omit a key
+      # conditionally, so export the signing variables from this already-gated
+      # step instead — an unsigned build then has them genuinely absent.
+      - name: verify certificate and export signing environment
         if: contains(inputs.platform, 'macos') && inputs.sign-binaries
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
+          set -euo pipefail
           CERT_INFO=$(security find-identity -v -p codesigning build.keychain | grep "Developer ID Application")
-          CERT_ID=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
-          echo "CERT_ID=$CERT_ID" >> $GITHUB_ENV
+          APPLE_SIGNING_IDENTITY=$(echo "$CERT_INFO" | awk -F'"' '{print $2}')
           echo "Certificate imported."
+          for var in APPLE_SIGNING_IDENTITY APPLE_ID APPLE_ID_PASSWORD \
+                     APPLE_PASSWORD APPLE_TEAM_ID APPLE_CERTIFICATE \
+                     APPLE_CERTIFICATE_PASSWORD; do
+            # Heredoc form: a pasted base64 certificate may be line-wrapped.
+            delim="EOF_${var}_${RANDOM}${RANDOM}"
+            printf '%s<<%s\n%s\n%s\n' "$var" "$delim" "${!var}" "$delim"
+          done >> "$GITHUB_ENV"
 
       - name: Patch asset name pattern
         id: patch-release-name
@@ -460,9 +484,15 @@ jobs:
       # generator and a short target path on Windows, and a CPU sidecar still
       # works everywhere. A GPU sidecar can be produced locally with
       # `bun run build:sidecar`.
+      #
+      # `--target` matters even where it looks redundant: `macos-latest` is now
+      # Apple Silicon, so its x86_64 job is a cross-compile, and defaulting to
+      # the host staged `handy-llm-aarch64-apple-darwin` while the bundler
+      # looked for `binaries/handy-llm-x86_64-apple-darwin`. The script treats a
+      # triple naming the host as a host build, so this is a no-op elsewhere.
       - name: Build enhancement sidecar
         shell: bash
-        run: bun run scripts/build-sidecar.ts --cpu
+        run: bun run scripts/build-sidecar.ts --cpu --target ${{ inputs.target }}
 
       # transcribe-cpp ships as a shared libtranscribe + loadable ggml backend
       # modules on Linux (the `dynamic-backends` posture). They are produced by
@@ -534,13 +564,7 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APPLE_ID: ${{ inputs.sign-binaries && secrets.APPLE_ID || '' }}
-          APPLE_ID_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_ID_PASSWORD || '' }}
-          APPLE_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ inputs.sign-binaries && secrets.APPLE_TEAM_ID || '' }}
-          APPLE_CERTIFICATE: ${{ inputs.sign-binaries && secrets.APPLE_CERTIFICATE || '' }}
-          APPLE_CERTIFICATE_PASSWORD: ${{ inputs.sign-binaries && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
-          APPLE_SIGNING_IDENTITY: ${{ inputs.sign-binaries && env.CERT_ID || '' }}
+          # APPLE_* are deliberately not listed here; see the export step above.
           AZURE_CLIENT_ID: ${{ inputs.sign-binaries && secrets.AZURE_CLIENT_ID || '' }}
           AZURE_CLIENT_SECRET: ${{ inputs.sign-binaries && secrets.AZURE_CLIENT_SECRET || '' }}
           AZURE_TENANT_ID: ${{ inputs.sign-binaries && secrets.AZURE_TENANT_ID || '' }}
