@@ -85,7 +85,9 @@ pub const ALPACA_INSTRUCTION: &str =
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
 pub enum ModelTier {
-    /// Runs on almost anything; weakest at spotting self-corrections.
+    /// Runs on almost anything. Weak at spotting self-corrections unless it
+    /// was trained for the task — the default editor is a 350M fine-tune and
+    /// sits in this band.
     Ultralight,
     /// The recommended balance of size and edit quality.
     Balanced,
@@ -308,7 +310,7 @@ mod tests {
 
         assert_eq!(
             default_editor().map(|m| m.id.as_str()),
-            Some("qwen/qwen3-4b-instruct-iq3")
+            Some("magicnothief/handy-editor-350m-q8")
         );
         assert_eq!(
             default_verifier().map(|m| m.id.as_str()),
@@ -394,12 +396,24 @@ mod tests {
 
     #[test]
     fn the_default_editor_is_one_that_scored_full_marks() {
-        // The default is the smallest model measured at 68/68 on the
-        // self-correction suite. Everything smaller topped out at 66/68, and
-        // several inverted meaning rather than merely missing an edit, so a
-        // smaller default would be choosing a known-wrong answer.
+        // Only these have been measured at 68/68 on the self-correction suite.
+        // Every stock model below 4B topped out at 66/68, and several inverted
+        // meaning rather than merely missing an edit, so defaulting to an
+        // unmeasured model would be shipping a known-wrong answer. The 350M
+        // entries are not exceptions to that floor — they are a fine-tune, which
+        // is the only way anything that small reaches full marks.
+        const FULL_MARKS: &[&str] = &[
+            "magicnothief/handy-editor-350m",
+            "magicnothief/handy-editor-350m-q8",
+            "qwen/qwen3-4b-instruct-iq3",
+            "qwen/qwen3-4b-instruct",
+        ];
         let e = default_editor().expect("an editor default exists");
-        assert_eq!(e.parameters, "4B");
+        assert!(
+            FULL_MARKS.contains(&e.id.as_str()),
+            "{} has no measured 68/68; run scripts/enhance-eval before defaulting to it",
+            e.id
+        );
         assert!(e.supports(ModelRole::Editor));
     }
 
@@ -505,12 +519,35 @@ mod tests {
     }
 
     #[test]
-    fn every_catalog_entry_expects_the_instruction_prompt() {
-        // Nothing shipped is fine-tuned for this task yet. If that changes, the
-        // entry has to say so, because the pipeline reads this and not the name.
-        assert!(catalog()
-            .iter()
-            .all(|m| m.prompt_style == PromptStyle::Instructed));
+    fn only_the_fine_tuned_editor_departs_from_the_instruction_prompt() {
+        // The pipeline reads this field and not the name, so a stock model
+        // wrongly marked `Tuned` would silently lose its instructions, and a
+        // fine-tune wrongly marked `Instructed` would start copying the
+        // prompt's own rules into the user's document. Pin both directions.
+        for m in catalog() {
+            let want = if m.repo_id == "MagicNoThief/handy-editor-lfm2.5-350m" {
+                PromptStyle::Tuned
+            } else {
+                PromptStyle::Instructed
+            };
+            assert_eq!(m.prompt_style, want, "{} declares the wrong style", m.id);
+        }
+    }
+
+    #[test]
+    fn no_fine_tuned_editor_is_offered_as_a_verifier() {
+        // A model trained only to rewrite has never been asked to judge a
+        // rewrite. Measured over 400 live edits the trained editor's verify
+        // pass caught 0 of 10 bad ones and rejected a good one, so the pipeline
+        // skips verification for a non-`Instructed` model entirely. Offering
+        // one as a verifier would present a check that silently does nothing.
+        for m in catalog() {
+            assert!(
+                m.prompt_style == PromptStyle::Instructed || !m.supports(ModelRole::Verifier),
+                "{} is a fine-tune and cannot verify",
+                m.id
+            );
+        }
     }
 
     #[test]

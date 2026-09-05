@@ -573,7 +573,7 @@ mod tests {
     fn resolve_falls_back_to_the_role_default() {
         assert_eq!(
             resolve_model(None, ModelRole::Editor).map(|m| m.id),
-            Some("qwen/qwen3-4b-instruct-iq3".to_string())
+            Some("magicnothief/handy-editor-350m-q8".to_string())
         );
         assert_eq!(
             resolve_model(None, ModelRole::Verifier).map(|m| m.id),
@@ -587,7 +587,7 @@ mod tests {
         // feature; falling back keeps it working across catalog changes.
         assert_eq!(
             resolve_model(Some("deleted/model"), ModelRole::Editor).map(|m| m.id),
-            Some("qwen/qwen3-4b-instruct-iq3".to_string())
+            Some("magicnothief/handy-editor-350m-q8".to_string())
         );
     }
 
@@ -621,7 +621,7 @@ mod tests {
         let id = format!("{}/nowhere/gone.gguf", catalog::LOCAL_PREFIX);
         assert_eq!(
             resolve_model(Some(&id), ModelRole::Editor).map(|m| m.id),
-            Some("qwen/qwen3-4b-instruct-iq3".to_string())
+            Some("magicnothief/handy-editor-350m-q8".to_string())
         );
     }
 

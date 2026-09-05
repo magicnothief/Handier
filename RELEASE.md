@@ -24,24 +24,34 @@ this file records what was changed and what still needs a human.
       installed app verifies updates against whatever key it shipped with, so a
       mismatch strands every user on the version they installed.
 
-- [ ] **Make the model repositories public**, or the default editor cannot be
-      downloaded by anyone but you. Both are currently private:
-      [`handy-editor-lfm2.5-350m`](https://huggingface.co/MagicNoThief/handy-editor-lfm2.5-350m)
-      and
-      [`handy-dictation-editing`](https://huggingface.co/datasets/MagicNoThief/handy-dictation-editing).
+- [x] **Model repositories are public.** Verified anonymously rather than from
+      the owner's account, which is the only check that means anything — an owner
+      sees their own private repo as if it were public. `GET` on
+      `huggingface.co/api/models/MagicNoThief/handy-editor-lfm2.5-350m` and on
+      `huggingface.co/api/datasets/MagicNoThief/handy-dictation-editing` both
+      answer `200` with no credentials, and the GGUF itself redirects to the CDN.
 
-- [ ] **Add the fine-tuned editor to the catalogue.** It is currently reachable
-      only through **Your Own Model** (a local GGUF), because
-      `src-tauri/src/enhance/models.json` has no entry for it and the Hugging
-      Face repo is private. Once the repo is public, add an entry with
-      `repo_id: MagicNoThief/handy-editor-lfm2.5-350m`,
-      `filename: handy-editor-350m-Q4_K_M.gguf`, `prompt_style: "tuned"` and
-      `license: lfm1.0`. Moving `default_editor` onto it is a separate decision:
-      it is 7× smaller and 3× faster than the current default at the same suite
-      score, but it is English-only and single-purpose, where Qwen3-4B is not.
+- [x] **The fine-tuned editor is the default.** `src-tauri/src/enhance/models.json`
+      lists it twice, as `Q8_0` (the default) and `Q4_K_M`, both with
+      `prompt_style: "tuned"` — the field the pipeline reads to send an empty
+      system turn instead of Handier's instruction prompt.
 
-      With a catalogue entry the RAM-based quant selection becomes possible too —
-      `min_ram_mb` and `catalog::fitting()` already exist for it.
+      Q8_0 rather than the smaller Q4_K_M because it scores identically to the
+      full-precision weights and the 150 MB it costs is nothing on a machine
+      already loading a transcription model. Q4_K_M stays listed for machines
+      where it is not.
+
+      Selecting it needs no other setting changed, and that is enforced rather
+      than documented: a catalogue entry's `prompt_style` cannot be overridden by
+      the local-model setting (`resolve_model_with`), the prompt-shaping switches
+      grey out for a non-`Instructed` model, and the verify pass is skipped for
+      one — measured, a trained editor judging its own edits caught 0 of 10 bad
+      ones and rejected a good one.
+
+      The RAM-based quant selection that `min_ram_mb` and `catalog::fitting()`
+      were built for is still unbuilt, and deliberately: both builds fit any
+      machine that can run a transcription model at all, so the switch would
+      never fire.
 
 - [ ] **Confirm the dataset licence question.** `disfl_qa` declares CC-BY-4.0 but
       derives from SQuAD, which is CC-BY-SA-4.0. See

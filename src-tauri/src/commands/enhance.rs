@@ -19,8 +19,9 @@ fn manager(app: &AppHandle) -> Result<Arc<EnhanceManager>, String> {
 ///
 /// A synchronous `#[tauri::command]` runs on the main thread, so anything that
 /// loads a model froze the entire window for as long as the load took — around
-/// 33 seconds for the default 1.6 GB model, which reads as a hung app. Every
-/// command below that can reach the sidecar goes through here.
+/// 33 seconds for a 1.6 GB model, which reads as a hung app. The default editor
+/// is far smaller than that now, but the catalog still offers models that big.
+/// Every command below that can reach the sidecar goes through here.
 async fn off_thread<T, F>(work: F) -> Result<T, String>
 where
     F: FnOnce() -> Result<T, String> + Send + 'static,

@@ -128,8 +128,8 @@ asserts zero overlap. The suite is 68 hand-written cases, independent of both.
 Reproduce with [`scripts/enhance-eval/`](https://github.com/MagicNoThief/Handier/tree/main/scripts/enhance-eval):
 
 ```bash
-python bench.py --model handy-editor-350m.Q4_K_M.gguf --no-switch --label mine
-python eval_heldout.py --model handy-editor-350m.Q4_K_M.gguf \
+python bench.py --model handy-editor-350m-Q4_K_M.gguf --no-switch --label mine
+python eval_heldout.py --model handy-editor-350m-Q4_K_M.gguf \
     --eval handy_eval.jsonl --label mine
 ```
 
@@ -186,10 +186,15 @@ quality from the suite alone.
 
 ## Using it in Handier
 
-1. **Settings → Models → Enhancement Models → Your Own Model → Choose a GGUF
-   file…**
-2. Leave **How to prompt this model** on **Fine-tuned for editing**. That is what
-   sends the empty system turn instead of Handier's own instruction prompt.
+Nothing to set up: it is Handier's default editor. **Settings → Advanced → Local
+Enhancement** turns the layer on and fetches it, and **Settings → Models →
+Enhancement Models** offers both builds — `Q8_0` as the default, `Q4_K_M` for
+machines counting megabytes. The empty system turn is applied automatically, so
+there is no prompt setting to get wrong.
+
+Running a GGUF you built yourself is still **Your Own Model → Choose a GGUF
+file…**; leave **How to prompt this model** on **Fine-tuned for editing**, which
+is what sends the empty system turn instead of Handier's instruction prompt.
 
 ## Limitations
 

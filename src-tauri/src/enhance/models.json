@@ -1,5 +1,5 @@
 {
-  "catalog_version": 5,
+  "catalog_version": 6,
   "models": [
     {
       "id": "liquidai/lfm2.5-230m",
@@ -34,6 +34,42 @@
       "tier": "ultralight",
       "description": "Purpose-built for edge devices. Fast, and no thinking mode to suppress.",
       "default_editor": false
+    },
+    {
+      "id": "magicnothief/handy-editor-350m",
+      "name": "Handier Editor 350M",
+      "repo_id": "MagicNoThief/handy-editor-lfm2.5-350m",
+      "filename": "handy-editor-350m-Q4_K_M.gguf",
+      "size_bytes": 229315072,
+      "quant": "Q4_K_M",
+      "parameters": "0.35B",
+      "license": "lfm1.0",
+      "released": "2026-09",
+      "reasoning": false,
+      "prompt_style": "tuned",
+      "roles": ["editor"],
+      "min_ram_mb": 650,
+      "tier": "ultralight",
+      "default_editor": false,
+      "description": "The same editor 150 MB lighter, for machines counting every megabyte. 97.4% held-out against the Q8's 97.7%."
+    },
+    {
+      "id": "magicnothief/handy-editor-350m-q8",
+      "name": "Handier Editor 350M (Q8)",
+      "repo_id": "MagicNoThief/handy-editor-lfm2.5-350m",
+      "filename": "handy-editor-350m-Q8_0.gguf",
+      "size_bytes": 379220480,
+      "quant": "Q8_0",
+      "parameters": "0.35B",
+      "license": "lfm1.0",
+      "released": "2026-09",
+      "reasoning": false,
+      "prompt_style": "tuned",
+      "roles": ["editor"],
+      "min_ram_mb": 800,
+      "tier": "ultralight",
+      "default_editor": true,
+      "description": "Trained for this one task rather than adapted to it. Matches a 4B general-purpose model at a seventh of the size and three times the speed."
     },
     {
       "id": "google/gemma-3-270m-it",
@@ -84,7 +120,7 @@
       "min_ram_mb": 1000,
       "tier": "balanced",
       "default_editor": false,
-      "description": "Recommended default editor. Best quality per megabyte for transcript cleanup."
+      "description": "Scores 32/68 on the self-correction suite: fast, but it misses most retractions."
     },
     {
       "id": "liquidai/lfm2.5-1.2b",
@@ -203,8 +239,8 @@
       "roles": ["editor", "verifier"],
       "min_ram_mb": 2400,
       "tier": "quality",
-      "default_editor": true,
-      "description": "Smallest model that scored 100% on the self-correction suite. Recommended."
+      "default_editor": false,
+      "description": "Smallest general-purpose model at 100% on the self-correction suite. Doubles as the verifier."
     },
     {
       "id": "qwen/qwen3-4b-instruct",

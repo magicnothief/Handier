@@ -33,27 +33,30 @@ this size get wrong.
 
 ### It has to be fast enough not to notice
 
-The catalogue ships thirteen models, from 153 MB to 2.5 GB, and defaults to
-**Qwen3-4B Instruct** — the smallest general-purpose model measured at 100% on
-the self-correction suite.
-
-There is also a purpose-trained alternative,
-[**handy-editor-lfm2.5-350m**](https://huggingface.co/MagicNoThief/handy-editor-lfm2.5-350m),
-a 350M fine-tune that matches it at a fraction of the cost:
+The catalogue ships fifteen models, from 153 MB to 2.5 GB, and defaults to
+[**handy-editor-lfm2.5-350m**](https://huggingface.co/MagicNoThief/handy-editor-lfm2.5-350m)
+— a 350M model trained for this one job rather than a general-purpose model
+asked to do it. Against Qwen3-4B Instruct, the smallest stock model that reaches
+100% on the self-correction suite:
 
 |                                   | Handier editor | Qwen3-4B (general purpose) |
 | --------------------------------- | -------------: | -------------------------: |
 | Self-correction suite             |      **68/68** |                      68/68 |
-| Held-out exact match (2,152 rows) |      **97.4%** |                          — |
+| Held-out exact match (2,152 rows) |      **97.7%** |                          — |
 | Median latency                    |    **~100 ms** |                    ~350 ms |
-| Size on disk                      |     **229 MB** |                    1.67 GB |
+| Size on disk                      |     **379 MB** |                    1.67 GB |
 
-Same accuracy as a model 7× its size, about 3× faster. That trade is the whole
-point: this has to run alongside a transcription model on an ordinary laptop
-without adding a pause you can feel.
+Same accuracy from eleven times fewer parameters, about 3× faster. That trade is
+the whole point: this has to run alongside a transcription model on an ordinary
+laptop without adding a pause you can feel.
 
-It is not yet a catalogue entry — select it with **Your Own Model** below, or
-see [RELEASE.md](RELEASE.md) for what makes it the default.
+Two builds of it are listed. The default is `Q8_0` (379 MB), which scores
+identically to the full-precision weights; `Q4_K_M` (229 MB) gives up 0.3 points
+of held-out accuracy to save 150 MB, and is there for machines counting every
+one. Qwen3-4B Instruct stays in the catalogue as the general-purpose option, and
+is the one to choose if you want the optional verify pass: it re-reads its own
+edit, which a model trained only to rewrite cannot usefully do. With the default
+editor that pass is skipped rather than faked.
 
 The corpus it was trained on is published too:
 [**handy-dictation-editing**](https://huggingface.co/datasets/MagicNoThief/handy-dictation-editing)
@@ -73,7 +76,7 @@ edits it. So every failure path returns the raw transcript:
 ### Using it
 
 **Settings → Advanced → Local Enhancement** to turn it on, and
-**Settings → Models → Enhancement Models** to choose a model — thirteen are
+**Settings → Models → Enhancement Models** to choose a model — fifteen are
 offered, alongside your own.
 
 The **Try it** box on the Advanced page shows what the model does to a sentence
