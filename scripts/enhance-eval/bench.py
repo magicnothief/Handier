@@ -131,6 +131,10 @@ def main():
     ap.add_argument("--cpu", action="store_true")
     ap.add_argument("--no-switch", action="store_true",
                     help="never append /no_think (for fine-tuned, non-reasoning models)")
+    ap.add_argument("--user-prefix", default="",
+                    help="text prepended to every user turn, newline-separated. "
+                         "For a model whose input format needs a control line, "
+                         "e.g. s1-mini's '[Styling: semi-formal] ...'.")
     ap.add_argument("--omit-system", action="store_true",
                     help="send no system message at all, instead of an empty one. "
                          "Some chat templates render these differently; which one a "
@@ -149,6 +153,10 @@ def main():
     # cleanly in a sixth of the time. Any chat template the GGUF carries still
     # wraps this, which is fine -- the Alpaca text is what the model keys on.
     def wrap(text: str) -> str:
+        # A control line is part of the input format some models were trained
+        # on; sending the transcript without it measures a mismatch.
+        if args.user_prefix:
+            return f"{args.user_prefix}\n{text}"
         if not args.alpaca:
             return text
         return (

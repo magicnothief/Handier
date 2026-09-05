@@ -183,7 +183,22 @@ impl Engine {
         } else {
             user.to_string()
         };
-        let (prompt, templated) = build_prompt(model, system, &user)?;
+        let (mut prompt, templated) = build_prompt(model, system, &user)?;
+
+        // `HANDY_LLM_PROMPT_SUFFIX` appends text after the assistant header.
+        //
+        // Needed because llama.cpp renders its own built-in template rather
+        // than the GGUF's jinja, and the two disagree for models whose template
+        // injects a prefix into the assistant turn. Qwen3 with thinking
+        // disabled opens and immediately closes a reasoning block there; a
+        // fine-tune trained that way never learned to *close* one itself, so
+        // without the prefix the model opens a block and stops, returning
+        // nothing at all.
+        if let Ok(suffix) = std::env::var("HANDY_LLM_PROMPT_SUFFIX") {
+            if !suffix.is_empty() {
+                prompt.push_str(&suffix);
+            }
+        }
         // Which path served a given GGUF is invisible from the outside, and
         // getting it wrong means measuring a prompt the app never sends.
         if std::env::var_os("HANDY_LLM_DEBUG_PROMPT").is_some() {
@@ -268,6 +283,9 @@ impl Engine {
         }
         let text =
             String::from_utf8(bytes).map_err(|e| anyhow!("model produced invalid UTF-8: {e}"))?;
+        if env_flag("HANDY_LLM_DEBUG_PROMPT") {
+            eprintln!("handy-llm: raw completion={text:?}");
+        }
         Ok(strip_thinking(&text).to_string())
     }
 }
