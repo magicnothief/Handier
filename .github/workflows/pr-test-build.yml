@@ -43,7 +43,10 @@ jobs:
       platform: ${{ matrix.platform }}
       target: ${{ matrix.target }}
       build-args: ${{ matrix.args }}
-      sign-binaries: true
+      # false: the fork has no Apple Developer or Azure Trusted Signing
+      # credentials, and those steps reference upstream's. Updater artefacts
+      # are still signed -- that key is passed unconditionally in build.yml.
+      sign-binaries: false
       asset-prefix: "handy-pr-${{ inputs.pr_number }}"
       upload-artifacts: true
       is-debug-build: ${{ contains(matrix.args, '--debug') }}
