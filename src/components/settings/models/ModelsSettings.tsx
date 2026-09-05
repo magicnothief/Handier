@@ -18,6 +18,7 @@ import {
   supportsLanguageCode,
 } from "@/lib/constants/languages.ts";
 import type { ModelInfo } from "@/bindings";
+import { EnhanceModelsSection } from "./EnhanceModelsSection";
 
 // check if model supports a language based on its supported_languages list
 const modelSupportsLanguage = (model: ModelInfo, langCode: string): boolean => {
@@ -447,6 +448,12 @@ export const ModelsSettings: React.FC = () => {
             {t("settings.models.noModelsMatch")}
           </div>
         )}
+
+        {/* Enhancement models. Same page because they are the same kind of
+            thing to a user, but below their own rule so the search box and
+            filters above are clearly about transcription. */}
+        <hr className="border-mid-gray/20" />
+        <EnhanceModelsSection />
       </div>
     </div>
   );

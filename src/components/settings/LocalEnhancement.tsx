@@ -1,50 +1,41 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { commands, events } from "../../bindings";
-import type {
-  EnhanceDownloadProgress,
-  EnhanceModelInfo,
-  EnhanceStatus,
-} from "../../bindings";
-import { ProgressBar } from "../shared";
+import { Sparkles } from "lucide-react";
+import { commands } from "../../bindings";
+import type { EnhancePreview } from "../../bindings";
 import { useSettings } from "../../hooks/useSettings";
+import { useEnhanceStore } from "../../stores/enhanceStore";
+import { useNavStore } from "../../stores/navStore";
 import { Button } from "../ui/Button";
 import { Select } from "../ui/Select";
 import { SettingContainer } from "../ui/SettingContainer";
 import { SettingsGroup } from "../ui/SettingsGroup";
 import { Textarea } from "../ui/Textarea";
 import { ToggleSwitch } from "../ui/ToggleSwitch";
-
-type PreviewResult = {
-  text: string;
-  original: string;
-  changed: boolean;
-  rejected: string | null;
-  verdict: string | null;
-  error: string | null;
-  elapsedMs: number;
-};
+import { EnhancePreviewResult } from "./EnhancePreviewResult";
 
 /**
  * Settings for the on-device transcript enhancement layer.
  *
- * Everything here is local: the model selector downloads a GGUF and the rest
- * configures how aggressively it may rewrite what was said. The preview exists
- * because "cut what I retracted" is hard to judge in the abstract — people need
- * to see it act on their own wording before trusting it with dictation.
+ * Everything here is local: this page configures how aggressively the model may
+ * rewrite what was said, and the preview exists because "cut what I retracted"
+ * is hard to judge in the abstract — people need to see it act on their own
+ * wording before trusting it with dictation.
+ *
+ * Downloading and picking a model deliberately does *not* happen here. It
+ * happens on the Models page next to the transcription models, because to a
+ * user those are the same kind of thing. What is left here is a read-only
+ * summary of which model is in play and a way to get to that page.
  */
 export const LocalEnhancement: React.FC = React.memo(() => {
   const { t } = useTranslation();
   const { getSetting, updateSetting, isUpdating } = useSettings();
+  const goToSection = useNavStore((state) => state.setSection);
+  const { models, status, downloadProgress, initialize, refresh } =
+    useEnhanceStore();
 
-  const [status, setStatus] = useState<EnhanceStatus | null>(null);
-  const [models, setModels] = useState<EnhanceModelInfo[]>([]);
-  const [busyModelId, setBusyModelId] = useState<string | null>(null);
-  const [progress, setProgress] = useState<EnhanceDownloadProgress | null>(
-    null,
-  );
   const [previewInput, setPreviewInput] = useState("");
-  const [preview, setPreview] = useState<PreviewResult | null>(null);
+  const [preview, setPreview] = useState<EnhancePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,30 +43,13 @@ export const LocalEnhancement: React.FC = React.memo(() => {
   const options = getSetting("enhance_options");
   const selectedModelId = getSetting("enhance_model_id") ?? null;
 
-  const refresh = useCallback(async () => {
-    const [statusResult, modelsResult] = await Promise.all([
-      commands.enhanceStatus(),
-      commands.enhanceListModels("editor"),
-    ]);
-    if (statusResult.status === "ok") setStatus(statusResult.data);
-    if (modelsResult.status === "ok") setModels(modelsResult.data);
-  }, []);
-
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    void initialize();
+  }, [initialize]);
 
-  // A multi-hundred-megabyte download with no feedback looks like a hang, so
-  // follow the backend's progress events for the duration.
-  useEffect(() => {
-    const unlisten = events.enhanceDownloadProgress.listen((event) =>
-      setProgress(event.payload),
-    );
-    return () => {
-      void unlisten.then((off) => off());
-    };
-  }, []);
-
+  // No explicit choice means the backend runs the catalog default, so the model
+  // named here has to follow the same rule or this page describes a model that
+  // is not the one doing the work.
   const activeModel = useMemo(
     () =>
       models.find((m) => m.id === selectedModelId) ??
@@ -83,16 +57,30 @@ export const LocalEnhancement: React.FC = React.memo(() => {
     [models, selectedModelId],
   );
 
-  const modelOptions = useMemo(
-    () =>
-      models.map((m) => ({
-        value: m.id,
-        label: `${m.name} · ${t("settings.localEnhancement.model.size", {
-          size: Math.round(m.size_bytes / 1048576),
-        })} · ${m.downloaded ? t("settings.localEnhancement.model.downloaded") : t("settings.localEnhancement.model.notDownloaded")}`,
-      })),
-    [models, t],
-  );
+  const activeProgress = activeModel ? downloadProgress[activeModel.id] : null;
+
+  // Only a stock model is sent the prompt these switches assemble. A fine-tune
+  // gets an empty system turn or one fixed Alpaca instruction, so every switch
+  // below has no effect on it. Leaving them live would make the page lie: the
+  // user would flip "remove filler words", see it stick, and get identical
+  // output. Written as a positive test against `instructed` so a prompt style
+  // added later is treated as fixed until someone says otherwise.
+  // `?? "instructed"` so the switches stay live while the model list is still
+  // loading, rather than flashing the notice with an empty model name.
+  const promptShapingApplies =
+    (activeModel?.prompt_style ?? "instructed") === "instructed";
+
+  const modelState = useMemo(() => {
+    if (!activeModel) return t("settings.localEnhancement.model.none");
+    if (activeProgress) {
+      return t("settings.localEnhancement.model.downloadingPercent", {
+        percent: Math.floor(activeProgress.percentage),
+      });
+    }
+    return activeModel.downloaded
+      ? t("settings.localEnhancement.model.ready")
+      : t("settings.localEnhancement.model.notDownloaded");
+  }, [activeModel, activeProgress, t]);
 
   const setOption = useCallback(
     <K extends keyof NonNullable<typeof options>>(
@@ -105,38 +93,13 @@ export const LocalEnhancement: React.FC = React.memo(() => {
     [options, updateSetting],
   );
 
-  const download = useCallback(
-    async (modelId: string) => {
-      setBusyModelId(modelId);
-      setError(null);
-      setProgress(null);
-      const result = await commands.enhanceDownloadModel(modelId);
-      if (result.status === "error") setError(result.error);
-      setBusyModelId(null);
-      setProgress(null);
-      void refresh();
-    },
-    [refresh],
-  );
-
-  const remove = useCallback(
-    async (modelId: string) => {
-      setBusyModelId(modelId);
-      const result = await commands.enhanceDeleteModel(modelId);
-      if (result.status === "error") setError(result.error);
-      setBusyModelId(null);
-      void refresh();
-    },
-    [refresh],
-  );
-
   const runPreview = useCallback(async () => {
     setPreviewing(true);
     setError(null);
     setPreview(null);
     const result = await commands.enhancePreview(previewInput);
     if (result.status === "ok") {
-      setPreview(result.data as PreviewResult);
+      setPreview(result.data);
     } else {
       setError(result.error);
     }
@@ -186,74 +149,46 @@ export const LocalEnhancement: React.FC = React.memo(() => {
         descriptionMode="inline"
         grouped
       >
-        <div className="flex items-center gap-2">
-          <Select
-            value={activeModel?.id ?? null}
-            options={modelOptions}
-            placeholder={t("settings.localEnhancement.model.placeholder")}
-            onChange={(value) => void updateSetting("enhance_model_id", value)}
-            className="min-w-[18rem]"
-          />
-          {activeModel && !activeModel.downloaded && (
-            <Button
-              variant="primary"
-              onClick={() => void download(activeModel.id)}
-              disabled={busyModelId === activeModel.id}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex flex-col items-end text-right min-w-0">
+            {/* Bounded, not just `min-w-0`: a truncating span with no maximum
+                still grows to its content, and a model the user named himself
+                can be long enough to run back over the description column. */}
+            <span
+              className="text-sm text-text truncate max-w-[9rem]"
+              title={activeModel?.name ?? undefined}
             >
-              {busyModelId === activeModel.id
-                ? progress && progress.modelId === activeModel.id
-                  ? t("settings.localEnhancement.model.downloadingPercent", {
-                      percent: Math.floor(progress.percentage),
-                    })
-                  : t("settings.localEnhancement.model.downloading")
-                : t("settings.localEnhancement.model.download")}
-            </Button>
-          )}
-          {activeModel?.downloaded && (
-            <Button
-              variant="secondary"
-              onClick={() => void remove(activeModel.id)}
-              disabled={busyModelId === activeModel.id}
-            >
-              {t("settings.localEnhancement.model.delete")}
-            </Button>
-          )}
-        </div>
-        {busyModelId && progress && progress.modelId === busyModelId && (
-          <div className="mt-2 w-full">
-            <ProgressBar
-              progress={[
-                { id: progress.modelId, percentage: progress.percentage },
-              ]}
-              size="small"
-            />
-            <p className="text-xs text-mid-gray/70 mt-1">
-              {t("settings.localEnhancement.model.downloadedOf", {
-                done: Math.round(progress.downloaded / 1048576),
-                total: Math.round(progress.total / 1048576),
-              })}
-            </p>
+              {activeModel?.name ?? t("settings.localEnhancement.model.none")}
+            </span>
+            <span className="text-xs text-mid-gray/70">{modelState}</span>
           </div>
-        )}
-        {activeModel && (
-          <p className="text-xs text-mid-gray/70 mt-1">
-            {activeModel.description}{" "}
-            {t("settings.localEnhancement.model.ram", {
-              ram: activeModel.min_ram_mb,
-            })}{" "}
-            ·{" "}
-            {t("settings.localEnhancement.model.released", {
-              date: activeModel.released,
+          <Button
+            variant="secondary"
+            onClick={() => goToSection("models")}
+            className="shrink-0 whitespace-nowrap"
+          >
+            {t("settings.localEnhancement.model.manage")}
+          </Button>
+        </div>
+      </SettingContainer>
+
+      {options && !promptShapingApplies && (
+        <div className="mx-2 mb-2 flex gap-2 rounded-lg border border-logo-primary/30 bg-logo-primary/5 px-3 py-2">
+          <Sparkles className="w-4 h-4 shrink-0 mt-0.5 text-logo-primary" />
+          <p className="text-xs text-text/70 leading-relaxed">
+            {t("settings.localEnhancement.tunedNotice", {
+              modelName: activeModel?.name ?? "",
             })}
           </p>
-        )}
-      </SettingContainer>
+        </div>
+      )}
 
       {options && (
         <>
           <ToggleSwitch
             checked={options.removeFillers}
             onChange={(v) => setOption("removeFillers", v)}
+            disabled={!promptShapingApplies}
             label={t("settings.localEnhancement.features.removeFillers.title")}
             description={t(
               "settings.localEnhancement.features.removeFillers.description",
@@ -264,6 +199,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           <ToggleSwitch
             checked={options.fixSelfCorrections}
             onChange={(v) => setOption("fixSelfCorrections", v)}
+            disabled={!promptShapingApplies}
             label={t(
               "settings.localEnhancement.features.fixSelfCorrections.title",
             )}
@@ -276,6 +212,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           <ToggleSwitch
             checked={options.fixPunctuation}
             onChange={(v) => setOption("fixPunctuation", v)}
+            disabled={!promptShapingApplies}
             label={t("settings.localEnhancement.features.fixPunctuation.title")}
             description={t(
               "settings.localEnhancement.features.fixPunctuation.description",
@@ -286,6 +223,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           <ToggleSwitch
             checked={options.formatStructure}
             onChange={(v) => setOption("formatStructure", v)}
+            disabled={!promptShapingApplies}
             label={t(
               "settings.localEnhancement.features.formatStructure.title",
             )}
@@ -298,6 +236,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           <ToggleSwitch
             checked={options.spokenCommands}
             onChange={(v) => setOption("spokenCommands", v)}
+            disabled={!promptShapingApplies}
             label={t("settings.localEnhancement.features.spokenCommands.title")}
             description={t(
               "settings.localEnhancement.features.spokenCommands.description",
@@ -308,6 +247,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           <ToggleSwitch
             checked={options.contextAwareTone}
             onChange={(v) => setOption("contextAwareTone", v)}
+            disabled={!promptShapingApplies}
             label={t(
               "settings.localEnhancement.features.contextAwareTone.title",
             )}
@@ -357,9 +297,11 @@ export const LocalEnhancement: React.FC = React.memo(() => {
             description={t("settings.localEnhancement.verify.description")}
             descriptionMode="inline"
             grouped
+            disabled={!promptShapingApplies}
           >
             <Select
-              value={options.verify}
+              disabled={!promptShapingApplies}
+              value={promptShapingApplies ? options.verify : "off"}
               options={[
                 {
                   value: "off",
@@ -402,10 +344,14 @@ export const LocalEnhancement: React.FC = React.memo(() => {
         grouped
       />
 
+      {/* Stacked: the textarea and the marked-up result are the point of this
+          row, and the control column of a horizontal setting is a ~270px
+          gutter that wrapped the placeholder over three lines. */}
       <SettingContainer
         title={t("settings.localEnhancement.preview.title")}
         description={t("settings.localEnhancement.preview.description")}
         descriptionMode="inline"
+        layout="stacked"
         grouped
       >
         <div className="flex flex-col gap-2 w-full">
@@ -415,35 +361,35 @@ export const LocalEnhancement: React.FC = React.memo(() => {
             placeholder={t("settings.localEnhancement.preview.placeholder")}
             rows={2}
           />
-          <div>
+          <div className="flex items-center gap-2">
             <Button
               variant="primary"
               onClick={() => void runPreview()}
-              disabled={previewing || previewInput.trim().length === 0}
+              disabled={
+                previewing ||
+                previewInput.trim().length === 0 ||
+                !activeModel?.downloaded
+              }
             >
               {previewing
                 ? t("settings.localEnhancement.preview.running")
                 : t("settings.localEnhancement.preview.run")}
             </Button>
+            {previewing && (
+              // The first preview after launch also pays for loading the
+              // model, which is tens of seconds. Unannounced, that reads as a
+              // hang rather than as work in progress.
+              <span className="text-xs text-mid-gray/70">
+                {t("settings.localEnhancement.preview.firstRunHint")}
+              </span>
+            )}
+            {!previewing && !activeModel?.downloaded && (
+              <span className="text-xs text-mid-gray/70">
+                {t("settings.localEnhancement.preview.needsModel")}
+              </span>
+            )}
           </div>
-          {preview && (
-            <div className="text-sm border border-mid-gray/20 rounded-md p-2">
-              <p className="whitespace-pre-wrap">{preview.text}</p>
-              <p className="text-xs text-mid-gray/70 mt-1">
-                {!preview.changed &&
-                  t("settings.localEnhancement.preview.unchanged")}{" "}
-                {preview.rejected &&
-                  t("settings.localEnhancement.preview.rejected", {
-                    reason: preview.rejected,
-                  })}{" "}
-                {preview.verdict === "Changed" &&
-                  t("settings.localEnhancement.preview.verdictChanged")}{" "}
-                {t("settings.localEnhancement.preview.took", {
-                  ms: preview.elapsedMs,
-                })}
-              </p>
-            </div>
-          )}
+          {preview && <EnhancePreviewResult preview={preview} />}
         </div>
       </SettingContainer>
 

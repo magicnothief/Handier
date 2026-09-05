@@ -5,6 +5,7 @@ import type {
   AppSettings as Settings,
   AudioDevice,
   EnhanceOptions,
+  PromptStyle,
   OrtAcceleratorSetting,
   ShortcutActivation,
   TranscribeAcceleratorSetting,
@@ -91,6 +92,8 @@ const settingUpdaters: {
     commands.enhanceSetModel((value as string | null) ?? null),
   enhance_verifier_model_id: (value) =>
     commands.enhanceSetVerifierModel((value as string | null) ?? null),
+  enhance_prompt_style: (value) =>
+    commands.enhanceSetPromptStyle((value as PromptStyle | null) ?? null),
   enhance_options: (value) =>
     commands.enhanceSetOptions(value as EnhanceOptions),
   enhance_use_gpu: (value) => commands.enhanceSetUseGpu(value as boolean),
