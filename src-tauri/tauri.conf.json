@@ -17,9 +17,7 @@
       "assetProtocol": {
         "enable": true,
         "scope": {
-          "allow": [
-            "**"
-          ],
+          "allow": ["**"],
           "requireLiteralLeadingDot": false
         }
       }
@@ -33,13 +31,9 @@
     "copyright": "Copyright (c) 2025 CJ Pais and Handier contributors. MIT licensed.",
     "licenseFile": "../LICENSE",
     "shortDescription": "Offline speech-to-text that cleans up your dictation locally.",
-    "externalBin": [
-      "binaries/handy-llm"
-    ],
+    "externalBin": ["binaries/handy-llm"],
     "createUpdaterArtifacts": true,
-    "resources": [
-      "resources/**/*"
-    ],
+    "resources": ["resources/**/*"],
     "license": "MIT",
     "icon": [
       "icons/32x32.png",
@@ -57,10 +51,7 @@
     },
     "linux": {
       "deb": {
-        "depends": [
-          "libgtk-layer-shell0",
-          "libopenblas0"
-        ],
+        "depends": ["libgtk-layer-shell0", "libopenblas0"],
         "files": {
           "/usr/lib/Handy": "transcribe-libs"
         }
