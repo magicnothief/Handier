@@ -272,7 +272,13 @@ jobs:
           echo "CMAKE_CXX_COMPILER=clang-cl" >> $env:GITHUB_ENV
           echo "CMAKE_C_COMPILER_TARGET=aarch64-pc-windows-msvc" >> $env:GITHUB_ENV
           echo "CMAKE_CXX_COMPILER_TARGET=aarch64-pc-windows-msvc" >> $env:GITHUB_ENV
-          echo "CL=/EHsc" >> $env:GITHUB_ENV
+          # `-EHsc`, not `/EHsc`: this is exported to every later step, and the
+          # sidecar build runs under Git Bash, where MSYS rewrites a leading
+          # slash as a POSIX path. `CL=/EHsc` reached clang-cl as
+          # `C:/Program Files/Git/EHsc` and failed the llama.cpp compile with
+          # "Files/Git/EHsc: 'linker' input unused". Both spellings are
+          # accepted by cl and clang-cl; only one survives the shell.
+          echo "CL=-EHsc" >> $env:GITHUB_ENV
           # Link uses lld-link + llvm-mt; use llvm-rc for resources too. Microsoft's
           # rc.exe fails the manifest with "RC2136" under this clang-cl/lld toolchain
           # (seen in ggml-vulkan's vulkan-shaders-gen host sub-build). CMake honors
