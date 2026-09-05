@@ -1,10 +1,157 @@
-# Handy
+# Handy-Flow
 
-[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/WVBeWsNXK4)
+**A fork of [Handy](https://github.com/cjpais/Handy) that cleans up your dictation before it lands.**
 
-**A free, open source, and extensible speech-to-text application that works completely offline.**
+Handy is a free, open source, offline speech-to-text app: press a shortcut,
+speak, and your words appear in whatever text field you are in, without anything
+leaving your machine. Handy-Flow keeps all of that and adds one thing —
+a **local enhancement layer** that edits the transcript into what you meant to
+write, before it is pasted.
 
-Handy is a cross-platform desktop application that provides simple, privacy-focused speech transcription. Press a shortcut, speak, and have your words appear in any text field. This happens on your own computer without sending any information to the cloud.
+```
+you say : um so the meeting is uh moved to friday no wait thursday at three
+you get : The meeting is Thursday at three.
+```
+
+Everything upstream does still applies; everything below is what the fork adds.
+
+## The enhancement layer
+
+Speech is not writing. You say "um", you start a sentence twice, and — the hard
+one — you change your mind halfway through and expect the listener to keep the
+second version. A transcriber faithfully writes all of it down.
+
+The enhancement layer is a small language model that runs **on your machine**,
+after transcription and before pasting, doing three things at once:
+
+- drops filler words and hesitations
+- repairs punctuation, capitalisation and sentence boundaries
+- **cuts what you retracted** and keeps only what you settled on
+
+The last one is why this exists, and it is the part general-purpose models of
+this size get wrong.
+
+### It has to be fast enough not to notice
+
+The catalogue ships thirteen models, from 153 MB to 2.5 GB, and defaults to
+**Qwen3-4B Instruct** — the smallest general-purpose model measured at 100% on
+the self-correction suite.
+
+There is also a purpose-trained alternative,
+[**handy-editor-lfm2.5-350m**](https://huggingface.co/MagicNoThief/handy-editor-lfm2.5-350m),
+a 350M fine-tune that matches it at a fraction of the cost:
+
+|                                   | Handy-Flow editor | Qwen3-4B (general purpose) |
+| --------------------------------- | ----------------: | -------------------------: |
+| Self-correction suite             |         **68/68** |                      68/68 |
+| Held-out exact match (2,152 rows) |         **97.4%** |                          — |
+| Median latency                    |       **~100 ms** |                    ~350 ms |
+| Size on disk                      |        **229 MB** |                    1.67 GB |
+
+Same accuracy as a model 7× its size, about 3× faster. That trade is the whole
+point: this has to run alongside a transcription model on an ordinary laptop
+without adding a pause you can feel.
+
+It is not yet a catalogue entry — select it with **Your Own Model** below, or
+see [RELEASE.md](RELEASE.md) for what makes it the default.
+
+The corpus it was trained on is published too:
+[**handy-dictation-editing**](https://huggingface.co/datasets/MagicNoThief/handy-dictation-editing)
+— 90K rows, 15.6% from recordings of real speech.
+
+### It fails safe
+
+A dictation app that sometimes eats your sentence is worse than one that never
+edits it. So every failure path returns the raw transcript:
+
+- mechanical guards reject a rewrite that deleted too much, padded the text,
+  invented words the speaker never said, or started talking about the task
+  instead of doing it
+- the model not loading, timing out, or erroring pastes the original
+- the untouched transcript is always kept in history
+
+### Using it
+
+**Settings → Advanced → Local Enhancement** to turn it on, and
+**Settings → Models → Enhancement Models** to choose a model — thirteen are
+offered, alongside your own.
+
+The **Try it** box on the Advanced page shows what the model does to a sentence
+before you trust it with dictation, marking what was cut and what was added:
+
+```
+YOU SAID      um so the meeting is uh moved to friday no wait thursday at three
+              ‾‾            ‾‾       ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾  (struck through)
+HANDY WRITES  The meeting is Thursday at three.
+```
+
+### Bring your own model
+
+**Models → Enhancement Models → Your Own Model → Choose a GGUF file…** points
+Handy-Flow at any GGUF on disk, with no Hugging Face upload in the loop. Set
+**How to prompt this model** to match how it was trained:
+
+| Setting                      | Sends                                       |
+| ---------------------------- | ------------------------------------------- |
+| Fine-tuned for editing       | An empty system turn — for a chat fine-tune |
+| Fine-tuned from a base model | The Alpaca prompt as one turn               |
+| General-purpose model        | Handy's full instruction prompt             |
+
+Getting this wrong does not fail loudly, it fails _quietly_, so the setting is
+explicit rather than guessed. The tooling to train and measure your own is in
+[`scripts/enhance-train/`](scripts/enhance-train/) and
+[`scripts/enhance-eval/`](scripts/enhance-eval/); the latter's README is a
+step-by-step guide to benching a checkpoint.
+
+### How it runs
+
+Inference happens in a **separate process** (`handy-llm`), not in the app. A
+crash or an out-of-memory in a language model takes down the sidecar and leaves
+your dictation working. It uses Vulkan on Windows and Linux and Metal on macOS,
+falling back to CPU when no usable device is present.
+
+## Building
+
+See [BUILD.md](BUILD.md) for the base app. The enhancement sidecar needs one
+extra step:
+
+```bash
+bun run build:sidecar          # GPU build
+bun run build:sidecar:cpu      # CPU-only, no Vulkan/Metal toolchain needed
+```
+
+On Windows the GPU build additionally needs `LIBCLANG_PATH`, the Ninja
+generator, and a short `CARGO_TARGET_DIR` — each of those is a hard failure, not
+a warning. The exact incantation is in
+[`src-tauri/crates/handy-llm/README.md`](src-tauri/crates/handy-llm/README.md).
+
+## Licences
+
+Handy-Flow is MIT, inherited from upstream Handy (Copyright (c) 2025 CJ Pais).
+
+Models are downloaded at runtime rather than bundled, and **not all of them are
+under open-source licences** — LFM2.5 carries Liquid AI's own terms, Gemma
+Google's, and Llama 3.2 Meta's. The model picker shows the licence for each.
+
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full accounting,
+including the MPL-2.0 components and the MIT-licensed llama.cpp linked into the
+sidecar.
+
+## Relationship to upstream
+
+Handy-Flow tracks [cjpais/Handy](https://github.com/cjpais/Handy) and exists
+because upstream is under a feature freeze and has declined local-LLM additions.
+Everything the fork adds is confined to the enhancement layer; the transcription
+path is upstream's and stays that way, so fixes flow in cleanly.
+
+If you want plain, excellent offline dictation with no language model in the
+loop, use upstream — it is the better choice for that, and this fork is a
+superset you do not need.
+
+---
+
+_Everything below this line is inherited from upstream Handy and applies equally
+to the fork._
 
 ## Why Handy?
 
@@ -36,14 +183,13 @@ The process is entirely local:
 
 ### Installation
 
-1. Download the latest release from the [releases page](https://github.com/cjpais/Handy/releases) or the [website](https://handy.computer)
-   - **macOS**: Also available via [Homebrew cask](https://formulae.brew.sh/cask/handy): `brew install --cask handy`
-   - **Windows**: Also available via [winget](https://github.com/microsoft/winget-pkgs): `winget install cjpais.Handy` \
-     **Note:** The Homebrew cask and winget package are not maintained by the Handy developers.
-2. Install the application
-3. Launch Handy and grant necessary system permissions (microphone, accessibility)
-4. Configure your preferred keyboard shortcuts in Settings
-5. Start transcribing!
+Handy-Flow has no binary releases yet — build from source (see
+[Building](#building) above, and [BUILD.md](BUILD.md)).
+
+For upstream Handy's prebuilt binaries, see its
+[releases page](https://github.com/cjpais/Handy/releases) or
+[handy.computer](https://handy.computer). Those do **not** include the
+enhancement layer.
 
 ### Development Setup
 
@@ -288,13 +434,13 @@ We're actively working on several features and improvements. Contributions and f
 
 ## Verify Release Signatures
 
-Handy release artifacts are signed with Tauri's updater signature format. The public key is stored in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json) under `plugins.updater.pubkey`.
+Handy-Flow release artifacts are signed with Tauri's updater signature format, using the fork's own key (not upstream's). The public key is stored in [`src-tauri/tauri.conf.json`](src-tauri/tauri.conf.json) under `plugins.updater.pubkey`.
 
 To verify a release manually, set `ARTIFACT` to the filename you downloaded, save the `pubkey` value from `src-tauri/tauri.conf.json` to `handy.pub.b64`, then decode the public key and matching `.sig` file from base64 and verify the artifact with `minisign`:
 
 ```bash
 # Replace with the file you downloaded
-ARTIFACT="Handy_0.8.1_amd64.AppImage"
+ARTIFACT="Handy Flow_0.9.6_x64-setup.exe"
 
 python3 - "$ARTIFACT" <<'PY'
 import base64, pathlib, sys
@@ -337,9 +483,9 @@ If you're behind a proxy, firewall, or in a restricted network environment where
 
 The typical paths are:
 
-- **macOS**: `~/Library/Application Support/com.pais.handy/`
-- **Windows**: `C:\Users\{username}\AppData\Roaming\com.pais.handy\`
-- **Linux**: `~/.config/com.pais.handy/`
+- **macOS**: `~/Library/Application Support/com.magicnothief.handyflow/`
+- **Windows**: `C:\Users\{username}\AppData\Roaming\com.magicnothief.handyflow\`
+- **Linux**: `~/.config/com.magicnothief.handyflow/`
 
 #### Step 2: Create Models Directory
 
@@ -347,10 +493,10 @@ Inside your app data directory, create a `models` folder if it doesn't already e
 
 ```bash
 # macOS/Linux
-mkdir -p ~/Library/Application\ Support/com.pais.handy/models
+mkdir -p ~/Library/Application\ Support/com.magicnothief.handyflow/models
 
 # Windows (PowerShell)
-New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.pais.handy\models"
+New-Item -ItemType Directory -Force -Path "$env:APPDATA\com.magicnothief.handyflow\models"
 ```
 
 #### Step 3: Download Model Files

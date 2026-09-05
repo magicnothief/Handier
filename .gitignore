@@ -52,3 +52,10 @@ __pycache__/
 
 # Local agent scratch state, not part of the project.
 /.headroom/
+
+# Updater signing keys. Committing one lets anyone publish an update that the
+# app will accept as genuine, so keep them out of the tree entirely --
+# `tauri signer generate` writes here by default if you are not careful.
+*.key
+*.key.pub
+!**/node_modules/**/*.key

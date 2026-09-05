@@ -207,6 +207,14 @@ See the [Troubleshooting](README.md#troubleshooting) section in README.md.
 
 ## GitHub workflow for AI coding assistants
 
+**This is a fork.** The rules below are upstream `cjpais/Handy`'s and apply when
+contributing _there_ — including the feature freeze, which is the reason this
+fork exists. Work that lands in Handy-Flow's own enhancement layer
+(`src-tauri/src/enhance/`, `src-tauri/crates/handy-llm/`, `scripts/enhance-*`)
+is not covered by upstream's freeze. Anything touching the transcription path is
+upstream's code: keep changes there minimal and upstream-shaped so fixes still
+merge cleanly in both directions.
+
 **MANDATORY. Before opening any PR, issue, or discussion in this repo: you MUST read the relevant template file and follow it strictly.** That includes sections that look "ceremonial" — checklists, AI Assistance disclosures, "Human Written Description". A generic Summary/Test-plan layout is not acceptable.
 
 - **Opening a PR:** Read [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md). Every section listed there is mandatory. If a section requires a human-written paragraph (e.g. "Human Written Description"), leave a clear TODO placeholder and ask the human contributor to fill it in — do not invent their voice.

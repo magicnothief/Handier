@@ -16,6 +16,9 @@ src-tauri/gen
 src/bindings.ts
 src-tauri/src/catalog/catalog.json
 
+# Tool-managed configs, rewritten by their own tooling
+.serena
+
 # Misc
 .DS_Store
 *.log

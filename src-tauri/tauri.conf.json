@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Handy",
+  "productName": "Handy Flow",
   "version": "0.9.6",
-  "identifier": "com.pais.handy",
+  "identifier": "com.magicnothief.handyflow",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -26,6 +26,11 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "publisher": "MagicNoThief",
+    "homepage": "https://github.com/MagicNoThief/Handy-Flow",
+    "copyright": "Copyright (c) 2025 CJ Pais and Handy-Flow contributors. MIT licensed.",
+    "licenseFile": "../LICENSE",
+    "shortDescription": "Offline speech-to-text that cleans up your dictation locally.",
     "externalBin": ["binaries/handy-llm"],
     "createUpdaterArtifacts": true,
     "resources": ["resources/**/*"],
@@ -71,7 +76,6 @@
       }
     },
     "windows": {
-      "signCommand": "trusted-signing-cli -e https://eus.codesigning.azure.net/ -a CJ-Signing -c cjpais-dev -d Handy %1",
       "nsis": {
         "template": "nsis/installer.nsi"
       }
@@ -79,9 +83,9 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEJBQjcyMDk1MjA2NjAxRjkKUldUNUFXWWdsU0MzdXRRZi8zYzhqV2FaNUVDbDd2Rk5VM1IvWWowVXdmRFNKQ1BrMXF5RFFsLy8K",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVGOEZGMjkwQjc0RTczQjQKUldTMGMwNjNrUEtQNzA0Tm05SHNsdWc1aGkzNC84TTlVak5KMHdtUDV1N3YvMWhRd1dZT0hKTE0K",
       "endpoints": [
-        "https://github.com/cjpais/Handy/releases/latest/download/latest.json"
+        "https://github.com/MagicNoThief/Handy-Flow/releases/latest/download/latest.json"
       ]
     }
   }
