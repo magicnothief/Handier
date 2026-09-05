@@ -20,11 +20,26 @@ this file records what was changed and what still needs a human.
       `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
       Never commit the private key.
 
-- [ ] **Decide the version.** `tauri.conf.json`, `package.json` and
-      `src-tauri/Cargo.toml` all say `0.9.6`, inherited from upstream. The
-      updater now reads the fork's own feed, so the two version lines are
-      independent and may collide confusingly. Either keep tracking upstream's
-      numbers deliberately, or reset to the fork's own.
+## Versions and tags
+
+Handier continues upstream's version line rather than restarting it. The first
+release is **`0.10.0`**, tagged **`v0.10.0`**.
+
+Two alternatives were rejected:
+
+- **Reset to `0.1.0`** — understates a codebase forked at 0.9.6, and would
+  read to users as less mature than the thing it is built on.
+- **`0.9.6-handier.1`** — semver sorts a prerelease _below_ its base version,
+  so the updater would consider `0.9.6` newer and never offer the fork's own
+  builds.
+
+`0.10.0` sorts correctly, reads as "0.9.6 plus something", and cannot be
+confused with an upstream release because the two now read different feeds.
+
+Tags are `vMAJOR.MINOR.PATCH`, matching upstream's convention and what
+`release.yml` expects — it reads the version from `tauri.conf.json`, so bump
+all three of `tauri.conf.json`, `package.json` and `src-tauri/Cargo.toml`
+together before dispatching it.
 
 - [ ] **Make the model repositories public**, or the default editor cannot be
       downloaded by anyone but you. Both are currently private:
