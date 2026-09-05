@@ -6,40 +6,23 @@ this file records what was changed and what still needs a human.
 
 ## Before the first release
 
-- [ ] **Generate an updater signing keypair.** The `pubkey` in
-      `src-tauri/tauri.conf.json` is still upstream's, and the fork has no
-      matching private key — so update verification fails for any build the fork
-      publishes.
+- [x] **Updater signing keypair generated.** `plugins.updater.pubkey` in
+      `src-tauri/tauri.conf.json` is the fork's own minisign key,
+      `EF8FF290B74E73B4` — not upstream's `BAB72095206601F9`. Verify with:
 
       ```bash
-      bun tauri signer generate -w ~/.tauri/handier.key
+      grep -o '"pubkey": "[^"]*"' src-tauri/tauri.conf.json |
+        sed 's/.*": "//; s/"$//' | base64 -d
       ```
 
-      Put the **public** key in `tauri.conf.json` under `plugins.updater.pubkey`,
-      and the **private** key and its password in the repository secrets as
-      `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`.
-      Never commit the private key.
+      The matching private key and its password are repository secrets
+      (`TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`).
+      Regenerate with `bun tauri signer generate -w ~/.tauri/handier.key`;
+      never commit the private key.
 
-## Versions and tags
-
-Handier continues upstream's version line rather than restarting it. The first
-release is **`0.10.0`**, tagged **`v0.10.0`**.
-
-Two alternatives were rejected:
-
-- **Reset to `0.1.0`** — understates a codebase forked at 0.9.6, and would
-  read to users as less mature than the thing it is built on.
-- **`0.9.6-handier.1`** — semver sorts a prerelease _below_ its base version,
-  so the updater would consider `0.9.6` newer and never offer the fork's own
-  builds.
-
-`0.10.0` sorts correctly, reads as "0.9.6 plus something", and cannot be
-confused with an upstream release because the two now read different feeds.
-
-Tags are `vMAJOR.MINOR.PATCH`, matching upstream's convention and what
-`release.yml` expects — it reads the version from `tauri.conf.json`, so bump
-all three of `tauri.conf.json`, `package.json` and `src-tauri/Cargo.toml`
-together before dispatching it.
+      Publishing under upstream's key would be worse than having none: the
+      installed app verifies updates against whatever key it shipped with, so a
+      mismatch strands every user on the version they installed.
 
 - [ ] **Make the model repositories public**, or the default editor cannot be
       downloaded by anyone but you. Both are currently private:
@@ -63,6 +46,27 @@ together before dispatching it.
 - [ ] **Confirm the dataset licence question.** `disfl_qa` declares CC-BY-4.0 but
       derives from SQuAD, which is CC-BY-SA-4.0. See
       [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## Versions and tags
+
+Handier continues upstream's version line rather than restarting it. The first
+release is **`0.10.0`**, tagged **`v0.10.0`**.
+
+Two alternatives were rejected:
+
+- **Reset to `0.1.0`** — understates a codebase forked at 0.9.6, and would
+  read to users as less mature than the thing it is built on.
+- **`0.9.6-handier.1`** — semver sorts a prerelease _below_ its base version,
+  so the updater would consider `0.9.6` newer and never offer the fork's own
+  builds.
+
+`0.10.0` sorts correctly, reads as "0.9.6 plus something", and cannot be
+confused with an upstream release because the two now read different feeds.
+
+Tags are `vMAJOR.MINOR.PATCH`, matching upstream's convention and what
+`release.yml` expects — it reads the version from `tauri.conf.json`, so bump
+all three of `tauri.conf.json`, `package.json` and `src-tauri/Cargo.toml`
+together before dispatching it.
 
 ## Already changed for the fork
 
@@ -109,8 +113,8 @@ Verified on Windows with a throwaway signing key:
 
 ```
 src-tauri/target/release/bundle/
-  msi/Handier_0.9.6_x64_en-US.msi        73 MB
-  nsis/Handier_0.9.6_x64-setup.exe       28 MB
+  msi/Handier_0.10.0_x64_en-US.msi        73 MB
+  nsis/Handier_0.10.0_x64-setup.exe       28 MB
 ```
 
 The MSI contains 35 files including `handy.exe`, **`handy-llm.exe`** (the
