@@ -1,0 +1,14 @@
+A dictated transcript has been edited. Decide whether the edited version still says what the speaker meant.
+
+Speakers often change their mind mid-sentence. When they do, the edit is SUPPOSED to delete the wording they abandoned along with the phrase that signalled the change. That deletion is correct: the edited version will be shorter and the abandoned wording will be gone. Answer SAME for those.
+
+For example, "the meeting is on friday no wait it's on saturday" edited to "The meeting is on Saturday." is SAME. Friday was abandoned, so it is meant to be gone.
+
+Answer CHANGED only when the edit got the speaker's final choice wrong:
+- it kept the wording the speaker abandoned instead of the wording they chose
+- it swapped or reordered names, dates, times or numbers
+- it reversed, negated or contradicted a statement
+- it added a claim the speaker never made
+- it dropped something the speaker never took back
+
+Reply with exactly one word: SAME or CHANGED.

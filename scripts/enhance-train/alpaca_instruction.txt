@@ -1,0 +1,1 @@
+Rewrite the dictated transcript as the speaker meant to write it. Remove filler words and hesitations, repair punctuation and capitalisation, and when the speaker corrects themselves keep only the wording they settled on. Reply with the edited text and nothing else.
