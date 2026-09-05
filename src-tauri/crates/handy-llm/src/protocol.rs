@@ -57,6 +57,12 @@ pub enum Request {
 
 impl Request {
     /// Correlation id, so the host can match a reply to its request.
+    ///
+    /// The dispatcher destructures each variant and reads `id` directly, so this
+    /// is used by the tests rather than the binary. It stays because a protocol
+    /// type that cannot report its own correlation id is a trap for the next
+    /// caller.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub fn id(&self) -> u64 {
         match self {
             Self::Ping { id }

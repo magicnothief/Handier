@@ -471,6 +471,15 @@ pub struct AppSettings {
     /// which costs no extra memory.
     #[serde(default)]
     pub enhance_verifier_model_id: Option<String>,
+    /// Override how the editing model is prompted, or `None` to trust the model.
+    ///
+    /// Only reachable for a model loaded off disk. A catalog entry states its
+    /// own style and is never guessed at, but a file the user picked is guessed
+    /// from nothing but the fact that they picked it, and guessing wrong is
+    /// loud: a stock model with no prompt does not edit, and a fine-tune given
+    /// the prompt starts copying the prompt's rules into the user's text.
+    #[serde(default)]
+    pub enhance_prompt_style: Option<crate::enhance::PromptStyle>,
     /// Which enhancement behaviours are switched on.
     #[serde(default)]
     pub enhance_options: crate::enhance::EnhanceOptions,
@@ -994,6 +1003,7 @@ pub fn get_default_settings() -> AppSettings {
         enhance_enabled: false,
         enhance_model_id: None,
         enhance_verifier_model_id: None,
+        enhance_prompt_style: None,
         enhance_options: crate::enhance::EnhanceOptions::default(),
         enhance_use_gpu: default_enhance_use_gpu(),
         enhance_keep_loaded: default_enhance_keep_loaded(),

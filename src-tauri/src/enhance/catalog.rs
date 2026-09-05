@@ -25,6 +25,62 @@ pub enum ModelRole {
     Verifier,
 }
 
+/// How the host should prompt a model.
+///
+/// This is a property of the weights, not a preference. Getting it wrong is not
+/// a small regression: a fine-tune given the instruction prompt starts copying
+/// the prompt's own rules and few-shot examples into the user's document.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "lowercase")]
+pub enum PromptStyle {
+    /// Send the shipped instruction prompt. Correct for a stock
+    /// instruction-tuned model, which has to be told the task.
+    #[default]
+    Instructed,
+    /// Send an *empty* system turn. Correct for a model fine-tuned on this
+    /// task: the behaviour is in the weights already. Measured on the first
+    /// fine-tune, adding the prompt cost 57/68 -> 54/68.
+    ///
+    /// Empty, not absent. Measured on the current editor, dropping the system
+    /// message instead of emptying it cost 66/68 -> 59/68, with the model
+    /// answering "SAME" and "CHANGED" to editing requests — it stopped
+    /// recognising the shape of its own input. So the sidecar passes the empty
+    /// string straight through and lets the template decide; do not "tidy" the
+    /// message away.
+    ///
+    /// The mechanism is *not* the model's own jinja template — rendering that
+    /// directly drops an empty system block, giving identical text either way.
+    /// `llama.cpp` ignores the jinja source and renders its own built-in chatml,
+    /// which emits `<|im_start|>system\n<|im_end|>` even when the content is
+    /// empty. So the two paths genuinely differ, and the empty block is the one
+    /// that measures better. Reason about the built prompt, not the template:
+    /// `HANDY_LLM_DEBUG_PROMPT=1` on the sidecar prints it.
+    Tuned,
+    /// Send the whole Alpaca prompt as one turn, built from
+    /// [`ALPACA_INSTRUCTION`]. Correct for a model fine-tuned from a *base*
+    /// checkpoint on an Alpaca-format corpus.
+    ///
+    /// The instruction is fixed and shared by file with the corpus builder, so
+    /// the text at inference is byte-identical to the text seen in training.
+    ///
+    /// Assembled into a single turn rather than split across the system and user
+    /// slots. A converted base-model GGUF often still carries a chat template,
+    /// which then wraps a split prompt into a shape the fine-tune has never
+    /// seen: measured, that made the model repeat itself until the token budget
+    /// ran out and never emit a stop token, at six times the latency of the same
+    /// weights given the assembled prompt.
+    Alpaca,
+}
+
+/// The instruction an [`PromptStyle::Alpaca`] model is prompted with.
+///
+/// `include_str!` rather than a literal: the corpus builder reads the same file,
+/// so the training and inference instruction cannot drift apart. A fine-tune
+/// served an instruction a few words off the one it learned degrades quietly,
+/// which is the worst way for this to break.
+pub const ALPACA_INSTRUCTION: &str =
+    include_str!("../../../scripts/enhance-train/alpaca_instruction.txt");
+
 /// Rough capability/cost band, used to steer users to a sensible default.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
@@ -65,6 +121,12 @@ pub struct CatalogModel {
     /// budget thinking and never emits an edit. Verification is the opposite:
     /// it is a judgement call on short input, so deliberation helps.
     pub reasoning: bool,
+    /// How this model expects to be prompted.
+    ///
+    /// Defaults to [`PromptStyle::Instructed`], so every stock entry in the
+    /// catalog is unaffected and only a fine-tune has to say so.
+    #[serde(default)]
+    pub prompt_style: PromptStyle,
     /// What this model is offered for.
     pub roles: Vec<ModelRole>,
     /// Approximate resident memory while loaded, in MiB.
@@ -79,6 +141,66 @@ pub struct CatalogModel {
     pub default_verifier: bool,
     /// One-line guidance shown next to the name.
     pub description: String,
+}
+
+/// Marks a model id that points at a file on disk rather than at the catalog.
+pub const LOCAL_PREFIX: &str = "local:";
+
+impl CatalogModel {
+    /// Synthesise an entry for a GGUF the user picked off disk.
+    ///
+    /// The catalog is curated, but the point of this layer is that people can
+    /// train their own editor, and requiring a Hugging Face upload before you
+    /// can try your own weights would make every iteration a publishing step.
+    /// Giving a local file a catalog-shaped entry means the download manager,
+    /// the selector and the pipeline all need no special case: `model_path`
+    /// joins `filename` onto the models directory, and joining an absolute path
+    /// discards the prefix, so it resolves to the file itself.
+    ///
+    /// Defaults to [`PromptStyle::Tuned`], because the reason to load your own
+    /// GGUF into this layer is that you fine-tuned it for the task. The setting
+    /// overrides that for a local file that is really a stock download.
+    pub fn from_local(path: &std::path::Path) -> Option<Self> {
+        let size_bytes = std::fs::metadata(path).ok()?.len();
+        let name = path.file_stem()?.to_string_lossy().to_string();
+        let filename = path.to_string_lossy().to_string();
+        let upper = filename.to_uppercase();
+        let quant = [
+            "Q2_K_L", "Q3_K_M", "Q4_K_M", "Q5_K_M", "Q6_K", "Q8_0", "F16", "IQ3_XXS",
+        ]
+        .into_iter()
+        .find(|q| upper.contains(q))
+        .unwrap_or("unknown")
+        .to_string();
+        // Weights plus a modest allowance for the context and compute buffers.
+        let min_ram_mb = size_bytes / (1024 * 1024) + 320;
+        Some(Self {
+            id: format!("{LOCAL_PREFIX}{filename}"),
+            name,
+            repo_id: String::new(),
+            filename,
+            size_bytes,
+            quant,
+            parameters: String::new(),
+            license: String::new(),
+            released: String::new(),
+            reasoning: false,
+            prompt_style: PromptStyle::Tuned,
+            roles: vec![ModelRole::Editor],
+            min_ram_mb,
+            tier: ModelTier::Ultralight,
+            default_editor: false,
+            default_verifier: false,
+            // The path is the most useful thing to show, and it needs no
+            // translation.
+            description: path.display().to_string(),
+        })
+    }
+
+    /// Whether this entry points at a file the user chose rather than a download.
+    pub fn is_local(&self) -> bool {
+        self.id.starts_with(LOCAL_PREFIX)
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -329,5 +451,83 @@ mod tests {
         assert_eq!(m.size_mb(), m.size_bytes / (1024 * 1024));
         assert!(m.fits_in(m.min_ram_mb));
         assert!(!m.fits_in(m.min_ram_mb - 1));
+    }
+
+    /// Write a stand-in GGUF and hand back its path.
+    fn stub_gguf(dir: &tempfile::TempDir, name: &str) -> std::path::PathBuf {
+        let path = dir.path().join(name);
+        std::fs::write(&path, vec![0u8; 4096]).expect("write stub model");
+        path
+    }
+
+    #[test]
+    fn a_local_file_becomes_a_catalog_shaped_entry() {
+        let dir = tempfile::tempdir().expect("temp dir");
+        let path = stub_gguf(&dir, "checkpoint-10000.Q4_K_M.gguf");
+        let m = CatalogModel::from_local(&path).expect("readable file");
+
+        assert!(m.is_local());
+        assert_eq!(m.id, format!("{LOCAL_PREFIX}{}", path.display()));
+        assert_eq!(m.name, "checkpoint-10000.Q4_K_M");
+        assert_eq!(m.quant, "Q4_K_M");
+        assert_eq!(m.size_bytes, 4096);
+        assert!(m.supports(ModelRole::Editor));
+        assert!(!m.supports(ModelRole::Verifier));
+    }
+
+    #[test]
+    fn a_local_file_is_assumed_to_be_a_fine_tune() {
+        // The only reason to point this layer at your own GGUF is that you
+        // trained it for the task, and a fine-tune must not get the prompt.
+        let dir = tempfile::tempdir().expect("temp dir");
+        let m = CatalogModel::from_local(&stub_gguf(&dir, "mine.gguf")).expect("readable file");
+        assert_eq!(m.prompt_style, PromptStyle::Tuned);
+        assert_eq!(m.quant, "unknown", "an unrecognised name must not guess");
+    }
+
+    #[test]
+    fn a_missing_local_file_has_no_entry() {
+        let dir = tempfile::tempdir().expect("temp dir");
+        assert!(CatalogModel::from_local(&dir.path().join("absent.gguf")).is_none());
+    }
+
+    #[test]
+    fn the_alpaca_instruction_is_a_single_usable_line() {
+        // Shared with the corpus builder through the file system, so a bad edit
+        // there reaches inference silently. Assert the shape the builder needs.
+        let text = ALPACA_INSTRUCTION.trim();
+        assert!(!text.is_empty(), "instruction file is empty");
+        assert!(!text.contains('\n'), "must be one line, got: {text}");
+        assert!(
+            text.len() > 40,
+            "suspiciously short for a task description: {text}"
+        );
+    }
+
+    #[test]
+    fn every_catalog_entry_expects_the_instruction_prompt() {
+        // Nothing shipped is fine-tuned for this task yet. If that changes, the
+        // entry has to say so, because the pipeline reads this and not the name.
+        assert!(catalog()
+            .iter()
+            .all(|m| m.prompt_style == PromptStyle::Instructed));
+    }
+
+    #[test]
+    fn no_catalog_id_could_be_mistaken_for_a_local_path() {
+        assert!(catalog().iter().all(|m| !m.is_local()));
+    }
+
+    #[test]
+    fn joining_a_local_entry_onto_the_models_dir_yields_the_file_itself() {
+        // The whole design rests on this: `EnhanceManager::model_path` joins
+        // `filename` onto the models directory, and a local entry puts an
+        // absolute path there. If joining ever stopped discarding the prefix,
+        // every local model would resolve to a path that does not exist.
+        let dir = tempfile::tempdir().expect("temp dir");
+        let path = stub_gguf(&dir, "mine.gguf");
+        let m = CatalogModel::from_local(&path).expect("readable file");
+        let models_dir = std::path::Path::new("/some/other/models/dir");
+        assert_eq!(models_dir.join(&m.filename), path);
     }
 }

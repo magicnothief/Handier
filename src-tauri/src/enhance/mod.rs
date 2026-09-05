@@ -18,7 +18,7 @@ use anyhow::Result;
 use log::{debug, warn};
 use std::time::{Duration, Instant};
 
-pub use catalog::{CatalogModel, ModelRole, ModelTier};
+pub use catalog::{CatalogModel, ModelRole, ModelTier, PromptStyle, ALPACA_INSTRUCTION};
 pub use prompt::{Aggressiveness, AppContext, EnhanceOptions, Rejection};
 pub use sidecar::SidecarClient;
 pub use verify::{Verdict, VerifyMode};
@@ -61,6 +61,14 @@ pub trait Backend: Send + Sync {
 
     /// Whether a model is loaded and ready to serve a request.
     fn is_ready(&self) -> bool;
+
+    /// How the loaded model expects to be prompted.
+    ///
+    /// A default is provided so a backend that only ever hosts stock models —
+    /// and every test double — needs no change.
+    fn prompt_style(&self) -> PromptStyle {
+        PromptStyle::Instructed
+    }
 }
 
 /// Outcome of an enhancement pass, including why it fell back when it did.
@@ -140,8 +148,32 @@ pub fn enhance_with_verifier(
         };
     }
 
-    let system = prompt::build_system_prompt(opts, ctx);
-    let user = prompt::build_user_prompt(trimmed);
+    // How a model is addressed is a property of its weights, and getting it
+    // wrong is not a small regression — each arm below is a measurement:
+    //
+    // - `Instructed` gets the shipped prompt, which a stock model needs.
+    // - `Tuned` gets an *empty* system turn, not an absent one. The empty string
+    //   is load bearing and must reach the chat template; see
+    //   [`PromptStyle::Tuned`] for the 66/68 -> 59/68 that says so.
+    // - `Alpaca` gets its whole prompt in one turn. Split across the two slots,
+    //   a chat template wraps it into a shape the fine-tune has never seen, and
+    //   the model repeats itself until the token budget runs out.
+    //
+    // Deciding both halves together is what stops them disagreeing.
+    let (system, user) = match backend.prompt_style() {
+        PromptStyle::Instructed => (
+            prompt::build_system_prompt(opts, ctx),
+            prompt::build_user_prompt(trimmed),
+        ),
+        PromptStyle::Tuned => (String::new(), prompt::build_user_prompt(trimmed)),
+        // The instruction is fixed, never assembled from the feature toggles: an
+        // Alpaca fine-tune learned exactly one, and varying it by a setting would
+        // hand the model a prompt it has never seen.
+        PromptStyle::Alpaca => (
+            String::new(),
+            prompt::build_alpaca_prompt(ALPACA_INSTRUCTION, trimmed),
+        ),
+    };
     let params = GenParams::for_input(trimmed.chars().count());
 
     let raw = match backend.generate(&system, &user, &params) {
@@ -168,8 +200,18 @@ pub fn enhance_with_verifier(
     // Second pass: the mechanical guards compare words, so they cannot see a
     // reordering that preserves every word. Only a model reading both versions
     // can catch that.
+    // A model fine-tuned as an editor has never been asked to judge an edit, so
+    // pointing the verify pass at it does not produce a weak check — it produces
+    // a meaningless one. Measured against a trained editor the pass caught 0 of
+    // 10 real mistakes while destroying a correct edit, so it is skipped rather
+    // than left to the user's setting.
+    let verify_mode = if verifier.prompt_style() == PromptStyle::Instructed {
+        opts.verify
+    } else {
+        VerifyMode::Off
+    };
     let edit_took = started.elapsed();
-    let verdict = run_verification(verifier, opts.verify, trimmed, cleaned, edit_took);
+    let verdict = run_verification(verifier, verify_mode, trimmed, cleaned, edit_took);
     if verdict == Some(Verdict::Changed) {
         warn!("verifier judged the meaning changed, pasting raw transcript");
         return Enhanced {
@@ -341,6 +383,118 @@ mod tests {
         EnhanceOptions::default()
     }
 
+    /// Options with the second pass switched on.
+    ///
+    /// Verification is off by default — it was measured to lose more good edits
+    /// than it saved — so the tests that cover the verifier have to ask for it
+    /// rather than inherit it.
+    /// A backend that reports a prompt style, so the pipeline's branch on it can
+    /// be exercised without a real model.
+    struct StyledBackend {
+        style: PromptStyle,
+        seen: Mutex<Vec<(String, String)>>,
+    }
+
+    impl StyledBackend {
+        fn new(style: PromptStyle) -> Self {
+            Self {
+                style,
+                seen: Mutex::new(Vec::new()),
+            }
+        }
+    }
+
+    impl Backend for StyledBackend {
+        fn generate(&self, system: &str, user: &str, _p: &GenParams) -> Result<String> {
+            self.seen
+                .lock()
+                .expect("poisoned")
+                .push((system.to_string(), user.to_string()));
+            Ok("So the meeting is moved to Friday at three.".to_string())
+        }
+        fn is_ready(&self) -> bool {
+            true
+        }
+        fn prompt_style(&self) -> PromptStyle {
+            self.style
+        }
+    }
+
+    #[test]
+    fn an_alpaca_model_gets_the_whole_prompt_in_one_turn() {
+        // Splitting it across the system and user slots is what a chat template
+        // then wraps into a shape the fine-tune has never seen; measured, that
+        // made the model repeat itself until the token budget ran out.
+        let b = StyledBackend::new(PromptStyle::Alpaca);
+        enhance(
+            &b,
+            "um so the meeting is moved to friday",
+            &opts(),
+            &AppContext::default(),
+        );
+        let seen = b.seen.lock().expect("poisoned");
+        let (system, user) = &seen[0];
+        assert_eq!(
+            system, "",
+            "the instruction belongs in the assembled prompt"
+        );
+        assert!(user.starts_with("Below is an instruction"), "got: {user}");
+        assert!(user.contains(
+            "### Instruction:
+"
+        ));
+        assert!(user.contains(
+            "### Input:
+um so the meeting is moved to friday
+"
+        ));
+        assert!(
+            user.ends_with(
+                "### Response:
+"
+            ),
+            "got: {user}"
+        );
+    }
+
+    #[test]
+    fn a_tuned_model_gets_an_empty_system_and_the_bare_transcript() {
+        let b = StyledBackend::new(PromptStyle::Tuned);
+        enhance(
+            &b,
+            "um so the meeting is moved to friday",
+            &opts(),
+            &AppContext::default(),
+        );
+        let seen = b.seen.lock().expect("poisoned");
+        assert_eq!(seen[0].0, "");
+        assert_eq!(seen[0].1, "um so the meeting is moved to friday");
+    }
+
+    #[test]
+    fn an_instructed_model_still_gets_the_shipped_prompt() {
+        let b = StyledBackend::new(PromptStyle::Instructed);
+        enhance(
+            &b,
+            "um so the meeting is moved to friday",
+            &opts(),
+            &AppContext::default(),
+        );
+        let seen = b.seen.lock().expect("poisoned");
+        assert!(
+            !seen[0].0.is_empty(),
+            "stock models must still be instructed"
+        );
+        assert_eq!(seen[0].1, "um so the meeting is moved to friday");
+    }
+
+    fn verifying_opts() -> EnhanceOptions {
+        EnhanceOptions {
+            verify: VerifyMode::Auto,
+            ..EnhanceOptions::default()
+        }
+    }
+
     #[test]
     fn returns_the_rewrite_when_it_passes_checks() {
         let b = StubBackend::replying("So the meeting is moved to Friday at three.");
@@ -441,7 +595,7 @@ mod tests {
     impl Backend for ScriptedBackend {
         fn generate(&self, system: &str, _user: &str, _p: &GenParams) -> Result<String> {
             // The verification prompt is the one that asks for a one-word answer.
-            if system.contains("SAME if the meaning is preserved") {
+            if system.contains("Reply with exactly one word: SAME or CHANGED") {
                 *self.verify_calls.lock().expect("counter poisoned") += 1;
                 Ok(self.verify_reply.clone())
             } else {
@@ -468,17 +622,28 @@ mod tests {
             Ok(())
         );
 
-        let out = enhance(&b, raw, &opts(), &AppContext::default());
+        let out = enhance(&b, raw, &verifying_opts(), &AppContext::default());
         assert_eq!(out.text, raw, "a changed verdict must not reach the user");
         assert_eq!(out.verdict, Some(Verdict::Changed));
     }
 
+    /// An edit that slips a word the speaker never said into a sentence of
+    /// otherwise unchanged length, so `Auto` refers it to the verifier.
+    ///
+    /// It has to stay near the original length on purpose: `sanity_check`
+    /// rejects a rewrite more than 35% longer outright, so the gross case never
+    /// reaches verification. What survives to be verified is exactly this — a
+    /// substitution small enough to look like ordinary editing.
+    const INVENTS: (&str, &str) = (
+        "we should merge this after the tests pass on the build server",
+        "We should merge this after the release tests pass on the server.",
+    );
+
     #[test]
     fn a_same_verdict_keeps_the_edit() {
-        let raw = "send it to john no wait not john send it to jane instead please";
-        let b = ScriptedBackend::new("Send it to Jane instead please.", "SAME");
-        let out = enhance(&b, raw, &opts(), &AppContext::default());
-        assert_eq!(out.text, "Send it to Jane instead please.");
+        let b = ScriptedBackend::new(INVENTS.1, "SAME");
+        let out = enhance(&b, INVENTS.0, &verifying_opts(), &AppContext::default());
+        assert_eq!(out.text, INVENTS.1);
         assert_eq!(out.verdict, Some(Verdict::Same));
     }
 
@@ -486,11 +651,30 @@ mod tests {
     fn an_unclear_verdict_keeps_the_edit() {
         // The guards already passed; an unreadable second opinion is no reason
         // to discard a rewrite that otherwise looks fine.
-        let raw = "send it to john no wait not john send it to jane instead please";
-        let b = ScriptedBackend::new("Send it to Jane instead please.", "I am not sure");
-        let out = enhance(&b, raw, &opts(), &AppContext::default());
-        assert_eq!(out.text, "Send it to Jane instead please.");
+        let b = ScriptedBackend::new(INVENTS.1, "I am not sure");
+        let out = enhance(&b, INVENTS.0, &verifying_opts(), &AppContext::default());
+        assert_eq!(out.text, INVENTS.1);
         assert_eq!(out.verdict, Some(Verdict::Unclear));
+    }
+
+    #[test]
+    fn an_ordinary_retraction_never_reaches_the_verifier() {
+        // Reported from a live session: a correct self-correction was judged
+        // CHANGED and the user got the raw transcript back. Measured, the
+        // verifier did that to 14 of 47 correct edits, so `Auto` no longer
+        // refers an order-preserving deletion at all.
+        let raw =
+            "there is going to be a meeting on friday no never mind it's going to be on saturday";
+        let edit = "There is going to be a meeting on Saturday.";
+        let b = ScriptedBackend::new(edit, "CHANGED");
+        let out = enhance(&b, raw, &opts(), &AppContext::default());
+        assert_eq!(
+            b.verify_calls(),
+            0,
+            "a plain retraction must not be verified"
+        );
+        assert_eq!(out.text, edit, "the correct edit must reach the user");
+        assert_eq!(out.verdict, None);
     }
 
     #[test]
@@ -569,10 +753,16 @@ mod tests {
 
     #[test]
     fn a_separate_verifier_backend_is_used_for_the_second_pass() {
-        let raw = "send it to john no wait not john send it to jane instead please";
-        let editor = ScriptedBackend::new("Send it to John instead please.", "SAME");
+        let editor = ScriptedBackend::new(INVENTS.1, "SAME");
         let verifier = ScriptedBackend::new("unused", "CHANGED");
-        let out = enhance_with_verifier(&editor, &verifier, raw, &opts(), &AppContext::default());
+        let raw = INVENTS.0;
+        let out = enhance_with_verifier(
+            &editor,
+            &verifier,
+            raw,
+            &verifying_opts(),
+            &AppContext::default(),
+        );
         assert_eq!(
             verifier.verify_calls(),
             1,

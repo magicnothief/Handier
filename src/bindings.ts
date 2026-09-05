@@ -7,6 +7,10 @@
 export const commands = {
 /**
  * List enhancement models, optionally narrowed to one role.
+ * 
+ * A model the user picked off disk is appended to the catalog listing. It has
+ * to appear in the same list as everything else or the selector would show no
+ * card as active while the layer was quietly running the user's own weights.
  */
 async enhanceListModels(role: ModelRole | null) : Promise<Result<EnhanceModelInfo[], string>> {
     try {
@@ -106,6 +110,21 @@ async enhanceSetEnabled(enabled: boolean) : Promise<Result<null, string>> {
 async enhanceSetModel(modelId: string | null) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("enhance_set_model", { modelId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Override how a model loaded off disk is prompted.
+ * 
+ * `None` trusts the model's own declared style, which for a local file means
+ * "assume it was fine-tuned for this" — the only reason to point the layer at
+ * your own GGUF. Set it explicitly when that guess is wrong.
+ */
+async enhanceSetPromptStyle(promptStyle: PromptStyle | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("enhance_set_prompt_style", { promptStyle }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -1171,6 +1190,16 @@ enhance_model_id?: string | null;
  */
 enhance_verifier_model_id?: string | null; 
 /**
+ * Override how the editing model is prompted, or `None` to trust the model.
+ * 
+ * Only reachable for a model loaded off disk. A catalog entry states its
+ * own style and is never guessed at, but a file the user picked is guessed
+ * from nothing but the fact that they picked it, and guessing wrong is
+ * loud: a stock model with no prompt does not edit, and a fine-tune given
+ * the prompt starts copying the prompt's rules into the user's text.
+ */
+enhance_prompt_style?: PromptStyle | null; 
+/**
  * Which enhancement behaviours are switched on.
  */
 enhance_options?: EnhanceOptions; 
@@ -1213,6 +1242,25 @@ export type AvailableAccelerators = { transcribe: string[]; ort: string[]; gpu_d
 export type BindingResponse = { success: boolean; binding: ShortcutBinding | null; error: string | null }
 export type ClipboardHandling = "dont_modify" | "copy_to_clipboard"
 export type CustomSounds = { start: boolean; stop: boolean }
+/**
+ * Where a download has got to.
+ * 
+ * The terminal states are carried on the same event as progress so a listener
+ * cannot miss the end of a download by subscribing to the wrong channel.
+ */
+export type DownloadState = 
+/**
+ * Bytes are still arriving.
+ */
+"running" | 
+/**
+ * The file is on disk and passed its size check.
+ */
+"done" | 
+/**
+ * The download failed; `error` says why.
+ */
+"failed"
 export type EngineType = 
 /**
  * Any GGML/GGUF model loaded through transcribe-cpp (Whisper, Parakeet,
@@ -1242,7 +1290,15 @@ total: number;
 /**
  * Convenience percentage, so the UI does not repeat the division.
  */
-percentage: number }
+percentage: number; 
+/**
+ * Whether the download is still running, finished, or failed.
+ */
+state: DownloadState; 
+/**
+ * Why it failed, when it did.
+ */
+error: string | null }
 /**
  * A catalog entry plus whether it is present on disk.
  */
@@ -1296,6 +1352,13 @@ released: string;
  */
 reasoning: boolean; 
 /**
+ * How this model expects to be prompted.
+ * 
+ * Defaults to [`PromptStyle::Instructed`], so every stock entry in the
+ * catalog is unaffected and only a fine-tune has to say so.
+ */
+prompt_style?: PromptStyle; 
+/**
  * What this model is offered for.
  */
 roles: ModelRole[]; 
@@ -1326,7 +1389,19 @@ downloaded: boolean;
 /**
  * Whether this model is currently resident in the sidecar.
  */
-loaded: boolean }
+loaded: boolean; 
+/**
+ * Whether a download is in flight right now.
+ * 
+ * Read from the manager rather than remembered by the UI, so a settings
+ * page that was closed and reopened mid-download shows the download
+ * instead of an idle button.
+ */
+downloading: boolean; 
+/**
+ * Percentage complete, when a download is in flight.
+ */
+progress: number | null }
 /**
  * Which enhancement behaviours are switched on.
  * 
@@ -1519,6 +1594,45 @@ export type PaginatedHistory = { entries: HistoryEntry[]; has_more: boolean }
 export type PasteMethod = "ctrl_v" | "direct" | "none" | "shift_insert" | "ctrl_shift_v" | "external_script"
 export type PermissionAccess = "allowed" | "denied" | "unknown"
 export type PostProcessProvider = { id: string; label: string; base_url: string; allow_base_url_edit?: boolean; models_endpoint?: string | null; supports_structured_output?: boolean }
+/**
+ * How the host should prompt a model.
+ * 
+ * This is a property of the weights, not a preference. Getting it wrong is not
+ * a small regression: a fine-tune given the instruction prompt starts copying
+ * the prompt's own rules and few-shot examples into the user's document.
+ */
+export type PromptStyle = 
+/**
+ * Send the shipped instruction prompt. Correct for a stock
+ * instruction-tuned model, which has to be told the task.
+ */
+"instructed" | 
+/**
+ * Send an *empty* system turn. Correct for a model fine-tuned on this
+ * task: the behaviour is in the weights already. Measured on the first
+ * fine-tune, adding the prompt cost 57/68 -> 54/68.
+ * 
+ * Empty, not absent. The two are not interchangeable, however much they
+ * look it: a fine-tune is trained on whatever its training harness emitted
+ * for a message list with an empty system entry, and that is a real turn in
+ * the rendered text. Measured on the current editor, dropping the message
+ * instead of emptying it cost 66/68 -> 59/68, with the model answering
+ * "SAME" and "CHANGED" to editing requests — it no longer recognised the
+ * shape of its own input. The sidecar therefore passes the empty string
+ * straight through to the chat template.
+ */
+"tuned" | 
+/**
+ * Send [`ALPACA_INSTRUCTION`] and render the Alpaca prompt. Correct for a
+ * model fine-tuned from a *base* checkpoint on an Alpaca-format corpus.
+ * 
+ * A base model has no chat template, so there is no turn structure to lean
+ * on and the host has to supply the whole convention. Alpaca is the one
+ * such a fine-tune is overwhelmingly likely to have been trained on, and
+ * the instruction is a fixed string shared with the corpus builder so the
+ * text at inference is byte-identical to the text seen in training.
+ */
+"alpaca"
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"
 export type SecretMap = Partial<{ [key in string]: string }>
 export type SecureInputStatus = { 
@@ -1615,6 +1729,12 @@ export type TypingTool = "auto" | "wtype" | "kwtype" | "dotool" | "ydotool" | "x
 export type VadBackend = "silero" | "earshot"
 /**
  * When the verifier runs.
+ * 
+ * Defaults to [`VerifyMode::Off`]. The second pass was measured end to end on
+ * 400 live edits — the editor's own output, judged against references — and it
+ * caught 0 of the 10 bad edits while rejecting 1 good one, at roughly double
+ * the latency. The mechanical guards in [`super::prompt::sanity_check`] do the
+ * work that actually pays: they are why so few edits are wrong in the first place.
  */
 export type VerifyMode = 
 /**

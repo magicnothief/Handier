@@ -631,6 +631,7 @@ pub fn run(cli_args: CliArgs) {
             commands::enhance::enhance_preview,
             commands::enhance::enhance_set_enabled,
             commands::enhance::enhance_set_model,
+            commands::enhance::enhance_set_prompt_style,
             commands::enhance::enhance_set_verifier_model,
             commands::enhance::enhance_set_options,
             commands::enhance::enhance_set_use_gpu,
@@ -1059,6 +1060,12 @@ pub fn run(cli_args: CliArgs) {
             tauri::RunEvent::Exit => {
                 if let Some(tm) = app.try_state::<Arc<TranscriptionManager>>() {
                     let _ = tm.unload_model();
+                }
+                // The enhancement sidecar is a child process holding the model
+                // in memory. Without this it outlives the app and keeps a
+                // couple of gigabytes resident until it is killed by hand.
+                if let Some(em) = app.try_state::<Arc<managers::enhance::EnhanceManager>>() {
+                    em.shutdown();
                 }
             }
             _ => {}

@@ -21,7 +21,7 @@ use std::sync::mpsc::{Receiver, RecvTimeoutError};
 use std::sync::Mutex;
 use std::time::Duration;
 
-use super::{Backend, GenParams};
+use super::{Backend, GenParams, PromptStyle};
 
 /// How long to wait for a reply before declaring the sidecar wedged.
 ///
@@ -49,6 +49,8 @@ pub struct SidecarClient {
     next_id: AtomicU64,
     /// Whether the loaded model deliberates and needs the soft switch.
     reasoning: Mutex<bool>,
+    /// How the loaded model expects to be prompted.
+    prompt_style: Mutex<PromptStyle>,
 }
 
 impl SidecarClient {
@@ -60,6 +62,7 @@ impl SidecarClient {
             loaded: Mutex::new(None),
             next_id: AtomicU64::new(1),
             reasoning: Mutex::new(false),
+            prompt_style: Mutex::new(PromptStyle::Instructed),
         }
     }
 
@@ -277,7 +280,13 @@ impl SidecarClient {
     ///
     /// `reasoning` records whether this model deliberates, so generation can
     /// suppress it. Loading the model that is already loaded is a no-op.
-    pub fn load_model(&self, model: &Path, reasoning: bool, gpu_layers: Option<u32>) -> Result<()> {
+    pub fn load_model(
+        &self,
+        model: &Path,
+        reasoning: bool,
+        prompt_style: PromptStyle,
+        gpu_layers: Option<u32>,
+    ) -> Result<()> {
         if self.loaded_model().as_deref() == Some(model) {
             return Ok(());
         }
@@ -302,6 +311,9 @@ impl SidecarClient {
 
         if let Ok(mut loaded) = self.loaded.lock() {
             *loaded = Some(model.to_path_buf());
+        }
+        if let Ok(mut p) = self.prompt_style.lock() {
+            *p = prompt_style;
         }
         if let Ok(mut r) = self.reasoning.lock() {
             *r = reasoning;
@@ -368,6 +380,10 @@ impl Backend for SidecarClient {
 
     fn is_ready(&self) -> bool {
         self.loaded_model().is_some()
+    }
+
+    fn prompt_style(&self) -> PromptStyle {
+        self.prompt_style.lock().map(|p| *p).unwrap_or_default()
     }
 }
 
@@ -475,14 +491,14 @@ mod live {
 
         assert!(!client.is_ready(), "nothing loaded yet");
         client
-            .load_model(&model, true, None)
+            .load_model(&model, true, PromptStyle::Instructed, None)
             .expect("model should load");
         assert!(client.is_ready(), "should be ready after load");
         assert!(client.is_running(), "process should be up");
 
         // Loading the same model again must be a no-op, not a reload.
         client
-            .load_model(&model, true, None)
+            .load_model(&model, true, PromptStyle::Instructed, None)
             .expect("idempotent load");
 
         let opts = EnhanceOptions {
@@ -520,12 +536,14 @@ mod live {
             Some(v) => v,
             None => return,
         };
-        client.load_model(&model, true, None).expect("load");
+        client
+            .load_model(&model, true, PromptStyle::Instructed, None)
+            .expect("load");
         client.shutdown();
         // After a shutdown the next request must start a fresh process rather
         // than talking to the dead one.
         client
-            .load_model(&model, true, None)
+            .load_model(&model, true, PromptStyle::Instructed, None)
             .expect("should restart after shutdown");
         assert!(client.is_running());
         client.shutdown();

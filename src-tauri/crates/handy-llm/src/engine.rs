@@ -59,6 +59,11 @@ impl Engine {
     }
 
     /// Whether a model is currently resident.
+    ///
+    /// Exercised by the tests rather than the binary, which tracks readiness on
+    /// the host side; kept because "is anything loaded" is part of what an
+    /// engine should be able to answer.
+    #[cfg_attr(not(test), allow(dead_code))]
     pub fn is_loaded(&self) -> bool {
         self.model.is_some()
     }
@@ -179,6 +184,11 @@ impl Engine {
             user.to_string()
         };
         let (prompt, templated) = build_prompt(model, system, &user)?;
+        // Which path served a given GGUF is invisible from the outside, and
+        // getting it wrong means measuring a prompt the app never sends.
+        if std::env::var_os("HANDY_LLM_DEBUG_PROMPT").is_some() {
+            eprintln!("handy-llm: templated={templated} prompt={prompt:?}");
+        }
 
         // A chat template that needs a BOS emits one as text, so adding another
         // would prepend a duplicate and measurably degrade small models.
@@ -267,7 +277,44 @@ impl Engine {
 /// Returns the prompt and whether a template was applied. Using the template
 /// baked into the GGUF means a new model in the catalog needs no code change,
 /// and gets the exact turn markers it was trained on.
+///
+/// An empty `system` is passed through as a real, empty system message, and that
+/// is load bearing. `llama.cpp` does not evaluate the GGUF's jinja source; it
+/// matches the template against its own built-in family and renders that. For
+/// chatml it emits the block even when the content is empty:
+///
+/// ```text
+/// <|im_start|>system\n<|im_end|>\n<|im_start|>user\n{transcript}<|im_end|>\n<|im_start|>assistant\n
+/// ```
+///
+/// The model's own jinja template drops an empty system block entirely, so the
+/// two renderings differ — and the empty one is what measures better. Omitting
+/// the message cost 66/68 -> 59/68 on the self-correction suite. Set
+/// `HANDY_LLM_DEBUG_PROMPT=1` to print what is actually built rather than
+/// reasoning about it from the template source, which is how that was found.
 fn build_prompt(model: &LlamaModel, system: &str, user: &str) -> Result<(String, bool)> {
+    // `HANDY_LLM_OMIT_EMPTY_SYSTEM=1` drops the empty system message instead of
+    // sending it, which is a different prompt and sometimes the right one.
+    //
+    // Some LFM2 chat templates emit `<|im_start|>system\n<|im_end|>` for an empty
+    // system message where the model's own jinja would drop the block entirely.
+    // A fine-tune trained through the dropping template never saw that block, so
+    // for it this is the shape that matches training. Which one a given
+    // checkpoint wants is a measurement, not a deduction: the current editor
+    // scores 66/68 with the block and 59/68 without.
+    //
+    // Still goes through the template — verified `templated=true` — so this
+    // yields the template's true no-system rendering rather than a fallback.
+    if system.is_empty() && env_flag("HANDY_LLM_OMIT_EMPTY_SYSTEM") {
+        let only = vec![LlamaChatMessage::new("user".to_string(), user.to_string())
+            .map_err(|e| anyhow!("prompt contained a null byte: {e}"))?];
+        if let Ok(template) = model.chat_template(None) {
+            if let Ok(prompt) = model.apply_chat_template(&template, &only, true) {
+                return Ok((prompt, true));
+            }
+        }
+        return Ok((user.to_string(), false));
+    }
     let messages = [
         LlamaChatMessage::new("system".to_string(), system.to_string()),
         LlamaChatMessage::new("user".to_string(), user.to_string()),
@@ -281,12 +328,51 @@ fn build_prompt(model: &LlamaModel, system: &str, user: &str) -> Result<(String,
         }
     }
 
-    // Fall back to a plain layout for a GGUF with no template. Less reliable,
-    // but better than refusing to run the model at all.
+    // No chat template. An empty instruction means the host has already
+    // assembled whatever prompt this model expects — that is how a fine-tune
+    // with its own format is served — so pass it through untouched rather than
+    // wrapping it a second time.
+    if system.trim().is_empty() {
+        return Ok((user.to_string(), false));
+    }
+
+    // Otherwise the caller has handed us a bare instruction and a bare input for
+    // a model with no turn structure to lean on. Alpaca is what such a model was
+    // most likely fine-tuned on, so it is the best available guess — and a far
+    // better one than the bespoke layout this used to emit.
+    //
+    // Kept byte-identical to `tatsu-lab/stanford_alpaca`'s `prompt_input`, minus
+    // the response the model is being asked to produce.
     Ok((
-        format!("{system}\n\nTranscript:\n{user}\n\nEdited:\n"),
+        format!("{ALPACA_PREAMBLE}\n\n{}", alpaca_body(system, user)),
         false,
     ))
+}
+
+/// Whether an env var is set to something other than an explicit "off".
+///
+/// Accepting only presence would make `VAR=0` enable the flag, which is the
+/// opposite of what anyone typing it means.
+fn env_flag(name: &str) -> bool {
+    match std::env::var(name) {
+        Ok(v) => !matches!(v.trim(), "" | "0" | "false" | "no"),
+        Err(_) => false,
+    }
+}
+
+/// The fixed opening line of an Alpaca prompt.
+///
+/// Shared by file with the host and the corpus builder, so the three cannot
+/// drift apart: a model served a prompt a few words off the one it was trained
+/// on degrades quietly, which is the worst way for this to break.
+const ALPACA_PREAMBLE: &str = include_str!("../../../../scripts/enhance-train/alpaca_preamble.txt");
+
+/// The instruction/input/response blocks of an Alpaca prompt.
+fn alpaca_body(instruction: &str, input: &str) -> String {
+    format!(
+        "### Instruction:\n{}\n\n### Input:\n{input}\n\n### Response:\n",
+        instruction.trim()
+    )
 }
 
 /// Remove a leading reasoning block from a completion.
@@ -372,6 +458,46 @@ fn default_threads() -> i32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn alpaca_body_matches_the_stanford_layout() {
+        let body = alpaca_body("Do the thing.", "some words");
+        assert_eq!(
+            body,
+            "### Instruction:\nDo the thing.\n\n### Input:\nsome words\n\n### Response:\n"
+        );
+    }
+
+    #[test]
+    fn the_alpaca_preamble_is_the_stanford_wording() {
+        // Asserted in full because a stray word or space here changes the prompt
+        // in a way no test of behaviour would notice and a fine-tune notices a
+        // great deal. The file is shared with the corpus builder.
+        assert_eq!(
+            ALPACA_PREAMBLE,
+            "Below is an instruction that describes a task, paired with an input \
+that provides further context. Write a response that appropriately completes \
+the request."
+        );
+    }
+
+    #[test]
+    fn env_flag_reads_off_values_as_off() {
+        // `VAR=0` must not turn a flag on; presence alone is the wrong test.
+        std::env::set_var("HANDY_TEST_FLAG", "0");
+        assert!(!env_flag("HANDY_TEST_FLAG"));
+        std::env::set_var("HANDY_TEST_FLAG", "1");
+        assert!(env_flag("HANDY_TEST_FLAG"));
+        std::env::remove_var("HANDY_TEST_FLAG");
+        assert!(!env_flag("HANDY_TEST_FLAG"));
+    }
+
+    #[test]
+    fn the_preamble_file_has_no_trailing_newline() {
+        // It is joined to the body with an explicit blank line, so a newline
+        // left in the file would add a third one to every prompt.
+        assert_eq!(ALPACA_PREAMBLE, ALPACA_PREAMBLE.trim());
+    }
 
     #[test]
     fn default_threads_is_at_least_one_and_leaves_headroom() {

@@ -404,20 +404,23 @@ async fn run_local_enhancement(
     transcript: &str,
 ) -> Option<String> {
     use crate::enhance::ModelRole;
-    use crate::managers::enhance::{resolve_model, EnhanceManager};
+    use crate::managers::enhance::{resolve_model_with, EnhanceManager};
 
     let manager = app.try_state::<Arc<EnhanceManager>>()?.inner().clone();
     let opts = settings.enhance_options.clone();
     let model_id = settings.enhance_model_id.clone();
+    let prompt_style = settings.enhance_prompt_style;
     let use_gpu = settings.enhance_use_gpu;
     let keep_loaded = settings.enhance_keep_loaded;
     let text = transcript.to_string();
     let app_name = crate::enhance::AppContext::default();
 
     let result = tokio::task::spawn_blocking(move || {
-        if let Some(model) = resolve_model(model_id.as_deref(), ModelRole::Editor) {
+        if let Some(model) =
+            resolve_model_with(model_id.as_deref(), ModelRole::Editor, prompt_style)
+        {
             // Loading is idempotent, so this is a no-op once warm.
-            if let Err(e) = manager.load(model, use_gpu) {
+            if let Err(e) = manager.load(&model, use_gpu) {
                 warn!("enhancement model unavailable, pasting raw transcript: {e:#}");
                 return None;
             }

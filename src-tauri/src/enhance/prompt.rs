@@ -343,6 +343,34 @@ pub fn build_user_prompt(transcript: &str) -> String {
     transcript.trim().to_string()
 }
 
+/// The fixed opening line of an Alpaca prompt.
+///
+/// Shared by file with the sidecar and the corpus builder so the three cannot
+/// drift apart.
+const ALPACA_PREAMBLE: &str = include_str!("../../../scripts/enhance-train/alpaca_preamble.txt");
+
+/// Assemble the whole Alpaca prompt as a single turn.
+///
+/// Deliberately *not* split across the system and user slots. An Alpaca
+/// fine-tune learned one flat string, and a chat template will happily wrap
+/// whatever it is given — so putting the instruction in the system slot produces
+/// `<|im_start|>system\n{instruction}<|im_end|>` around it, which is a shape the
+/// model has never seen. Measured on checkpoint-5000, that made it repeat itself
+/// until the token budget ran out and never emit a stop token; given the
+/// assembled prompt the same weights answered cleanly in a sixth of the time.
+///
+/// Sending it as one turn works whether or not the GGUF carries a chat template:
+/// with one, the template wraps text the model keys on anyway; without one, the
+/// sidecar passes an empty-instruction request straight through.
+pub fn build_alpaca_prompt(instruction: &str, transcript: &str) -> String {
+    format!(
+        "{}\n\n### Instruction:\n{}\n\n### Input:\n{}\n\n### Response:\n",
+        ALPACA_PREAMBLE.trim(),
+        instruction.trim(),
+        transcript.trim(),
+    )
+}
+
 /// Why a generated rewrite was rejected in favour of the raw transcript.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Rejection {

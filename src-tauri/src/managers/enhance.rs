@@ -5,15 +5,16 @@
 
 use anyhow::{anyhow, Context, Result};
 use hf_hub::api::tokio::Progress;
-use log::{info, warn};
+use log::{debug, info, warn};
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
 use tauri_specta::Event as _;
 
-use crate::enhance::catalog::{self, CatalogModel, ModelRole};
+use crate::enhance::catalog::{self, CatalogModel, ModelRole, PromptStyle};
 use crate::enhance::{self, AppContext, EnhanceOptions, Enhanced, SidecarClient};
 
 /// A catalog entry plus whether it is present on disk.
@@ -27,6 +28,14 @@ pub struct EnhanceModelInfo {
     pub downloaded: bool,
     /// Whether this model is currently resident in the sidecar.
     pub loaded: bool,
+    /// Whether a download is in flight right now.
+    ///
+    /// Read from the manager rather than remembered by the UI, so a settings
+    /// page that was closed and reopened mid-download shows the download
+    /// instead of an idle button.
+    pub downloading: bool,
+    /// Percentage complete, when a download is in flight.
+    pub progress: Option<f64>,
 }
 
 /// Runtime state of the enhancement layer, for the settings UI.
@@ -41,6 +50,21 @@ pub struct EnhanceStatus {
     pub loaded_model_id: Option<String>,
     /// Why the layer is unusable, when it is.
     pub error: Option<String>,
+}
+
+/// Where a download has got to.
+///
+/// The terminal states are carried on the same event as progress so a listener
+/// cannot miss the end of a download by subscribing to the wrong channel.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "lowercase")]
+pub enum DownloadState {
+    /// Bytes are still arriving.
+    Running,
+    /// The file is on disk and passed its size check.
+    Done,
+    /// The download failed; `error` says why.
+    Failed,
 }
 
 /// Progress of an enhancement model download, sent to the settings UI.
@@ -58,6 +82,10 @@ pub struct EnhanceDownloadProgress {
     pub total: u64,
     /// Convenience percentage, so the UI does not repeat the division.
     pub percentage: f64,
+    /// Whether the download is still running, finished, or failed.
+    pub state: DownloadState,
+    /// Why it failed, when it did.
+    pub error: Option<String>,
 }
 
 /// Reports download progress to the frontend as `enhance-download-progress`.
@@ -70,6 +98,9 @@ struct DownloadReporter {
     app: AppHandle,
     model_id: String,
     state: Arc<Mutex<ReporterState>>,
+    /// The manager's in-flight registry, so a reopened settings page can read
+    /// the latest progress instead of waiting for the next event.
+    registry: Downloads,
 }
 
 struct ReporterState {
@@ -78,8 +109,11 @@ struct ReporterState {
     last_emit: Instant,
 }
 
+/// In-flight downloads, keyed by catalog id.
+type Downloads = Arc<Mutex<HashMap<String, EnhanceDownloadProgress>>>;
+
 impl DownloadReporter {
-    fn new(app: AppHandle, model_id: String) -> Self {
+    fn new(app: AppHandle, model_id: String, registry: Downloads) -> Self {
         Self {
             app,
             model_id,
@@ -88,6 +122,7 @@ impl DownloadReporter {
                 downloaded: 0,
                 last_emit: Instant::now(),
             })),
+            registry,
         }
     }
 
@@ -97,14 +132,38 @@ impl DownloadReporter {
         } else {
             0.0
         };
-        let _ = EnhanceDownloadProgress {
-            model_id: self.model_id.clone(),
-            downloaded,
-            total,
-            percentage,
-        }
-        .emit(&self.app);
+        publish(
+            &self.app,
+            &self.registry,
+            EnhanceDownloadProgress {
+                model_id: self.model_id.clone(),
+                downloaded,
+                total,
+                percentage,
+                state: DownloadState::Running,
+                error: None,
+            },
+        );
     }
+}
+
+/// Record progress in the registry and send it to the frontend.
+///
+/// Both halves matter: the event drives a page that is already open, and the
+/// registry answers a page that opens later. Keeping them in one function is
+/// what stops the two from disagreeing.
+fn publish(app: &AppHandle, registry: &Downloads, update: EnhanceDownloadProgress) {
+    if let Ok(mut map) = registry.lock() {
+        match update.state {
+            DownloadState::Running => {
+                map.insert(update.model_id.clone(), update.clone());
+            }
+            DownloadState::Done | DownloadState::Failed => {
+                map.remove(&update.model_id);
+            }
+        }
+    }
+    let _ = update.emit(app);
 }
 
 impl Progress for DownloadReporter {
@@ -152,6 +211,10 @@ pub struct EnhanceManager {
     app: AppHandle,
     /// Set when the sidecar binary could not be located at startup.
     unavailable_reason: Option<String>,
+    /// Downloads currently running, so the state survives a UI that navigates
+    /// away and comes back — and so a second request for the same model joins
+    /// the running download instead of starting a competing one.
+    downloads: Downloads,
 }
 
 impl EnhanceManager {
@@ -175,6 +238,7 @@ impl EnhanceManager {
                     models_dir,
                     app: app.clone(),
                     unavailable_reason: None,
+                    downloads: Downloads::default(),
                 })
             }
             None => {
@@ -186,6 +250,7 @@ impl EnhanceManager {
                     unavailable_reason: Some(
                         "The enhancement engine was not found in this build.".to_string(),
                     ),
+                    downloads: Downloads::default(),
                 })
             }
         }
@@ -206,22 +271,38 @@ impl EnhanceManager {
             .unwrap_or(false)
     }
 
-    /// The catalog, annotated with on-disk and loaded state.
+    /// The catalog, annotated with on-disk, loaded and downloading state.
     pub fn list_models(&self, role: Option<ModelRole>) -> Vec<EnhanceModelInfo> {
+        catalog::catalog()
+            .iter()
+            .filter(|m| role.is_none_or(|r| m.supports(r)))
+            .map(|m| self.describe(m))
+            .collect()
+    }
+
+    /// Annotate one entry with the state the settings UI needs.
+    ///
+    /// Split out of [`Self::list_models`] so a model that is not in the catalog
+    /// at all — one the user picked off disk — can be described the same way and
+    /// rendered by the same card.
+    pub fn describe(&self, model: &CatalogModel) -> EnhanceModelInfo {
         let loaded = self
             .client
             .as_ref()
             .and_then(|c| c.loaded_model())
             .unwrap_or_default();
-        catalog::catalog()
-            .iter()
-            .filter(|m| role.is_none_or(|r| m.supports(r)))
-            .map(|m| EnhanceModelInfo {
-                model: m.clone(),
-                downloaded: self.is_downloaded(m),
-                loaded: self.model_path(m) == loaded,
-            })
-            .collect()
+        let progress = self
+            .downloads
+            .lock()
+            .ok()
+            .and_then(|d| d.get(&model.id).map(|p| p.percentage));
+        EnhanceModelInfo {
+            model: model.clone(),
+            downloaded: self.is_downloaded(model),
+            loaded: self.model_path(model) == loaded,
+            downloading: progress.is_some(),
+            progress,
+        }
     }
 
     /// Current runtime state.
@@ -230,11 +311,14 @@ impl EnhanceManager {
             .client
             .as_ref()
             .and_then(|c| c.loaded_model())
-            .and_then(|path| {
+            .map(|path| {
                 catalog::catalog()
                     .iter()
                     .find(|m| self.model_path(m) == path)
                     .map(|m| m.id.clone())
+                    // Not in the catalog means the user loaded it off disk, and
+                    // the path is exactly what its synthesised id is built from.
+                    .unwrap_or_else(|| format!("{}{}", catalog::LOCAL_PREFIX, path.display()))
             });
         EnhanceStatus {
             available: self.client.is_some(),
@@ -244,11 +328,51 @@ impl EnhanceManager {
         }
     }
 
+    /// Whether a download for `model_id` is already running.
+    pub fn is_downloading(&self, model_id: &str) -> bool {
+        self.downloads
+            .lock()
+            .map(|d| d.contains_key(model_id))
+            .unwrap_or(false)
+    }
+
     /// Download `model` from Hugging Face into the models directory.
+    ///
+    /// Idempotent while a download is running: asking again is a no-op rather
+    /// than a second transfer of the same file. Without this, a settings page
+    /// that re-issued the request on mount could stack several gigabyte-scale
+    /// downloads over each other, all writing the same path.
     pub async fn download(&self, model: &CatalogModel) -> Result<PathBuf> {
         let target = self.model_path(model);
         if self.is_downloaded(model) {
             return Ok(target);
+        }
+
+        // Claim the slot before any await, so two callers cannot both find it
+        // free and both start fetching.
+        {
+            let mut in_flight = self
+                .downloads
+                .lock()
+                .map_err(|_| anyhow!("download registry is poisoned"))?;
+            if in_flight.contains_key(&model.id) {
+                debug!(
+                    "download of {} already in flight; joining it rather than restarting",
+                    model.id
+                );
+                return Ok(target);
+            }
+            in_flight.insert(
+                model.id.clone(),
+                EnhanceDownloadProgress {
+                    model_id: model.id.clone(),
+                    downloaded: 0,
+                    total: model.size_bytes,
+                    percentage: 0.0,
+                    state: DownloadState::Running,
+                    error: None,
+                },
+            );
         }
 
         info!(
@@ -256,9 +380,48 @@ impl EnhanceManager {
             model.id,
             model.size_mb()
         );
+        let result = self.fetch(model, &target).await;
+
+        let update = match &result {
+            Ok(()) => {
+                info!("enhancement model {} ready", model.id);
+                EnhanceDownloadProgress {
+                    model_id: model.id.clone(),
+                    downloaded: model.size_bytes,
+                    total: model.size_bytes,
+                    percentage: 100.0,
+                    state: DownloadState::Done,
+                    error: None,
+                }
+            }
+            Err(e) => {
+                warn!("download of {} failed: {e:#}", model.id);
+                EnhanceDownloadProgress {
+                    model_id: model.id.clone(),
+                    downloaded: 0,
+                    total: model.size_bytes,
+                    percentage: 0.0,
+                    state: DownloadState::Failed,
+                    error: Some(format!("{e:#}")),
+                }
+            }
+        };
+        // Releases the slot as well as telling the frontend.
+        publish(&self.app, &self.downloads, update);
+
+        result.map(|()| target)
+    }
+
+    /// Fetch and verify the file. Split out so [`download`] can release its
+    /// slot and report the outcome on every path, including early returns.
+    async fn fetch(&self, model: &CatalogModel, target: &PathBuf) -> Result<()> {
         let api = hf_hub::api::tokio::Api::new().context("failed to create Hugging Face client")?;
         let repo = api.model(model.repo_id.clone());
-        let reporter = DownloadReporter::new(self.app.clone(), model.id.clone());
+        let reporter = DownloadReporter::new(
+            self.app.clone(),
+            model.id.clone(),
+            Arc::clone(&self.downloads),
+        );
         let downloaded = repo
             .download_with_progress(&model.filename, reporter)
             .await
@@ -271,7 +434,7 @@ impl EnhanceManager {
 
         // hf-hub caches under HF_HOME; copy into the app's directory so the
         // model survives a cache clear and is visible next to the others.
-        std::fs::copy(&downloaded, &target).with_context(|| {
+        std::fs::copy(&downloaded, target).with_context(|| {
             format!(
                 "failed to copy {} to {}",
                 downloaded.display(),
@@ -279,11 +442,11 @@ impl EnhanceManager {
             )
         })?;
 
-        let size = std::fs::metadata(&target).map(|m| m.len()).unwrap_or(0);
+        let size = std::fs::metadata(target).map(|m| m.len()).unwrap_or(0);
         if size != model.size_bytes {
             // A wrong size means a truncated or substituted file; refuse it
             // rather than loading something unexpected.
-            let _ = std::fs::remove_file(&target);
+            let _ = std::fs::remove_file(target);
             return Err(anyhow!(
                 "downloaded {} has {} bytes, expected {}",
                 model.filename,
@@ -291,8 +454,7 @@ impl EnhanceManager {
                 model.size_bytes
             ));
         }
-        info!("enhancement model {} ready", model.id);
-        Ok(target)
+        Ok(())
     }
 
     /// Delete a downloaded model.
@@ -322,7 +484,12 @@ impl EnhanceManager {
         // `None` lets the sidecar offload everything if its build supports it;
         // `Some(0)` pins it to CPU.
         let gpu_layers = if use_gpu { None } else { Some(0) };
-        client.load_model(&self.model_path(model), model.reasoning, gpu_layers)
+        client.load_model(
+            &self.model_path(model),
+            model.reasoning,
+            model.prompt_style,
+            gpu_layers,
+        )
     }
 
     /// Release the model's memory but leave the process alive.
@@ -356,16 +523,46 @@ impl EnhanceManager {
 }
 
 /// Resolve the model a setting refers to, falling back to the catalog default.
-pub fn resolve_model(id: Option<&str>, role: ModelRole) -> Option<&'static CatalogModel> {
+///
+/// Returns an owned entry rather than a `&'static` one because a local file has
+/// no entry in the embedded catalog to borrow from; it is synthesised on demand.
+/// The clone is a handful of short strings and happens when a model is chosen,
+/// not per request.
+pub fn resolve_model(id: Option<&str>, role: ModelRole) -> Option<CatalogModel> {
     if let Some(id) = id {
-        if let Some(m) = catalog::find(id) {
-            return Some(m);
+        if let Some(path) = id.strip_prefix(catalog::LOCAL_PREFIX) {
+            // A path that has gone missing falls through to the catalog default
+            // rather than leaving the user with no working model.
+            if let Some(m) = CatalogModel::from_local(std::path::Path::new(path)) {
+                return Some(m);
+            }
+        } else if let Some(m) = catalog::find(id) {
+            return Some(m.clone());
         }
     }
     match role {
-        ModelRole::Editor => catalog::default_editor(),
-        ModelRole::Verifier => catalog::default_verifier(),
+        ModelRole::Editor => catalog::default_editor().cloned(),
+        ModelRole::Verifier => catalog::default_verifier().cloned(),
     }
+}
+
+/// Resolve a model and apply the user's prompt-style override, if any.
+///
+/// The override only ever applies to a model loaded off disk. A catalog entry
+/// is curated and states its own style, so letting a stale setting rewrite it
+/// would break a stock model for a reason the user could not see.
+pub fn resolve_model_with(
+    id: Option<&str>,
+    role: ModelRole,
+    override_style: Option<PromptStyle>,
+) -> Option<CatalogModel> {
+    let mut model = resolve_model(id, role)?;
+    if let Some(style) = override_style {
+        if model.is_local() {
+            model.prompt_style = style;
+        }
+    }
+    Some(model)
 }
 
 #[cfg(test)]
@@ -375,12 +572,12 @@ mod tests {
     #[test]
     fn resolve_falls_back_to_the_role_default() {
         assert_eq!(
-            resolve_model(None, ModelRole::Editor).map(|m| m.id.as_str()),
-            Some("qwen/qwen3-4b-instruct-iq3")
+            resolve_model(None, ModelRole::Editor).map(|m| m.id),
+            Some("qwen/qwen3-4b-instruct-iq3".to_string())
         );
         assert_eq!(
-            resolve_model(None, ModelRole::Verifier).map(|m| m.id.as_str()),
-            Some("qwen/qwen3-1.7b")
+            resolve_model(None, ModelRole::Verifier).map(|m| m.id),
+            Some("qwen/qwen3-1.7b".to_string())
         );
     }
 
@@ -389,24 +586,67 @@ mod tests {
         // A settings file naming a model we no longer ship must not disable the
         // feature; falling back keeps it working across catalog changes.
         assert_eq!(
-            resolve_model(Some("deleted/model"), ModelRole::Editor).map(|m| m.id.as_str()),
-            Some("qwen/qwen3-4b-instruct-iq3")
+            resolve_model(Some("deleted/model"), ModelRole::Editor).map(|m| m.id),
+            Some("qwen/qwen3-4b-instruct-iq3".to_string())
         );
     }
 
     #[test]
     fn resolve_honours_an_explicit_choice() {
         assert_eq!(
-            resolve_model(Some("liquidai/lfm2.5-350m"), ModelRole::Editor).map(|m| m.id.as_str()),
-            Some("liquidai/lfm2.5-350m")
+            resolve_model(Some("liquidai/lfm2.5-350m"), ModelRole::Editor).map(|m| m.id),
+            Some("liquidai/lfm2.5-350m".to_string())
         );
+    }
+
+    /// Write a stand-in GGUF and hand back the id that selects it.
+    fn local_id(dir: &tempfile::TempDir, name: &str) -> String {
+        let path = dir.path().join(name);
+        std::fs::write(&path, vec![0u8; 2048]).expect("write stub model");
+        format!("{}{}", catalog::LOCAL_PREFIX, path.display())
+    }
+
+    #[test]
+    fn resolve_accepts_a_file_off_disk() {
+        let dir = tempfile::tempdir().expect("temp dir");
+        let id = local_id(&dir, "checkpoint-10000.Q4_K_M.gguf");
+        let m = resolve_model(Some(&id), ModelRole::Editor).expect("local file resolves");
+        assert_eq!(m.id, id);
+        assert_eq!(m.prompt_style, PromptStyle::Tuned);
+    }
+
+    #[test]
+    fn resolve_falls_back_when_the_local_file_is_gone() {
+        // Deleting or moving the file must not leave the user with no editor.
+        let id = format!("{}/nowhere/gone.gguf", catalog::LOCAL_PREFIX);
+        assert_eq!(
+            resolve_model(Some(&id), ModelRole::Editor).map(|m| m.id),
+            Some("qwen/qwen3-4b-instruct-iq3".to_string())
+        );
+    }
+
+    #[test]
+    fn the_prompt_style_override_only_touches_a_local_model() {
+        let dir = tempfile::tempdir().expect("temp dir");
+        let id = local_id(&dir, "mine.gguf");
+        let m = resolve_model_with(Some(&id), ModelRole::Editor, Some(PromptStyle::Instructed))
+            .expect("local file resolves");
+        assert_eq!(m.prompt_style, PromptStyle::Instructed);
+
+        // A curated entry states its own style; a stale setting must not be able
+        // to break a stock model in a way the user cannot see.
+        let stock = resolve_model_with(
+            Some("liquidai/lfm2.5-350m"),
+            ModelRole::Editor,
+            Some(PromptStyle::Tuned),
+        )
+        .expect("catalog entry resolves");
+        assert_eq!(stock.prompt_style, PromptStyle::Instructed);
     }
 }
 
 #[cfg(test)]
 mod progress_tests {
-    use super::*;
-
     #[test]
     fn percentage_is_derived_from_the_byte_counts() {
         // The UI shows this directly, so an off value is visible to the user.
