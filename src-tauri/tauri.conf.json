@@ -27,7 +27,7 @@
     "active": true,
     "targets": "all",
     "publisher": "MagicNoThief",
-    "homepage": "https://github.com/MagicNoThief/Handy-Flow",
+    "homepage": "https://github.com/MagicNoThief/Handier",
     "copyright": "Copyright (c) 2025 CJ Pais and Handier contributors. MIT licensed.",
     "licenseFile": "../LICENSE",
     "shortDescription": "Offline speech-to-text that cleans up your dictation locally.",
@@ -85,7 +85,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVGOEZGMjkwQjc0RTczQjQKUldTMGMwNjNrUEtQNzA0Tm05SHNsdWc1aGkzNC84TTlVak5KMHdtUDV1N3YvMWhRd1dZT0hKTE0K",
       "endpoints": [
-        "https://github.com/MagicNoThief/Handy-Flow/releases/latest/download/latest.json"
+        "https://github.com/MagicNoThief/Handier/releases/latest/download/latest.json"
       ]
     }
   }

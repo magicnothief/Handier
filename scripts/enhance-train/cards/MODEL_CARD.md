@@ -41,7 +41,7 @@ locally, on a laptop with no GPU, without adding a pause you can feel before you
 text appears.
 
 Fine-tuned from [`LiquidAI/LFM2.5-350M`](https://huggingface.co/LiquidAI/LFM2.5-350M)
-for [Handier](https://github.com/MagicNoThief/Handy-Flow)'s on-device enhancement
+for [Handier](https://github.com/MagicNoThief/Handier)'s on-device enhancement
 layer.
 
 ## Prompt format
@@ -125,7 +125,7 @@ real utterances come from a split the training build never reads, synthetic rows
 use a different seed with every training input excluded by hand, and the builder
 asserts zero overlap. The suite is 68 hand-written cases, independent of both.
 
-Reproduce with [`scripts/enhance-eval/`](https://github.com/MagicNoThief/Handy-Flow/tree/main/scripts/enhance-eval):
+Reproduce with [`scripts/enhance-eval/`](https://github.com/MagicNoThief/Handier/tree/main/scripts/enhance-eval):
 
 ```bash
 python bench.py --model handy-editor-350m.Q4_K_M.gguf --no-switch --label mine
