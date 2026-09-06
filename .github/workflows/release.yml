@@ -78,7 +78,7 @@ jobs:
       # still signed -- that key is passed unconditionally in build.yml. Flip
       # this to true once you have code-signing certificates of your own.
       sign-binaries: false
-      asset-prefix: "handy-flow"
+      asset-prefix: "handier"
       upload-artifacts: false
       release-id: ${{ needs.create-release.outputs.release-id }}
       # Releases always build from scratch — never restore the Rust cache, so a
