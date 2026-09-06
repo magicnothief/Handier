@@ -106,9 +106,9 @@ export const EnhancementOnboarding: React.FC<EnhancementOnboardingProps> = ({
       status={cardStatus(model)}
       onSelect={(id) => void choose(id)}
       onDownload={(id) => void choose(id)}
-      // Nothing is deletable during onboarding: the card only offers it for a
-      // model already on disk and selected, which this step never reaches.
-      onDelete={() => {}}
+      // No `onDelete`: this step is a choice, not a management surface. Passing
+      // a no-op instead rendered a live-looking Delete button for anyone who
+      // already had the model on disk, which is most of the way to a trap.
       downloadProgress={downloadProgress[model.id]?.percentage}
       downloadSpeed={downloadStats[model.id]?.speed}
     />

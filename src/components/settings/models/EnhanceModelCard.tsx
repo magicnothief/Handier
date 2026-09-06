@@ -28,7 +28,12 @@ interface EnhanceModelCardProps {
   status: EnhanceCardStatus;
   onSelect: (modelId: string) => void;
   onDownload: (modelId: string) => void;
-  onDelete: (modelId: string) => void;
+  /**
+   * Omit where deleting makes no sense — onboarding, for instance, where the
+   * card is a choice rather than a management surface. The control is hidden
+   * rather than inert: a button that does nothing is worse than no button.
+   */
+  onDelete?: (modelId: string) => void;
   downloadProgress?: number;
   downloadSpeed?: number;
 }
@@ -162,7 +167,7 @@ export const EnhanceModelCard: React.FC<EnhanceModelCardProps> = ({
           )}
           <span>{formatModelSize(Number(model.size_bytes) / 1_048_576)}</span>
         </span>
-        {(status === "available" || status === "active") && (
+        {onDelete && (status === "available" || status === "active") && (
           <Button
             variant="ghost"
             size="sm"
