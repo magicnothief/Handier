@@ -43,7 +43,7 @@ changes their mind mid-sentence, delete the wording they abandoned and keep only
 what they settled on.
 
 Built for the on-device enhancement layer in
-[Handier](https://github.com/MagicNoThief/Handier), a fork of
+[Handier](https://github.com/MagicNoThief/Handier-desktop), a fork of
 [Handy](https://github.com/cjpais/Handy), where a sub-500M model has to do this
 in under a second on a laptop with no GPU. It is not specific to that app: it is
 a plain instruction-tuning corpus.
@@ -179,7 +179,7 @@ would measure memorisation. Instead:
 ## How it was built
 
 `scripts/enhance-train/build_dataset.py` in
-[Handier](https://github.com/MagicNoThief/Handier):
+[Handier](https://github.com/MagicNoThief/Handier-desktop):
 
 ```bash
 python build_dataset.py --out ./corpus --n 90000 \
@@ -232,6 +232,6 @@ Attribution to the three datasets above is required.
   author = {Handier contributors},
   year   = {2026},
   note   = {Built with scripts/enhance-train/build_dataset.py},
-  url    = {https://github.com/MagicNoThief/Handier}
+  url    = {https://github.com/MagicNoThief/Handier-desktop}
 }
 ```

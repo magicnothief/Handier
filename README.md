@@ -186,10 +186,12 @@ The process is entirely local:
 
 ### Installation
 
-Handier has no binary releases yet — build from source (see
-[Building](#building) above, and [BUILD.md](BUILD.md)).
+Installers for Windows, macOS and Linux are on the
+[releases page](https://github.com/MagicNoThief/Handier-desktop/releases).
+Building from source works too — see [Building](#building) above, and
+[BUILD.md](BUILD.md).
 
-For upstream Handy's prebuilt binaries, see its
+Upstream Handy's own binaries are on its
 [releases page](https://github.com/cjpais/Handy/releases) or
 [handy.computer](https://handy.computer). Those do **not** include the
 enhancement layer.

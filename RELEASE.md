@@ -82,12 +82,12 @@ together before dispatching it.
 
 These were upstream's and would have misbehaved if shipped as-is:
 
-| What                         | Was                                     | Now                             |
-| ---------------------------- | --------------------------------------- | ------------------------------- |
-| `bundle.identifier`          | `com.pais.handy`                        | `com.magicnothief.handier`      |
-| `productName`                | `Handy`                                 | `Handier`                       |
-| `updater.endpoints`          | `cjpais/Handy` releases                 | `MagicNoThief/Handier` releases |
-| `bundle.windows.signCommand` | CJ Pais's Azure Trusted Signing account | removed                         |
+| What                         | Was                                     | Now                                     |
+| ---------------------------- | --------------------------------------- | --------------------------------------- |
+| `bundle.identifier`          | `com.pais.handy`                        | `com.magicnothief.handier`              |
+| `productName`                | `Handy`                                 | `Handier`                               |
+| `updater.endpoints`          | `cjpais/Handy` releases                 | `MagicNoThief/Handier-desktop` releases |
+| `bundle.windows.signCommand` | CJ Pais's Azure Trusted Signing account | removed                                 |
 
 The updater one mattered most: with upstream's endpoint **and** upstream's
 identifier, a released fork would have found upstream's `latest.json`, judged it
