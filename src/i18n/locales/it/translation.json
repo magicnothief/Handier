@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Disponibile per il download",
     "showAllModels": "Mostra tutti e {{total}} modelli",
     "showFewerModels": "Mostra meno modelli",
+    "enhance": {
+      "subtitle": "Facoltativo: lascia che un secondo modello sistemi ciò che detti",
+      "explainer": "Parlare non è scrivere: dici «ehm», ricominci, cambi idea a metà frase. Questo modello gira sul tuo computer dopo ogni dettatura e sistema tutto prima che il testo venga incollato. Le tue parole non lasciano mai il tuo computer e puoi disattivarlo in qualsiasi momento nelle Impostazioni.",
+      "showOthers": "Mostra altri {{total}} modelli",
+      "skip": "Non ora",
+      "continue": "Continua"
+    },
     "recommended": "Raccomandato",
     "customModelDescription": "Non ufficialmente supportato",
     "modelCard": {

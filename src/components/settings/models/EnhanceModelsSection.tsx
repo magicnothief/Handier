@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { ask, open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen } from "lucide-react";
 import { useEnhanceStore } from "@/stores/enhanceStore";
+import { useNavStore } from "@/stores/navStore";
 import { useSettings } from "@/hooks/useSettings";
 import type { EnhanceModelInfo, PromptStyle } from "@/bindings";
 import { isLocalModelId, localModelId } from "@/lib/utils/enhanceModels";
@@ -20,6 +21,9 @@ import { EnhanceModelCard, type EnhanceCardStatus } from "./EnhanceModelCard";
 export const EnhanceModelsSection: React.FC = () => {
   const { t } = useTranslation();
   const { getSetting, updateSetting } = useSettings();
+  const heading = useRef<HTMLDivElement>(null);
+  const anchor = useNavStore((state) => state.anchor);
+  const clearAnchor = useNavStore((state) => state.clearAnchor);
   const {
     models,
     status,
@@ -37,6 +41,19 @@ export const EnhanceModelsSection: React.FC = () => {
   useEffect(() => {
     void initialize();
   }, [initialize]);
+
+  // Arriving from "Manage" in the enhancement settings, land on this section
+  // rather than the top of the transcription catalogue above it. Deferred a
+  // frame: the models list is still rendering on the tick the section mounts,
+  // so scrolling now would target a position the page is about to change.
+  useEffect(() => {
+    if (anchor !== "enhancement-models") return;
+    const id = requestAnimationFrame(() => {
+      heading.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      clearAnchor();
+    });
+    return () => cancelAnimationFrame(id);
+  }, [anchor, clearAnchor]);
 
   const selectedModelId = getSetting("enhance_model_id") ?? null;
   const promptStyle = getSetting("enhance_prompt_style") ?? null;
@@ -139,7 +156,7 @@ export const EnhanceModelsSection: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="mb-4">
+      <div className="mb-4 scroll-mt-4" ref={heading}>
         <h2 className="text-xl font-semibold mb-2">
           {t("settings.models.enhance.title")}
         </h2>

@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Tillgängliga för nedladdning",
     "showAllModels": "Visa alla {{total}} modeller",
     "showFewerModels": "Visa färre modeller",
+    "enhance": {
+      "subtitle": "Valfritt: låt en andra modell städa upp det du dikterar",
+      "explainer": "Tal är inte skrift: du säger ”öh”, börjar om, ändrar dig mitt i meningen. Den här modellen körs på din dator efter varje diktering och städar upp det innan texten klistras in. Dina ord lämnar aldrig din dator, och du kan stänga av den i Inställningar när som helst.",
+      "showOthers": "Visa {{total}} andra modeller",
+      "skip": "Inte nu",
+      "continue": "Fortsätt"
+    },
     "recommended": "Rekommenderat",
     "customModelDescription": "Stöds inte officiellt",
     "modelCard": {

@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Có sẵn để tải xuống",
     "showAllModels": "Hiển thị tất cả {{total}} mô hình",
     "showFewerModels": "Hiển thị ít mô hình hơn",
+    "enhance": {
+      "subtitle": "Tùy chọn: để một mô hình thứ hai dọn dẹp những gì bạn đọc",
+      "explainer": "Nói không giống viết: bạn nói “ừm”, bắt đầu lại, đổi ý giữa câu. Mô hình này chạy trên máy của bạn sau mỗi lần đọc và dọn dẹp những chỗ đó trước khi văn bản được dán. Lời của bạn không bao giờ rời khỏi máy tính của bạn, và bạn có thể tắt nó bất cứ lúc nào trong Cài đặt.",
+      "showOthers": "Hiển thị {{total}} mô hình khác",
+      "skip": "Để sau",
+      "continue": "Tiếp tục"
+    },
     "recommended": "Đề xuất",
     "customModelDescription": "Không được hỗ trợ chính thức",
     "modelCard": {

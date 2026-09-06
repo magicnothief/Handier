@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Dostupné ke stažení",
     "showAllModels": "Zobrazit všech {{total}} modelů",
     "showFewerModels": "Zobrazit méně modelů",
+    "enhance": {
+      "subtitle": "Volitelně: nechte druhý model uklidit to, co nadiktujete",
+      "explainer": "Mluvení není psaní: řeknete „ehm“, začnete znovu, uprostřed věty si to rozmyslíte. Tento model běží po každém diktování na vašem počítači a uklidí to dřív, než se text vloží. Vaše slova nikdy neopustí váš počítač a kdykoli jej můžete vypnout v Nastavení.",
+      "showOthers": "Zobrazit {{total}} dalších modelů",
+      "skip": "Teď ne",
+      "continue": "Pokračovat"
+    },
     "recommended": "Doporučeno",
     "customModelDescription": "Oficiálně nepodporováno",
     "modelCard": {

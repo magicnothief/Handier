@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Beschikbaar voor download",
     "showAllModels": "Toon alle {{total}} modellen",
     "showFewerModels": "Minder modellen tonen",
+    "enhance": {
+      "subtitle": "Optioneel: laat een tweede model opruimen wat je dicteert",
+      "explainer": "Spreken is geen schrijven: je zegt ‘eh’, begint opnieuw, bedenkt je halverwege de zin. Dit model draait na elk dictaat op je eigen computer en ruimt dat op voordat de tekst wordt geplakt. Je woorden verlaten je computer nooit, en je kunt het altijd uitschakelen in Instellingen.",
+      "showOthers": "Toon {{total}} andere modellen",
+      "skip": "Niet nu",
+      "continue": "Doorgaan"
+    },
     "recommended": "Aanbevolen",
     "customModelDescription": "Niet officieel ondersteund",
     "modelCard": {

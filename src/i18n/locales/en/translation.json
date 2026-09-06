@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Available to Download",
     "showAllModels": "Show all {{total}} models",
     "showFewerModels": "Show fewer models",
+    "enhance": {
+      "subtitle": "Optionally, let a second model tidy up what you dictate",
+      "explainer": "Speech is not writing: you say “um”, you start over, you change your mind mid-sentence. This model runs on your machine after each dictation and cleans that up before the text is pasted. Your words never leave your computer, and you can turn it off in Settings at any time.",
+      "showOthers": "Show {{total}} other models",
+      "skip": "Not now",
+      "continue": "Continue"
+    },
     "recommended": "Recommended",
     "customModelDescription": "Not officially supported",
     "modelCard": {

@@ -24,6 +24,13 @@
     "downloadModelsTitle": "ダウンロード可能",
     "showAllModels": "すべての{{total}}個のモデルを表示",
     "showFewerModels": "表示を減らす",
+    "enhance": {
+      "subtitle": "任意: 口述した内容を、もう一つのモデルで整えます",
+      "explainer": "話し言葉は書き言葉ではありません。「えーと」と言い、言い直し、文の途中で考えを変えます。このモデルは口述のたびにお使いのマシン上で動作し、テキストが貼り付けられる前にそれらを整えます。話した内容がコンピューターの外に出ることはなく、設定からいつでも無効にできます。",
+      "showOthers": "他の{{total}}個のモデルを表示",
+      "skip": "後で",
+      "continue": "続ける"
+    },
     "recommended": "おすすめ",
     "customModelDescription": "公式サポート対象外",
     "modelCard": {

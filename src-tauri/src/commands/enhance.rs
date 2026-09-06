@@ -1,13 +1,33 @@
 //! Tauri commands for the local enhancement layer.
 
 use std::sync::Arc;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 
 use crate::enhance::catalog::{self, ModelRole};
 use crate::managers::enhance::{
     resolve_model_with, EnhanceManager, EnhanceModelInfo, EnhanceStatus,
 };
 use crate::settings::{get_settings, write_settings};
+
+/// Persist settings and tell the frontend they changed.
+///
+/// `write_settings` only writes. The store the UI reads from is refreshed by a
+/// `settings-changed` event, which every other settings-mutating area of the
+/// app emits by hand -- and which nothing here did. The visible symptom was the
+/// enable toggle: the backend flipped and persisted, the frontend never learned
+/// its copy was stale, and the switch sprang back under the user's finger.
+///
+/// Call this *before* any model load. Several commands below load a model after
+/// writing, which takes seconds; emitting first means the UI settles
+/// immediately instead of after the load.
+fn write_settings_and_notify(app: &AppHandle, settings: crate::settings::AppSettings) {
+    write_settings(app, settings);
+    if let Err(e) = app.emit("settings-changed", serde_json::json!({})) {
+        // Losing the event only costs a stale page until the next refresh, so
+        // it is not worth failing a command that already persisted.
+        log::warn!("could not announce an enhancement settings change: {e}");
+    }
+}
 
 fn manager(app: &AppHandle) -> Result<Arc<EnhanceManager>, String> {
     app.try_state::<Arc<EnhanceManager>>()
@@ -190,7 +210,7 @@ pub async fn enhance_set_enabled(app: AppHandle, enabled: bool) -> Result<(), St
     let use_gpu = settings.enhance_use_gpu;
     let model_id = settings.enhance_model_id.clone();
     let prompt_style = settings.enhance_prompt_style;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
 
     let mgr = manager(&app)?;
     if !enabled {
@@ -244,7 +264,7 @@ pub async fn enhance_set_model(app: AppHandle, model_id: Option<String>) -> Resu
     let use_gpu = settings.enhance_use_gpu;
     let keep_loaded = settings.enhance_keep_loaded;
     let enabled = settings.enhance_enabled;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
 
     // Swap the resident model so the next dictation uses the new choice
     // without waiting for a restart.
@@ -288,7 +308,7 @@ pub async fn enhance_set_prompt_style(
     let use_gpu = settings.enhance_use_gpu;
     let keep_loaded = settings.enhance_keep_loaded;
     let enabled = settings.enhance_enabled;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
 
     // The style is baked in at load time, so a resident model keeps using the
     // old one until it is reloaded.
@@ -315,7 +335,7 @@ pub async fn enhance_set_prompt_style(
 pub fn enhance_set_verifier_model(app: AppHandle, model_id: Option<String>) -> Result<(), String> {
     let mut settings = get_settings(&app);
     settings.enhance_verifier_model_id = model_id;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
     Ok(())
 }
 
@@ -328,7 +348,7 @@ pub fn enhance_set_options(
 ) -> Result<(), String> {
     let mut settings = get_settings(&app);
     settings.enhance_options = options;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
     Ok(())
 }
 
@@ -342,7 +362,7 @@ pub async fn enhance_set_use_gpu(app: AppHandle, use_gpu: bool) -> Result<(), St
     let prompt_style = settings.enhance_prompt_style;
     let enabled = settings.enhance_enabled;
     let keep_loaded = settings.enhance_keep_loaded;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
 
     let mgr = manager(&app)?;
     // The backend is chosen at load time, so an already-resident model keeps
@@ -369,7 +389,7 @@ pub async fn enhance_set_use_gpu(app: AppHandle, use_gpu: bool) -> Result<(), St
 pub fn enhance_set_keep_loaded(app: AppHandle, keep_loaded: bool) -> Result<(), String> {
     let mut settings = get_settings(&app);
     settings.enhance_keep_loaded = keep_loaded;
-    write_settings(&app, settings);
+    write_settings_and_notify(&app, settings);
     if !keep_loaded {
         manager(&app)?.unload();
     }

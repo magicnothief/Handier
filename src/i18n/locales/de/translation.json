@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Verfügbar zum Download",
     "showAllModels": "Alle {{total}} Modelle anzeigen",
     "showFewerModels": "Weniger Modelle anzeigen",
+    "enhance": {
+      "subtitle": "Optional: Lass ein zweites Modell aufräumen, was du diktierst",
+      "explainer": "Sprechen ist nicht Schreiben: Du sagst „ähm“, fängst neu an, änderst mitten im Satz deine Meinung. Dieses Modell läuft nach jedem Diktat auf deinem Rechner und räumt das auf, bevor der Text eingefügt wird. Deine Worte verlassen deinen Rechner nie, und du kannst es jederzeit in den Einstellungen abschalten.",
+      "showOthers": "{{total}} weitere Modelle anzeigen",
+      "skip": "Jetzt nicht",
+      "continue": "Weiter"
+    },
     "recommended": "Empfohlen",
     "customModelDescription": "Nicht offiziell unterstützt",
     "modelCard": {

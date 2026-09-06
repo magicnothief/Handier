@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Disponíveis para download",
     "showAllModels": "Mostrar todos os {{total}} modelos",
     "showFewerModels": "Mostrar menos modelos",
+    "enhance": {
+      "subtitle": "Opcional: deixe um segundo modelo arrumar o que você dita",
+      "explainer": "Falar não é escrever: você diz «hum», recomeça, muda de ideia no meio da frase. Este modelo roda no seu computador após cada ditado e limpa isso antes de o texto ser colado. Suas palavras nunca saem do seu computador, e você pode desativá-lo nas Configurações a qualquer momento.",
+      "showOthers": "Mostrar outros {{total}} modelos",
+      "skip": "Agora não",
+      "continue": "Continuar"
+    },
     "recommended": "Recomendado",
     "customModelDescription": "Não suportado oficialmente",
     "modelCard": {

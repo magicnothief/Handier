@@ -1569,7 +1569,9 @@ sha256: string | null } } |
  */
 export type ModelTier = 
 /**
- * Runs on almost anything; weakest at spotting self-corrections.
+ * Runs on almost anything. Weak at spotting self-corrections unless it
+ * was trained for the task — the default editor is a 350M fine-tune and
+ * sits in this band.
  */
 "ultralight" | 
 /**
@@ -1612,25 +1614,36 @@ export type PromptStyle =
  * task: the behaviour is in the weights already. Measured on the first
  * fine-tune, adding the prompt cost 57/68 -> 54/68.
  * 
- * Empty, not absent. The two are not interchangeable, however much they
- * look it: a fine-tune is trained on whatever its training harness emitted
- * for a message list with an empty system entry, and that is a real turn in
- * the rendered text. Measured on the current editor, dropping the message
- * instead of emptying it cost 66/68 -> 59/68, with the model answering
- * "SAME" and "CHANGED" to editing requests — it no longer recognised the
- * shape of its own input. The sidecar therefore passes the empty string
- * straight through to the chat template.
+ * Empty, not absent. Measured on the current editor, dropping the system
+ * message instead of emptying it cost 66/68 -> 59/68, with the model
+ * answering "SAME" and "CHANGED" to editing requests — it stopped
+ * recognising the shape of its own input. So the sidecar passes the empty
+ * string straight through and lets the template decide; do not "tidy" the
+ * message away.
+ * 
+ * The mechanism is *not* the model's own jinja template — rendering that
+ * directly drops an empty system block, giving identical text either way.
+ * `llama.cpp` ignores the jinja source and renders its own built-in chatml,
+ * which emits `<|im_start|>system\n<|im_end|>` even when the content is
+ * empty. So the two paths genuinely differ, and the empty block is the one
+ * that measures better. Reason about the built prompt, not the template:
+ * `HANDY_LLM_DEBUG_PROMPT=1` on the sidecar prints it.
  */
 "tuned" | 
 /**
- * Send [`ALPACA_INSTRUCTION`] and render the Alpaca prompt. Correct for a
- * model fine-tuned from a *base* checkpoint on an Alpaca-format corpus.
+ * Send the whole Alpaca prompt as one turn, built from
+ * [`ALPACA_INSTRUCTION`]. Correct for a model fine-tuned from a *base*
+ * checkpoint on an Alpaca-format corpus.
  * 
- * A base model has no chat template, so there is no turn structure to lean
- * on and the host has to supply the whole convention. Alpaca is the one
- * such a fine-tune is overwhelmingly likely to have been trained on, and
- * the instruction is a fixed string shared with the corpus builder so the
- * text at inference is byte-identical to the text seen in training.
+ * The instruction is fixed and shared by file with the corpus builder, so
+ * the text at inference is byte-identical to the text seen in training.
+ * 
+ * Assembled into a single turn rather than split across the system and user
+ * slots. A converted base-model GGUF often still carries a chat template,
+ * which then wraps a split prompt into a shape the fine-tune has never
+ * seen: measured, that made the model repeat itself until the token budget
+ * ran out and never emit a stop token, at six times the latency of the same
+ * weights given the assembled prompt.
  */
 "alpaca"
 export type RecordingRetentionPeriod = "never" | "preserve_limit" | "days_3" | "weeks_2" | "months_3"

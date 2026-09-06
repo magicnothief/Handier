@@ -37,6 +37,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
   const [previewInput, setPreviewInput] = useState("");
   const [preview, setPreview] = useState<EnhancePreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
+  const [togglingEnabled, setTogglingEnabled] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const enabled = getSetting("enhance_enabled") ?? false;
@@ -107,11 +108,22 @@ export const LocalEnhancement: React.FC = React.memo(() => {
     void refresh();
   }, [previewInput, refresh]);
 
+  // Turning the layer on can preload the model, which takes seconds. Without a
+  // pending state the switch sits inert for that whole time and reads as
+  // broken, so hold it busy until the command returns. The switch's own
+  // position comes from the settings store, which the backend now refreshes by
+  // emitting `settings-changed` -- `isUpdating` never covered this path,
+  // because that flag belongs to `updateSetting` and this is a command.
   const toggleEnabled = useCallback(
     async (next: boolean) => {
       setError(null);
-      const result = await commands.enhanceSetEnabled(next);
-      if (result.status === "error") setError(result.error);
+      setTogglingEnabled(true);
+      try {
+        const result = await commands.enhanceSetEnabled(next);
+        if (result.status === "error") setError(result.error);
+      } finally {
+        setTogglingEnabled(false);
+      }
       void refresh();
     },
     [refresh],
@@ -136,7 +148,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
       <ToggleSwitch
         checked={enabled}
         onChange={toggleEnabled}
-        isUpdating={isUpdating("enhance_enabled")}
+        isUpdating={togglingEnabled || isUpdating("enhance_enabled")}
         label={t("settings.localEnhancement.enable.title")}
         description={t("settings.localEnhancement.enable.description")}
         descriptionMode="inline"
@@ -164,7 +176,7 @@ export const LocalEnhancement: React.FC = React.memo(() => {
           </div>
           <Button
             variant="secondary"
-            onClick={() => goToSection("models")}
+            onClick={() => goToSection("models", "enhancement-models")}
             className="shrink-0 whitespace-nowrap"
           >
             {t("settings.localEnhancement.model.manage")}

@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Disponibles para descargar",
     "showAllModels": "Mostrar los {{total}} modelos",
     "showFewerModels": "Mostrar menos modelos",
+    "enhance": {
+      "subtitle": "Opcional: deja que un segundo modelo ordene lo que dictas",
+      "explainer": "Hablar no es escribir: dices «eh», empiezas de nuevo, cambias de idea a mitad de frase. Este modelo se ejecuta en tu equipo después de cada dictado y lo limpia antes de pegar el texto. Tus palabras nunca salen de tu ordenador y puedes desactivarlo en Ajustes cuando quieras.",
+      "showOthers": "Mostrar otros {{total}} modelos",
+      "skip": "Ahora no",
+      "continue": "Continuar"
+    },
     "recommended": "Recomendado",
     "customModelDescription": "Sin soporte oficial",
     "modelCard": {

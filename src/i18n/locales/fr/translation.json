@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Disponibles au téléchargement",
     "showAllModels": "Afficher tous les {{total}} modèles",
     "showFewerModels": "Afficher moins de modèles",
+    "enhance": {
+      "subtitle": "Facultatif : laissez un second modèle nettoyer ce que vous dictez",
+      "explainer": "Parler n'est pas écrire : vous dites « euh », vous recommencez, vous changez d'avis en pleine phrase. Ce modèle s'exécute sur votre machine après chaque dictée et corrige tout cela avant que le texte ne soit collé. Vos paroles ne quittent jamais votre ordinateur, et vous pouvez le désactiver à tout moment dans les Réglages.",
+      "showOthers": "Afficher {{total}} autres modèles",
+      "skip": "Pas maintenant",
+      "continue": "Continuer"
+    },
     "recommended": "Recommandé",
     "customModelDescription": "Non officiellement pris en charge",
     "modelCard": {

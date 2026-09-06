@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Dostępne do pobrania",
     "showAllModels": "Pokaż wszystkie modele ({{total}})",
     "showFewerModels": "Pokaż mniej modeli",
+    "enhance": {
+      "subtitle": "Opcjonalnie: pozwól drugiemu modelowi uporządkować to, co dyktujesz",
+      "explainer": "Mowa to nie pismo: mówisz „yyy”, zaczynasz od nowa, zmieniasz zdanie w połowie. Ten model działa na Twoim komputerze po każdym dyktowaniu i porządkuje to, zanim tekst zostanie wklejony. Twoje słowa nigdy nie opuszczają Twojego komputera, a w każdej chwili możesz go wyłączyć w Ustawieniach.",
+      "showOthers": "Pokaż {{total}} innych modeli",
+      "skip": "Nie teraz",
+      "continue": "Kontynuuj"
+    },
     "recommended": "Polecane",
     "customModelDescription": "Nieoficjalnie wspierane",
     "modelCard": {

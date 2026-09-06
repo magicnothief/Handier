@@ -24,6 +24,13 @@
     "downloadModelsTitle": "可供下载",
     "showAllModels": "显示全部 {{total}} 个模型",
     "showFewerModels": "显示较少模型",
+    "enhance": {
+      "subtitle": "可选：让第二个模型整理你口述的内容",
+      "explainer": "说话不同于写作：你会说“嗯”，会重新开始，会在句子中途改变主意。这个模型在每次口述后于你的设备上运行，在文本粘贴前完成整理。你说的内容不会离开你的电脑，你也可以随时在设置中关闭它。",
+      "showOthers": "显示其他 {{total}} 个模型",
+      "skip": "暂不",
+      "continue": "继续"
+    },
     "recommended": "推荐",
     "customModelDescription": "非官方支持",
     "modelCard": {

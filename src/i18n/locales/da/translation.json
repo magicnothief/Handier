@@ -24,6 +24,13 @@
     "downloadModelsTitle": "Tilgængelig til download",
     "showAllModels": "Vis alle {{total}} modeller",
     "showFewerModels": "Vis færre modeller",
+    "enhance": {
+      "subtitle": "Valgfrit: lad en anden model rydde op i det, du dikterer",
+      "explainer": "Tale er ikke skrift: du siger »øh«, begynder forfra, skifter mening midt i sætningen. Denne model kører på din maskine efter hver diktering og rydder op i det, før teksten indsættes. Dine ord forlader aldrig din computer, og du kan slå den fra i Indstillinger når som helst.",
+      "showOthers": "Vis {{total}} andre modeller",
+      "skip": "Ikke nu",
+      "continue": "Fortsæt"
+    },
     "recommended": "Anbefalet",
     "customModelDescription": "Ikke officielt understøttet",
     "modelCard": {

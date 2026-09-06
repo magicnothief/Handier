@@ -24,6 +24,13 @@
     "downloadModelsTitle": "İndirilebilir",
     "showAllModels": "{{total}} modelin tümünü göster",
     "showFewerModels": "Daha az model göster",
+    "enhance": {
+      "subtitle": "İsteğe bağlı: dikte ettiklerinizi ikinci bir model düzenlesin",
+      "explainer": "Konuşmak yazmak değildir: “ıı” dersiniz, baştan başlarsınız, cümlenin ortasında fikrinizi değiştirirsiniz. Bu model her diktenin ardından kendi makinenizde çalışır ve metin yapıştırılmadan önce bunları temizler. Sözleriniz bilgisayarınızdan hiç çıkmaz ve dilediğiniz zaman Ayarlar'dan kapatabilirsiniz.",
+      "showOthers": "{{total}} diğer modeli göster",
+      "skip": "Şimdi değil",
+      "continue": "Devam et"
+    },
     "recommended": "Önerilen",
     "customModelDescription": "Resmi olarak desteklenmiyor",
     "modelCard": {

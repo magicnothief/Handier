@@ -12,7 +12,10 @@ import "./App.css";
 import AccessibilityPermissions from "./components/AccessibilityPermissions";
 import SecureInputWarning from "./components/SecureInputWarning";
 import Footer from "./components/footer";
-import Onboarding, { AccessibilityOnboarding } from "./components/onboarding";
+import Onboarding, {
+  AccessibilityOnboarding,
+  EnhancementOnboarding,
+} from "./components/onboarding";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Sidebar, SidebarSection, SECTIONS_CONFIG } from "./components/Sidebar";
 import { WhatsNewGate } from "./components/whats-new";
@@ -22,7 +25,7 @@ import { useNavStore } from "./stores/navStore";
 import { commands } from "@/bindings";
 import { getLanguageDirection, initializeRTL } from "@/lib/utils/rtl";
 
-type OnboardingStep = "accessibility" | "model" | "done";
+type OnboardingStep = "accessibility" | "model" | "enhance" | "done";
 
 const renderSettingsContent = (section: SidebarSection) => {
   const ActiveComponent =
@@ -250,7 +253,14 @@ function App() {
   };
 
   const handleModelSelected = () => {
-    // Transition to main app - user has started a download
+    // The transcription model is downloading; offer the enhancement layer while
+    // it does. New users only -- a returning user never reaches this path, and
+    // being asked again about a feature they already declined would be worse
+    // than never asking.
+    setOnboardingStep("enhance");
+  };
+
+  const handleEnhancementDone = () => {
     setOnboardingStep("done");
   };
 
@@ -291,6 +301,8 @@ function App() {
     );
   } else if (onboardingStep === "model") {
     content = <Onboarding onModelSelected={handleModelSelected} />;
+  } else if (onboardingStep === "enhance") {
+    content = <EnhancementOnboarding onDone={handleEnhancementDone} />;
   } else {
     content = (
       <div
