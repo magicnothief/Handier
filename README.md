@@ -323,10 +323,14 @@ Without these tools, Handy falls back to enigo which may have limited compatibil
 
   - For building from source on Ubuntu/Debian, you may also need `libgtk-layer-shell-dev`.
 
-- The recording overlay is disabled by default on Linux (`Overlay Position: None`) because certain compositors treat it as the active window. When the overlay is visible it can steal focus, which prevents Handy from pasting back into the application that triggered transcription. If you enable the overlay anyway, be aware that clipboard-based pasting might fail or end up in the wrong window.
+- The recording overlay is disabled by default on Linux, because some compositors treat it as an ordinary window that can steal focus — which stops Handy pasting back into the application that triggered transcription. Compositors that support the layer-shell protocol, such as Hyprland (including Omarchy) and Sway, draw it as a non-focusable layer surface instead, so there it is safe to turn on: **Settings → Advanced → Overlay**. Elsewhere, if you enable it anyway, clipboard-based pasting might fail or land in the wrong window.
 - If you are having trouble with the app, running with the environment variable `WEBKIT_DISABLE_DMABUF_RENDERER=1` may help
 - If Handy fails to start reliably on Linux, see [Troubleshooting → Linux Startup Crashes or Instability](#linux-startup-crashes-or-instability).
-- **Global keyboard shortcuts (Wayland):** On Wayland, system-level shortcuts must be configured through your desktop environment or window manager. Use the [CLI flags](#cli-parameters) as the command for your custom shortcut.
+- **Global keyboard shortcuts (Wayland):** A Wayland app only receives key presses while it has focus, so Handy's own shortcut stops working as soon as the window is hidden to the tray. Configure the shortcut in your desktop environment or window manager instead, and have it run one of:
+  - `pkill -USR2 -x handy` — works for every install type, the AppImage included, and is instant because it only signals the running app. Keep the `-x`: without it the pattern also matches the `handy-llm` enhancement sidecar, and `-n` would then pick the sidecar, which the signal terminates.
+  - `handy --toggle-transcription` — for the `.deb` and `.rpm` installs. An AppImage puts no `handy` on your PATH, so use the AppImage's full path with the same flag instead, at the cost of starting a process on every press.
+
+  Both are toggle-only; push-to-talk needs an in-app shortcut. The experimental **Handy Keys** backend (enable **Settings → Advanced → Experimental Features**, then switch the keyboard implementation to Handy Keys) reads keyboards through `/dev/input`, beneath the compositor, so it keeps working while the window is hidden. It grabs your keyboards and re-injects keys through `/dev/uinput`, so it needs access to both — usually membership of the `input` group, which also lets any program you run read every keystroke — and upstream considers it lightly tested on Linux.
 
   **GNOME:**
   1. Open **Settings > Keyboard > Keyboard Shortcuts > Custom Shortcuts**
@@ -352,23 +356,29 @@ Without these tools, Handy falls back to enigo which may have limited compatibil
 
   **Hyprland:**
 
-  Add to your config file (`~/.config/hypr/hyprland.conf`):
+  With a classic `~/.config/hypr/hyprland.conf`:
 
   ```ini
-  bind = $mainMod, O, exec, handy --toggle-transcription
+  bind = $mainMod, O, exec, pkill -USR2 -x handy
+  ```
+
+  **Omarchy**, which configures Hyprland in Lua, takes personal bindings in `~/.config/hypr/bindings.lua`. Check `omarchy menu keybindings --print` for a free combination first:
+
+  ```lua
+  o.bind("SUPER + O", "Handier dictation", "pkill -USR2 -x handy")
   ```
 
 - You can also trigger Handy externally via Unix signals or the CLI flags, which lets Wayland window managers or other hotkey daemons keep ownership of keybindings:
 
   | Action                                    | Trigger                                                  |
   | ----------------------------------------- | -------------------------------------------------------- |
-  | Toggle transcription                      | `pkill -USR2 -n handy` or `handy --toggle-transcription` |
+  | Toggle transcription                      | `pkill -USR2 -x handy` or `handy --toggle-transcription` |
   | Toggle transcription with post-processing | `handy --toggle-post-process`                            |
 
   Example Sway config:
 
   ```ini
-  bindsym $mod+o exec pkill -USR2 -n handy
+  bindsym $mod+o exec pkill -USR2 -x handy
   bindsym $mod+p exec handy --toggle-post-process
   ```
 
