@@ -1,7 +1,21 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { readFile } from "@tauri-apps/plugin-fs";
-import { Check, Copy, FolderOpen, RotateCcw, Star, Trash2 } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  Copy,
+  FolderOpen,
+  RotateCcw,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
@@ -12,6 +26,8 @@ import {
 } from "@/bindings";
 import { useOsType } from "@/hooks/useOsType";
 import { formatDateTime } from "@/utils/dateFormat";
+import { diffWords } from "@/lib/utils/wordDiff";
+import { DiffRow } from "@/components/settings/EnhancePreviewResult";
 import { AudioPlayer, AudioPlayerGroup } from "../../ui/AudioPlayer";
 import { Button } from "../../ui/Button";
 
@@ -37,6 +53,18 @@ const IconButton: React.FC<{
 );
 
 const PAGE_SIZE = 30;
+
+/**
+ * The text that actually landed in the user's app for this entry.
+ *
+ * `post_processed_text` is written whenever what was pasted differed from the
+ * raw transcript -- local enhancement, remote post-processing or Chinese script
+ * conversion -- so when present it is the pasted text. The page used to show and
+ * copy the raw transcript regardless, which for an enhanced dictation is the
+ * version with the retracted half-sentence still in it.
+ */
+const pastedText = (entry: HistoryEntry): string =>
+  entry.post_processed_text ?? entry.transcription_text;
 
 interface OpenRecordingsButtonProps {
   onClick: () => void;
@@ -258,7 +286,7 @@ export const HistorySettings: React.FC = () => {
                 key={entry.id}
                 entry={entry}
                 onToggleSaved={() => toggleSaved(entry.id)}
-                onCopyText={() => copyToClipboard(entry.transcription_text)}
+                onCopyText={() => copyToClipboard(pastedText(entry))}
                 getAudioUrl={getAudioUrl}
                 deleteAudio={deleteAudioEntry}
                 retryTranscription={retryHistoryEntry}
@@ -316,6 +344,17 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
   const [retrying, setRetrying] = useState(false);
 
   const hasTranscription = entry.transcription_text.trim().length > 0;
+  const pasted = pastedText(entry);
+  // Offered only when the pasted text really differs, or the "what you said"
+  // view would repeat the line above it word for word.
+  const edited =
+    entry.post_processed_text != null &&
+    entry.post_processed_text !== entry.transcription_text;
+  const [showOriginal, setShowOriginal] = useState(false);
+  const ops = useMemo(
+    () => (edited ? diffWords(entry.transcription_text, pasted) : []),
+    [edited, entry.transcription_text, pasted],
+  );
 
   const handleLoadAudio = useCallback(
     () => getAudioUrl(entry.file_name),
@@ -437,9 +476,39 @@ const HistoryEntryComponent: React.FC<HistoryEntryProps> = ({
         {retrying
           ? t("settings.history.transcribing")
           : hasTranscription
-            ? entry.transcription_text
+            ? pasted
             : t("settings.history.transcriptionFailed")}
       </p>
+
+      {edited && !retrying && (
+        <div className="-mt-2">
+          <button
+            type="button"
+            onClick={() => setShowOriginal((v) => !v)}
+            className="flex items-center gap-1 text-xs text-text/50 hover:text-text transition-colors cursor-pointer"
+          >
+            <ChevronDown
+              width={14}
+              height={14}
+              className={`transition-transform duration-200 ${
+                showOriginal ? "rotate-180" : ""
+              }`}
+            />
+            {showOriginal
+              ? t("settings.history.hideOriginal")
+              : t("settings.history.showOriginal")}
+          </button>
+          {showOriginal && (
+            <div className="mt-2 rounded-lg border border-mid-gray/20">
+              <DiffRow
+                label={t("settings.localEnhancement.preview.before")}
+                ops={ops}
+                side="before"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       <AudioPlayer onLoadRequest={handleLoadAudio} className="w-full" />
     </div>

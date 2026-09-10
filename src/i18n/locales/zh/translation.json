@@ -594,7 +594,9 @@
       "retranscribe": "重新转录",
       "retranscribeError": "重新转录失败。请重试。",
       "transcribing": "转录中...",
-      "transcriptionFailed": "转录失败。您可以使用重试图标重新转录。"
+      "transcriptionFailed": "转录失败。您可以使用重试图标重新转录。",
+      "showOriginal": "显示你说的原话",
+      "hideOriginal": "隐藏你说的原话"
     },
     "debug": {
       "title": "调试",

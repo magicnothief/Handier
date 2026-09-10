@@ -503,7 +503,9 @@
       "retranscribe": "Re-transcribe",
       "retranscribeError": "Failed to re-transcribe. Please try again.",
       "transcribing": "Transcribing...",
-      "transcriptionFailed": "Transcription failed. You can re-transcribe using the retry icon."
+      "transcriptionFailed": "Transcription failed. You can re-transcribe using the retry icon.",
+      "showOriginal": "Show what you said",
+      "hideOriginal": "Hide what you said"
     },
     "debug": {
       "title": "Debug",

@@ -594,7 +594,9 @@
       "retranscribe": "Phiên âm lại",
       "retranscribeError": "Không thể phiên âm lại. Vui lòng thử lại.",
       "transcribing": "Đang phiên âm...",
-      "transcriptionFailed": "Phiên âm thất bại. Bạn có thể phiên âm lại bằng biểu tượng thử lại."
+      "transcriptionFailed": "Phiên âm thất bại. Bạn có thể phiên âm lại bằng biểu tượng thử lại.",
+      "showOriginal": "Hiện những gì bạn đã nói",
+      "hideOriginal": "Ẩn những gì bạn đã nói"
     },
     "debug": {
       "title": "Gỡ lỗi",

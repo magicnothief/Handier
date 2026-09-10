@@ -594,7 +594,9 @@
       "retranscribe": "תמלל מחדש",
       "retranscribeError": "תמלול מחדש נכשל. נסה שוב.",
       "transcribing": "מתמלל...",
-      "transcriptionFailed": "התמלול נכשל. אפשר לתמלל מחדש באמצעות אייקון הניסיון החוזר."
+      "transcriptionFailed": "התמלול נכשל. אפשר לתמלל מחדש באמצעות אייקון הניסיון החוזר.",
+      "showOriginal": "הצג את מה שנאמר",
+      "hideOriginal": "הסתר את מה שנאמר"
     },
     "debug": {
       "title": "ניפוי שגיאות",

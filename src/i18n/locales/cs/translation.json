@@ -594,7 +594,9 @@
       "retranscribe": "Přepsat znovu",
       "retranscribeError": "Opětovný přepis se nezdařil. Zkuste to prosím znovu.",
       "transcribing": "Přepisuji...",
-      "transcriptionFailed": "Přepis selhal. Můžete zkusit přepis znovu pomocí ikony opakování."
+      "transcriptionFailed": "Přepis selhal. Můžete zkusit přepis znovu pomocí ikony opakování.",
+      "showOriginal": "Zobrazit, co jste řekli",
+      "hideOriginal": "Skrýt, co jste řekli"
     },
     "debug": {
       "title": "Ladění",

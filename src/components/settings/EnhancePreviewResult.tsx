@@ -83,8 +83,12 @@ interface DiffRowProps {
  * Only the side that owns a span is marked: a cut is called out on the "you
  * said" row where it was removed from, an addition on the row it appears in.
  * Marking both sides doubles the ink for the same fact.
+ *
+ * Exported for History, which shows the "you said" side under each edited
+ * entry. One rendering of "what was cut" keeps the preview and the record of
+ * real dictations reading the same way.
  */
-const DiffRow: React.FC<DiffRowProps> = ({ label, ops, side }) => {
+export const DiffRow: React.FC<DiffRowProps> = ({ label, ops, side }) => {
   const hidden = side === "before" ? "insert" : "delete";
   return (
     <div className="px-3 py-2">

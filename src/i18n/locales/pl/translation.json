@@ -594,7 +594,9 @@
       "retranscribe": "Transkrybuj ponownie",
       "retranscribeError": "Nie udało się ponownie transkrybować. Spróbuj ponownie.",
       "transcribing": "Transkrybuję...",
-      "transcriptionFailed": "Transkrypcja nie powiodła się. Możesz transkrybować ponownie za pomocą ikony ponowienia."
+      "transcriptionFailed": "Transkrypcja nie powiodła się. Możesz transkrybować ponownie za pomocą ikony ponowienia.",
+      "showOriginal": "Pokaż oryginalną wypowiedź",
+      "hideOriginal": "Ukryj oryginalną wypowiedź"
     },
     "debug": {
       "title": "Debugowanie",
